@@ -1,5 +1,14 @@
 import { Inter } from "next/font/google";
-import "./globals.css";
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import theme from '@/theme';
+// global.css is disabled temporarily for avoiding conflict
+// import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,7 +20,20 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <head>
+        <meta name="viewport" content="initial-scale=1, width=device-width"/>
+        <title>PlayPal</title>
+      </head>
+      <body className={inter.className}>
+        {/* If you are using a styling solution other than Emotion to customize Material UI components set enableCssLayer: true in the options prop */}
+        {/* Note: Assume Tailwind CSS is used in this project instead of Emotion*/}
+        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {children}
+          </ThemeProvider>
+        </AppRouterCacheProvider>
+      </body>
     </html>
   );
 }
