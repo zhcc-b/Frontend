@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   # Build job
-  build-pr:
+  build-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
