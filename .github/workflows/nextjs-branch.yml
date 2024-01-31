@@ -2,10 +2,15 @@
 #
 # To get started with Next.js see: https://nextjs.org/docs/getting-started
 #
-name: Build Next.js site for PRs
+name: Build Next.js site for branches
 
 on:
-  # Runs on pushes targeting the default branch
+  # Runs on pushes targeting the branches
+  push:
+    branches-ignore:
+      - 'main'
+
+  # Runs on merge targeting the default branch
   pull_request:
     branches: ["main"]
 
