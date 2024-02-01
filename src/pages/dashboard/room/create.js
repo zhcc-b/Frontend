@@ -429,7 +429,7 @@ const Page = () => {
                             border: 1,
                             borderRadius: 1,
                             borderStyle: 'dashed',
-                            borderColor: 'divider',
+                            borderColor: 'grey.500',
                             height: 230,
                             mt: 3,
                             p: 3,
@@ -448,7 +448,7 @@ const Page = () => {
                             sx={{mt: 1}}
                             variant="subtitle1"
                           >
-                            Image used for the blog post cover and also for Open Graph meta
+                            Image used for the matching room cover
                           </Typography>
                         </Box>
                       )}
