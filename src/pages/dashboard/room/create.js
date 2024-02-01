@@ -28,11 +28,13 @@ import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
 import {FormControl, InputLabel, Select} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import {Autocomplete} from "@mui/lab";
+import useUserInput from "src/hooks/use-user-input";
 
 const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
   const [cover, setCover] = useState(initialCover);
+  const [formData, handleInputChange] = useUserInput({title: '', shortDescription: '', location: '', startTime: null, endTime: null, sportType: '', playerLimit: '', preferredGender: 'None', visibilityControl: 'Public'});
 
   const sport_type = [
     {label: 'badminton'},
@@ -153,6 +155,9 @@ const Page = () => {
                         fullWidth
                         id={'room-title'}
                         label="Title"
+                        name={'title'}
+                        value={formData.title}
+                        onChange={handleInputChange}
                         variant={'outlined'}
                         required
                       />
@@ -160,6 +165,9 @@ const Page = () => {
                         fullWidth
                         id={'room-short-description'}
                         label="Short description"
+                        name={'shortDescription'}
+                        value={formData.shortDescription}
+                        onChange={handleInputChange}
                         variant={'outlined'}
                       />
                     </Stack>
@@ -188,6 +196,9 @@ const Page = () => {
                         fullWidth
                         id={'room-location'}
                         label="Location"
+                        name={'location'}
+                        value={formData.location}
+                        onChange={handleInputChange}
                         variant={'outlined'}
                         required
                       />
@@ -202,6 +213,9 @@ const Page = () => {
                           <DateTimePicker
                             id={'room-start-time'}
                             label="Start Time"
+                            name={'startTime'}
+                            value={formData.startTime}
+                            onChange={handleInputChange}
                             slotProps={{
                               textField: {
                                 fullWidth: true,
@@ -221,6 +235,9 @@ const Page = () => {
                           <DateTimePicker
                             id={'room-end-time'}
                             label="End Time"
+                            name={'endTime'}
+                            value={formData.endTime}
+                            onChange={handleInputChange}
                             slotProps={{
                               textField: {
                                 fullWidth: true,
@@ -268,6 +285,9 @@ const Page = () => {
                               <TextField
                                 id={'sport-type-select-option'}
                                 label="Sport Type"
+                                name={'sportType'}
+                                value={formData.sportType}
+                                onChange={handleInputChange}
                                 variant={'outlined'}
                                 required
                                 {...params}
@@ -286,6 +306,9 @@ const Page = () => {
                             id={'player-limit'}
                             label="Player Limit"
                             type="number"
+                            name={'playerLimit'}
+                            value={formData.playerLimit}
+                            onChange={handleInputChange}
                             variant={'outlined'}
                             required
                             fullWidth
@@ -307,7 +330,9 @@ const Page = () => {
                               labelId="preferred-gender-select-label"
                               id="preferred-gender-select"
                               label=" Preferred Gender "
-                              defaultValue={'None'}
+                              name={'preferredGender'}
+                              value={formData.preferredGender}
+                              onChange={handleInputChange}
                             >
                               <MenuItem value={'None'}>None</MenuItem>
                               <MenuItem value={'Male'}>Male</MenuItem>
@@ -330,7 +355,9 @@ const Page = () => {
                               labelId="visibility-control-select-label"
                               id="visibility-control-select"
                               label=" Visibility Control "
-                              defaultValue={'Public'}
+                              name={'visibilityControl'}
+                              value={formData.visibilityControl}
+                              onChange={handleInputChange}
                             >
                               <MenuItem value={'Public'}>Public</MenuItem>
                               <MenuItem value={'Private'}>Private</MenuItem>

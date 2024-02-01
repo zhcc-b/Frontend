@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+// import { useTranslation } from 'react-i18next';
 import SvgIcon from '@mui/material/SvgIcon';
 
 import HomeSmileIcon from 'src/icons/untitled-ui/duocolor/home-smile';
@@ -9,14 +9,14 @@ import { tokens } from 'src/locales/tokens';
 import { paths } from 'src/paths';
 
 export const useSections = () => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
 
   return useMemo(() => {
     return [
       {
         items: [
           {
-            title: t(tokens.nav.overview),
+            title: tokens.nav.overview,
             path: paths.dashboard.index,
             icon: (
               <SvgIcon fontSize="small">
@@ -25,7 +25,7 @@ export const useSections = () => {
             ),
           },
           {
-            title: t(tokens.nav.account),
+            title: tokens.nav.account,
             path: paths.dashboard.account,
             icon: (
               <SvgIcon fontSize="small">
@@ -34,7 +34,7 @@ export const useSections = () => {
             ),
           },
           {
-            title: t(tokens.nav.room),
+            title: tokens.nav.room,
             path: paths.dashboard.room.index,
             icon: (
               <SvgIcon fontSize="small">
@@ -43,17 +43,17 @@ export const useSections = () => {
             ),
             items: [
               {
-                title: t(tokens.nav.roomList),
+                title: tokens.nav.roomList,
                 path: paths.dashboard.room.roomList,
               },
               {
-                title: t(tokens.nav.roomCreate),
+                title: tokens.nav.roomCreate,
                 path: paths.dashboard.room.roomCreate,
               },
             ],
           },
           {
-            title: t(tokens.nav.chat),
+            title: tokens.nav.chat,
             path: paths.dashboard.chat,
             icon: (
               <SvgIcon fontSize="small">
@@ -64,5 +64,5 @@ export const useSections = () => {
         ],
       },
     ];
-  }, [t]);
+  }, []);
 };
