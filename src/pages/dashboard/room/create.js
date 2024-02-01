@@ -34,7 +34,18 @@ const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
   const [cover, setCover] = useState(initialCover);
-  const [formData, handleInputChange, handleDateChange] = useUserInput({title: '', shortDescription: '', location: '', startTime: null, endTime: null, sportType: '', playerLimit: '', preferredGender: 'None', visibilityControl: 'Public'});
+  const [formData, handleInputChange, handleDateChange, handleEditorChange] = useUserInput({
+    title: '',
+    shortDescription: '',
+    location: '',
+    startTime: null,
+    endTime: null,
+    sportType: '',
+    playerLimit: '',
+    preferredGender: 'None',
+    visibilityControl: 'Public',
+    content: ''
+  });
 
   const sport_type = [
     {label: 'badminton'},
@@ -120,9 +131,12 @@ const Page = () => {
                 Cancel
               </Button>
               <Button
-                component={RouterLink}
-                href={paths.dashboard.room.roomDetails}
+                // component={RouterLink}
+                // href={paths.dashboard.room.roomDetails}
                 variant="contained"
+                onClick={() => {
+                  console.log(formData)
+                }}
               >
                 Publish changes
               </Button>
@@ -204,11 +218,11 @@ const Page = () => {
                       />
                       <Grid container>
                         <Grid lg={6}
-                          md={6}
-                          sm={6}
-                          xl={6}
-                          xs={6}
-                          sx={{pr: 1}}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pr: 1}}
                         >
                           <DateTimePicker
                             id={'room-start-time'}
@@ -228,11 +242,11 @@ const Page = () => {
                           />
                         </Grid>
                         <Grid lg={6}
-                          md={6}
-                          sm={6}
-                          xl={6}
-                          xs={6}
-                          sx={{pl: 1}}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pl: 1}}
                         >
                           <DateTimePicker
                             id={'room-end-time'}
@@ -276,11 +290,11 @@ const Page = () => {
                     <Stack spacing={3}>
                       <Grid container>
                         <Grid lg={6}
-                          md={6}
-                          sm={6}
-                          xl={6}
-                          xs={6}
-                          sx={{pr: 1}}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pr: 1}}
                         >
                           <Autocomplete
                             id="sport-type-select"
@@ -300,11 +314,11 @@ const Page = () => {
                           />
                         </Grid>
                         <Grid lg={6}
-                          md={6}
-                          sm={6}
-                          xl={6}
-                          xs={6}
-                          sx={{pl: 1}}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pl: 1}}
                         >
                           <TextField
                             id={'player-limit'}
@@ -321,11 +335,11 @@ const Page = () => {
                       </Grid>
                       <Grid container>
                         <Grid lg={6}
-                          md={6}
-                          sm={6}
-                          xl={6}
-                          xs={6}
-                          sx={{pr: 1}}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pr: 1}}
                         >
                           <FormControl fullWidth>
                             <InputLabel id="preferred-gender-select-label">Preferred
@@ -346,11 +360,11 @@ const Page = () => {
                           </FormControl>
                         </Grid>
                         <Grid lg={6}
-                          md={6}
-                          sm={6}
-                          xl={6}
-                          xs={6}
-                          sx={{pl: 1}}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pl: 1}}
                         >
                           <FormControl fullWidth>
                             <InputLabel id="visibility-control-select-label">Visibility
@@ -474,6 +488,9 @@ const Page = () => {
                     <QuillEditor
                       placeholder="Write something"
                       sx={{height: 330}}
+                      name={'content'}
+                      value={formData.content}
+                      onChange={handleEditorChange}
                     />
                   </Grid>
                 </Grid>
@@ -489,9 +506,12 @@ const Page = () => {
             }}
           >
             <Button
-              component={RouterLink}
-              href={paths.dashboard.room.roomDetails}
+              // component={RouterLink}
+              // href={paths.dashboard.room.roomDetails}
               variant="contained"
+              onClick={() => {
+                console.log(formData)
+              }}
             >
               Publish changes
             </Button>

@@ -17,9 +17,20 @@ export function useUserInput(initialValues) {
     }));
   };
 
+  const handleEditorChange = (content) => {
+    const isEditorEmpty = content === '<p><br></p>';
+
+    handleInputChange({
+      target: {
+        name: 'content',
+        value: isEditorEmpty ? '' : content
+      }
+    });
+  };
+
   console.log(values);
 
-  return [values, handleInputChange, handleDateChange];
+  return [values, handleInputChange, handleDateChange, handleEditorChange];
 }
 
 export default useUserInput;
