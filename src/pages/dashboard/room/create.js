@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import {useCallback, useState} from 'react';
 // import DotsHorizontalIcon from '@untitled-ui/icons-react/build/esm/DotsHorizontal';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -14,17 +14,17 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import { BreadcrumbsSeparator } from 'src/components/breadcrumbs-separator';
-import { FileDropzone } from 'src/components/file-dropzone';
-import { QuillEditor } from 'src/components/quill-editor';
-import { RouterLink } from 'src/components/router-link';
-import { Seo } from 'src/components/seo';
+import {BreadcrumbsSeparator} from 'src/components/breadcrumbs-separator';
+import {FileDropzone} from 'src/components/file-dropzone';
+import {QuillEditor} from 'src/components/quill-editor';
+import {RouterLink} from 'src/components/router-link';
+import {Seo} from 'src/components/seo';
 // import { usePageView } from 'src/hooks/use-page-view';
-import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import { paths } from 'src/paths';
-import { fileToBase64 } from 'src/utils/file-to-base64';
+import {Layout as DashboardLayout} from 'src/layouts/dashboard';
+import {paths} from 'src/paths';
+import {fileToBase64} from 'src/utils/file-to-base64';
 
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
 import {FormControl, InputLabel, Select} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import {Autocomplete} from "@mui/lab";
@@ -55,7 +55,7 @@ const Page = () => {
 
   return (
     <>
-      <Seo title="Matching Room: Create" />
+      <Seo title="Matching Room: Create"/>
       <Box
         component="main"
         sx={{
@@ -66,7 +66,7 @@ const Page = () => {
         <Container maxWidth="xl">
           <Stack spacing={1}>
             <Typography variant="h3">Create a new matching room</Typography>
-            <Breadcrumbs separator={<BreadcrumbsSeparator />}>
+            <Breadcrumbs separator={<BreadcrumbsSeparator/>}>
               <Link
                 color="text.primary"
                 component={RouterLink}
@@ -192,18 +192,42 @@ const Page = () => {
                         required
                       />
                       <Grid container>
-                        <Grid lg={6} md={6} sm={6} xl={6} xs={6} sx={{ pr: 1 }}>
+                        <Grid lg={6}
+                          md={6}
+                          sm={6}
+                          xl={6}
+                          xs={6}
+                          sx={{pr: 1}}
+                        >
                           <DateTimePicker
                             id={'room-start-time'}
                             label="Start Time"
-                            slotProps={{ textField: { fullWidth: true, variant: "outlined", required: true } }}
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                variant: "outlined",
+                                required: true
+                              }
+                            }}
                           />
                         </Grid>
-                        <Grid lg={6} md={6} sm={6} xl={6} xs={6} sx={{ pl: 1 }}>
+                        <Grid lg={6}
+                          md={6}
+                          sm={6}
+                          xl={6}
+                          xs={6}
+                          sx={{pl: 1}}
+                        >
                           <DateTimePicker
                             id={'room-end-time'}
                             label="End Time"
-                            slotProps={{ textField: { fullWidth: true, variant: "outlined", required: true } }}
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                variant: "outlined",
+                                required: true
+                              }
+                            }}
                           />
                         </Grid>
                       </Grid>
@@ -230,14 +254,34 @@ const Page = () => {
                   >
                     <Stack spacing={3}>
                       <Grid container>
-                        <Grid lg={6} md={6} sm={6} xl={6} xs={6} sx={{ pr: 1 }}>
+                        <Grid lg={6}
+                          md={6}
+                          sm={6}
+                          xl={6}
+                          xs={6}
+                          sx={{pr: 1}}
+                        >
                           <Autocomplete
                             id="sport-type-select"
                             options={sport_type}
-                            renderInput={(params) => <TextField required variant={'outlined'} {...params} label="Sport Type" />}
+                            renderInput={(params) =>
+                              <TextField
+                                id={'sport-type-select-option'}
+                                label="Sport Type"
+                                variant={'outlined'}
+                                required
+                                {...params}
+                              />
+                            }
                           />
                         </Grid>
-                        <Grid lg={6} md={6} sm={6} xl={6} xs={6} sx={{ pl: 1 }}>
+                        <Grid lg={6}
+                          md={6}
+                          sm={6}
+                          xl={6}
+                          xs={6}
+                          sx={{pl: 1}}
+                        >
                           <TextField
                             id={'player-limit'}
                             label="Player Limit"
@@ -249,9 +293,16 @@ const Page = () => {
                         </Grid>
                       </Grid>
                       <Grid container>
-                        <Grid lg={6} md={6} sm={6} xl={6} xs={6} sx={{ pr: 1 }}>
+                        <Grid lg={6}
+                          md={6}
+                          sm={6}
+                          xl={6}
+                          xs={6}
+                          sx={{pr: 1}}
+                        >
                           <FormControl fullWidth>
-                            <InputLabel id="preferred-gender-select-label">Preferred Gender</InputLabel>
+                            <InputLabel id="preferred-gender-select-label">Preferred
+                              Gender</InputLabel>
                             <Select
                               labelId="preferred-gender-select-label"
                               id="preferred-gender-select"
@@ -265,9 +316,16 @@ const Page = () => {
                             </Select>
                           </FormControl>
                         </Grid>
-                        <Grid lg={6} md={6} sm={6} xl={6} xs={6} sx={{ pl: 1 }}>
+                        <Grid lg={6}
+                          md={6}
+                          sm={6}
+                          xl={6}
+                          xs={6}
+                          sx={{pl: 1}}
+                        >
                           <FormControl fullWidth>
-                            <InputLabel id="visibility-control-select-label">Visibility Control</InputLabel>
+                            <InputLabel id="visibility-control-select-label">Visibility
+                              Control</InputLabel>
                             <Select
                               labelId="visibility-control-select-label"
                               id="visibility-control-select"
@@ -339,7 +397,7 @@ const Page = () => {
                           <Typography
                             align="center"
                             color="text.secondary"
-                            sx={{ mt: 1 }}
+                            sx={{mt: 1}}
                             variant="subtitle1"
                           >
                             Image used for the blog post cover and also for Open Graph meta
@@ -356,7 +414,7 @@ const Page = () => {
                         </Button>
                       </div>
                       <FileDropzone
-                        accept={{ 'image/*': [] }}
+                        accept={{'image/*': []}}
                         maxFiles={1}
                         onDrop={handleCoverDrop}
                         caption="(SVG, JPG, PNG, or gif maximum 900x400)"
@@ -384,7 +442,7 @@ const Page = () => {
                   >
                     <QuillEditor
                       placeholder="Write something"
-                      sx={{ height: 330 }}
+                      sx={{height: 330}}
                     />
                   </Grid>
                 </Grid>
