@@ -10,9 +10,16 @@ export function useUserInput(initialValues) {
     });
   };
 
-  console.log('values', values)
+  const handleDateChange = (name, newValue) => {
+    setValues(prevValues => ({
+      ...prevValues,
+      [name]: newValue,
+    }));
+  };
 
-  return [values, handleInputChange];
+  console.log(values);
+
+  return [values, handleInputChange, handleDateChange];
 }
 
 export default useUserInput;
