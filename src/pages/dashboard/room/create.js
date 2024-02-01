@@ -13,6 +13,10 @@ import Stack from '@mui/material/Stack';
 // import SvgIcon from '@mui/material/SvgIcon';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
+import {FormControl, InputLabel, Select} from "@mui/material";
+import MenuItem from "@mui/material/MenuItem";
+import {Autocomplete} from "@mui/material";
 
 import {BreadcrumbsSeparator} from 'src/components/breadcrumbs-separator';
 import {FileDropzone} from 'src/components/file-dropzone';
@@ -20,20 +24,16 @@ import {QuillEditor} from 'src/components/quill-editor';
 import {RouterLink} from 'src/components/router-link';
 import {Seo} from 'src/components/seo';
 // import { usePageView } from 'src/hooks/use-page-view';
+import useUserInput from "src/hooks/use-user-input";
 import {Layout as DashboardLayout} from 'src/layouts/dashboard';
 import {paths} from 'src/paths';
 import {fileToBase64} from 'src/utils/file-to-base64';
 
-import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
-import {FormControl, InputLabel, Select} from "@mui/material";
-import MenuItem from "@mui/material/MenuItem";
-import {Autocomplete} from "@mui/lab";
-import useUserInput from "src/hooks/use-user-input";
-
-const initialCover = '/assets/covers/abstract-1-4x3-large.png';
+// const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
-  const [cover, setCover] = useState(initialCover);
+  // const [cover, setCover] = useState(initialCover);
+  const [cover, setCover] = useState(null);
   const [formData, handleInputChange, handleDateChange, handleEditorChange] = useUserInput({
     title: '',
     shortDescription: '',
@@ -44,7 +44,8 @@ const Page = () => {
     playerLimit: '',
     preferredGender: 'None',
     visibilityControl: 'Public',
-    content: ''
+    content: '',
+    cover: ''
   });
 
   const sport_type = [
@@ -60,11 +61,13 @@ const Page = () => {
   const handleCoverDrop = useCallback(async ([file]) => {
     const data = await fileToBase64(file);
     setCover(data);
-  }, []);
+    formData.cover = data; // directly assign the data to formData.cover
+  }, [formData]);
 
   const handleCoverRemove = useCallback(() => {
     setCover(null);
-  }, []);
+    formData.cover = null;
+  }, [formData]);
 
   return (
     <>
