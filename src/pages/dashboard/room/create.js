@@ -34,7 +34,7 @@ const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
   const [cover, setCover] = useState(initialCover);
-  const [formData, handleInputChange] = useUserInput({title: '', shortDescription: '', location: '', startTime: null, endTime: null, sportType: '', playerLimit: '', preferredGender: 'None', visibilityControl: 'Public'});
+  const [formData, handleInputChange, handleDateChange] = useUserInput({title: '', shortDescription: '', location: '', startTime: null, endTime: null, sportType: '', playerLimit: '', preferredGender: 'None', visibilityControl: 'Public'});
 
   const sport_type = [
     {label: 'badminton'},
@@ -215,7 +215,9 @@ const Page = () => {
                             label="Start Time"
                             name={'startTime'}
                             value={formData.startTime}
-                            onChange={handleInputChange}
+                            onChange={(newValue) => {
+                              handleDateChange('startTime', newValue);
+                            }}
                             slotProps={{
                               textField: {
                                 fullWidth: true,
@@ -237,7 +239,9 @@ const Page = () => {
                             label="End Time"
                             name={'endTime'}
                             value={formData.endTime}
-                            onChange={handleInputChange}
+                            onChange={(newValue) => {
+                              handleDateChange('endTime', newValue);
+                            }}
                             slotProps={{
                               textField: {
                                 fullWidth: true,
