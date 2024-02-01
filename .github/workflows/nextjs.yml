@@ -7,7 +7,7 @@ name: Next.js CI/CD
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["*"]
+    branches: ["**"]
   pull_request:
     branches: ["main"]
 
