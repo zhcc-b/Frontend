@@ -19,6 +19,8 @@ import MenuItem from "@mui/material/MenuItem";
 import {Autocomplete} from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import {LoadingButton} from "@mui/lab";
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
 
 import {BreadcrumbsSeparator} from 'src/components/breadcrumbs-separator';
 import {FileDropzone} from 'src/components/file-dropzone';
@@ -31,8 +33,7 @@ import {Layout as DashboardLayout} from 'src/layouts/dashboard';
 import {paths} from 'src/paths';
 import {fileToBase64} from 'src/utils/file-to-base64';
 import sendHttpRequest from "src/utils/send-http-request";
-import Alert from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
+import confetti from "canvas-confetti";
 
 // const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
@@ -157,7 +158,7 @@ const Page = () => {
       }
     });
 
-    return !isTitleEmpty && !isShortDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportTypeEmpty && !isPlayerLimitEmpty && !isPreferredGenderEmpty && !isVisibilityControlEmpty && !isContentEmpty && !isCoverEmpty;
+    return !isTitleEmpty && !isShortDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportTypeEmpty && !isPlayerLimitEmpty && !isPreferredGenderEmpty && !isVisibilityControlEmpty && !isContentEmpty;
   }
 
   function handleClick() {
@@ -169,6 +170,11 @@ const Page = () => {
         formData
       ).then(response => {
         if (response.status === 200) {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: {y: 0.6}
+          });
           setSeverity('success');
           setMessage('Matching room created successfully');
           setOpen(true);
@@ -501,7 +507,7 @@ const Page = () => {
                           <TextField
                             id={'player-limit'}
                             label="Player Limit"
-                            type="number"
+                            // type="number"
                             name={'playerLimit'}
                             value={formData.playerLimit}
                             error={formError.playerLimit.error}
