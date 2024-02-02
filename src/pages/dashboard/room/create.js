@@ -428,7 +428,7 @@ const Page = () => {
                             onChange={(newValue) => {
                               handleDateChange('endTime', newValue);
                             }}
-                            minDateTime={today}
+                            minDateTime={formData.startTime ? new Date(Math.max(today, formData.startTime.getTime())) : today}
                             slotProps={{
                               textField: {
                                 error: formError.endTime.error,

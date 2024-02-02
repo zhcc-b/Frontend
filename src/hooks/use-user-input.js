@@ -11,10 +11,20 @@ export function useUserInput(initialValues) {
   };
 
   const handleDateChange = (name, newValue) => {
-    setValues(prevValues => ({
-      ...prevValues,
-      [name]: newValue,
-    }));
+    setValues(prevValues => {
+      if (name === 'startTime' && prevValues.endTime && newValue > prevValues.endTime) {
+        return {
+          ...prevValues,
+          [name]: newValue,
+          endTime: null
+        };
+      } else {
+        return {
+          ...prevValues,
+          [name]: newValue
+        };
+      }
+    });
   };
 
   const handleAutocompleteChange = (name, newValue) => {
