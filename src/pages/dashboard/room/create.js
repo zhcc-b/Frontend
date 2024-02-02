@@ -98,7 +98,7 @@ const Page = () => {
 
     const isUnknownSportType = !sport_type.some((type) => type.label === formData.sportType);
 
-    const isPlayerLimitNotPositiveInt = isNaN(parseInt(formData.playerLimit)) || parseInt(formData.playerLimit) < 0;
+    const isPlayerLimitNotPositiveInt = !/^\d+$/.test(formData.playerLimit) || parseInt(formData.playerLimit) < 0;
 
     const isUnknownPreferredGender = !['None', 'Male', 'Female', 'Other'].includes(formData.preferredGender);
     const isUnknownVisibilityControl = !['Public', 'Private'].includes(formData.visibilityControl);
