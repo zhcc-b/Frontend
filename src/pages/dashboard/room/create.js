@@ -14,9 +14,11 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
-import {FormControl, InputLabel, Select} from "@mui/material";
+import {FormControl, InputLabel, Select, Slide} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import {Autocomplete} from "@mui/material";
+import SendIcon from '@mui/icons-material/Send';
+import {LoadingButton} from "@mui/lab";
 
 import {BreadcrumbsSeparator} from 'src/components/breadcrumbs-separator';
 import {FileDropzone} from 'src/components/file-dropzone';
@@ -28,11 +30,19 @@ import useUserInput from "src/hooks/use-user-input";
 import {Layout as DashboardLayout} from 'src/layouts/dashboard';
 import {paths} from 'src/paths';
 import {fileToBase64} from 'src/utils/file-to-base64';
+import sendHttpRequest from "src/utils/send-http-request";
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
+
 
 // const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
   // const [cover, setCover] = useState(initialCover);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [severity, setSeverity] = useState('success');
+  const [message, setMessage] = useState('');
   const [cover, setCover] = useState(null);
   const [formData, handleInputChange, handleDateChange, handleEditorChange] = useUserInput({
     title: '',
@@ -58,6 +68,39 @@ const Page = () => {
 
   // usePageView();
 
+  function handleClick() {
+    setLoading(true);
+    sendHttpRequest(
+      'http://localhost:3000/api/room',
+      'POST',
+      formData
+    ).then(response => {
+      setLoading(false);
+      if (response.status === 200) {
+        setSeverity('success');
+        setMessage('Matching room created successfully');
+        setOpen(true);
+      }
+      else if (response.status === 400) {
+        setSeverity('warning');
+        setMessage('Please fill in all the required fields');
+        setOpen(true);
+      }
+      else {
+        setSeverity('error');
+        setMessage('An unexpected error occurred: ' + response.data);
+        setOpen(true);
+      }
+    });
+  }
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
   const handleCoverDrop = useCallback(async ([file]) => {
     const data = await fileToBase64(file);
     setCover(data);
@@ -71,6 +114,22 @@ const Page = () => {
 
   return (
     <>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+
       <Seo title="Matching Room: Create"/>
       <Box
         component="main"
@@ -133,16 +192,23 @@ const Page = () => {
               >
                 Cancel
               </Button>
-              <Button
-                // component={RouterLink}
-                // href={paths.dashboard.room.roomDetails}
+              <LoadingButton
+                loading={loading}
+                loadingPosition="end"
+                endIcon={<SendIcon />}
                 variant="contained"
-                onClick={() => {
-                  console.log(formData)
-                }}
+                onClick={handleClick}
               >
                 Publish changes
-              </Button>
+              </LoadingButton>
+              {/*<Button*/}
+              {/*  // component={RouterLink}*/}
+              {/*  // href={paths.dashboard.room.roomDetails}*/}
+              {/*  variant="contained"*/}
+              {/*  onClick={handleClick}*/}
+              {/*>*/}
+              {/*  Publish changes*/}
+              {/*</Button>*/}
               {/*<IconButton>*/}
               {/*  <SvgIcon>*/}
               {/*    <DotsHorizontalIcon />*/}
@@ -512,9 +578,7 @@ const Page = () => {
               // component={RouterLink}
               // href={paths.dashboard.room.roomDetails}
               variant="contained"
-              onClick={() => {
-                console.log(formData)
-              }}
+              onClick={handleClick}
             >
               Publish changes
             </Button>
