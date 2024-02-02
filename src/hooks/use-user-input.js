@@ -17,6 +17,13 @@ export function useUserInput(initialValues) {
     }));
   };
 
+  const handleAutocompleteChange = (name, newValue) => {
+    setValues(prevValues => ({
+      ...prevValues,
+      [name]: newValue,
+    }));
+  };
+
   const handleEditorChange = (content) => {
     const isEditorEmpty = content === '<p><br></p>';
 
@@ -30,7 +37,7 @@ export function useUserInput(initialValues) {
 
   console.log(values);
 
-  return [values, handleInputChange, handleDateChange, handleEditorChange];
+  return [values, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange];
 }
 
 export default useUserInput;

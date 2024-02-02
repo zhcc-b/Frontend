@@ -14,7 +14,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
-import {FormControl, InputLabel, Select} from "@mui/material";
+import {FormControl, FormHelperText, InputLabel, Select} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import {Autocomplete} from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
@@ -44,7 +44,7 @@ const Page = () => {
   const [message, setMessage] = useState('');
   const [cover, setCover] = useState(null);
   const today = new Date().setHours(0, 0, 0, 0);
-  const [formData, handleInputChange, handleDateChange, handleEditorChange] = useUserInput({
+  const [formData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput({
     title: '',
     shortDescription: '',
     location: '',
@@ -58,6 +58,20 @@ const Page = () => {
     cover: ''
   });
 
+  const [formError, setFormError] = useState({
+    title: {error: false, message: ''},
+    shortDescription: {error: false, message: ''},
+    location: {error: false, message: ''},
+    startTime: {error: false, message: ''},
+    endTime: {error: false, message: ''},
+    sportType: {error: false, message: ''},
+    playerLimit: {error: false, message: ''},
+    preferredGender: {error: false, message: ''},
+    visibilityControl: {error: false, message: ''},
+    content: {error: false, message: ''},
+    cover: {error: false, message: ''}
+  });
+
   const sport_type = [
     {label: 'badminton'},
     {label: 'basketball'},
@@ -68,30 +82,110 @@ const Page = () => {
 
   // usePageView();
 
-  function handleClick() {
-    setLoading(true);
-    sendHttpRequest(
-      'http://localhost:3000/api/room',
-      'POST',
-      formData
-    ).then(response => {
-      setLoading(false);
-      if (response.status === 200) {
-        setSeverity('success');
-        setMessage('Matching room created successfully');
-        setOpen(true);
-      }
-      else if (response.status === 400) {
-        setSeverity('warning');
-        setMessage('Please fill in all the required fields');
-        setOpen(true);
-      }
-      else {
-        setSeverity('error');
-        setMessage('An unexpected error occurred: ' + response.data);
-        setOpen(true);
+  function validateForm() {
+    const isTitleEmpty = formData.title === '';
+    const isShortDescriptionEmpty = formData.shortDescription === '';
+    const isLocationEmpty = formData.location === '';
+    const isStartTimeEmpty = formData.startTime === null;
+    const isEndTimeEmpty = formData.endTime === null;
+    const isSportTypeEmpty = formData.sportType === '';
+    const isPlayerLimitEmpty = formData.playerLimit === '';
+    const isPreferredGenderEmpty = formData.preferredGender === '';
+    const isVisibilityControlEmpty = formData.visibilityControl === '';
+    const isContentEmpty = formData.content === '';
+    const isCoverEmpty = formData.cover === '';
+
+    const isUnknownSportType = !sport_type.some((type) => type.label === formData.sportType);
+
+    const isPlayerLimitNotPositiveInt = isNaN(parseInt(formData.playerLimit)) || parseInt(formData.playerLimit) < 0;
+
+    const isUnknownPreferredGender = !['None', 'Male', 'Female', 'Other'].includes(formData.preferredGender);
+    const isUnknownVisibilityControl = !['Public', 'Private'].includes(formData.visibilityControl);
+
+    console.log(isSportTypeEmpty)
+    console.log(isUnknownSportType)
+
+    const isNotStartTimeObject = !formData.startTime instanceof Date;
+    const isUnknownEndTimeObject = !formData.endTime instanceof Date;
+    const isStartTimeAfterEndTime = formData.startTime > formData.endTime;
+
+    setFormError({
+      ...formError,
+      title: {
+        error: isTitleEmpty,
+        message: isTitleEmpty ? 'Title is required' : ''
+      },
+      shortDescription: {
+        error: isShortDescriptionEmpty,
+        message: isShortDescriptionEmpty ? 'Short description is required' : ''
+      },
+      location: {
+        error: isLocationEmpty,
+        message: isLocationEmpty ? 'Location is required' : ''
+      },
+      startTime: {
+        error: isStartTimeEmpty || isNotStartTimeObject || isStartTimeAfterEndTime,
+        message: isStartTimeEmpty ? 'Start time is required' : isNotStartTimeObject ? 'Invalid start time input' : isStartTimeAfterEndTime ? 'Start time must be before end time' : ''
+      },
+      endTime: {
+        error: isEndTimeEmpty || isUnknownEndTimeObject || isStartTimeAfterEndTime,
+        message: isEndTimeEmpty ? 'End time is required' : isUnknownEndTimeObject ? 'Invalid end time input' : isStartTimeAfterEndTime ? 'End time must be after start time' : ''
+      },
+      sportType: {
+        error: isSportTypeEmpty || isUnknownSportType,
+        message: isSportTypeEmpty ? 'Sport type is required' : isUnknownSportType ? 'Invalid sport type' : ''
+      },
+      playerLimit: {
+        error: isPlayerLimitEmpty || isPlayerLimitNotPositiveInt,
+        message: isPlayerLimitEmpty ? 'Player limit is required' : isPlayerLimitNotPositiveInt ? 'Positive integers only' : ''
+      },
+      preferredGender: {
+        error: isPreferredGenderEmpty || isUnknownPreferredGender,
+        message: isPreferredGenderEmpty ? 'Preferred gender is required' : isUnknownPreferredGender ? 'Invalid preferred gender' : null
+      },
+      visibilityControl: {
+        error: isVisibilityControlEmpty || isUnknownVisibilityControl,
+        message: isVisibilityControlEmpty ? 'Visibility control is required' : isUnknownVisibilityControl ? 'Invalid visibility control option' : null
+      },
+      content: {
+        error: isContentEmpty,
+        message: isContentEmpty ? 'Content is required' : ''
+      },
+      cover: {
+        error: isCoverEmpty,
+        message: isCoverEmpty ? 'Cover image is required' : ''
       }
     });
+
+    return !isTitleEmpty && !isShortDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportTypeEmpty && !isPlayerLimitEmpty && !isPreferredGenderEmpty && !isVisibilityControlEmpty && !isContentEmpty && !isCoverEmpty;
+  }
+
+  function handleClick() {
+    setLoading(true);
+    if (validateForm()) {
+      sendHttpRequest(
+        'http://localhost:3000/api/room',
+        'POST',
+        formData
+      ).then(response => {
+        if (response.status === 200) {
+          setSeverity('success');
+          setMessage('Matching room created successfully');
+          setOpen(true);
+        }
+        else if (response.status === 400) {
+          setSeverity('warning');
+          setMessage('Please fill in all the required fields');
+          setOpen(true);
+        }
+        else {
+          setSeverity('error');
+          setMessage('An unexpected error occurred: ' + response.data);
+          setOpen(true);
+        }
+      });
+    }
+    setLoading(false);
   }
 
   const handleClose = (event, reason) => {
@@ -240,6 +334,8 @@ const Page = () => {
                         label="Title"
                         name={'title'}
                         value={formData.title}
+                        error={formError.title.error}
+                        helperText={formError.title.message}
                         onChange={handleInputChange}
                         variant={'outlined'}
                         required
@@ -250,6 +346,8 @@ const Page = () => {
                         label="Short description"
                         name={'shortDescription'}
                         value={formData.shortDescription}
+                        error={formError.shortDescription.error}
+                        helperText={formError.shortDescription.message}
                         onChange={handleInputChange}
                         variant={'outlined'}
                       />
@@ -281,6 +379,8 @@ const Page = () => {
                         label="Location"
                         name={'location'}
                         value={formData.location}
+                        error={formError.location.error}
+                        helperText={formError.location.message}
                         onChange={handleInputChange}
                         variant={'outlined'}
                         required
@@ -304,6 +404,8 @@ const Page = () => {
                             minDateTime={today}
                             slotProps={{
                               textField: {
+                                error: formError.startTime.error,
+                                helperText: formError.startTime.message,
                                 fullWidth: true,
                                 variant: "outlined",
                                 required: true
@@ -329,6 +431,8 @@ const Page = () => {
                             minDateTime={today}
                             slotProps={{
                               textField: {
+                                error: formError.endTime.error,
+                                helperText: formError.endTime.message,
                                 fullWidth: true,
                                 variant: "outlined",
                                 required: true
@@ -369,17 +473,20 @@ const Page = () => {
                         >
                           <Autocomplete
                             id="sport-type-select"
-                            options={sport_type}
+                            name={'sportType'}
+                            onChange={(event, value) => {
+                              handleAutocompleteChange('sportType', value);
+                            }}
+                            options={sport_type.map((option) => option.label)}
                             renderInput={(params) =>
                               <TextField
+                                {...params}
                                 id={'sport-type-select-option'}
                                 label="Sport Type"
-                                name={'sportType'}
-                                value={formData.sportType}
-                                onChange={handleInputChange}
+                                error={formError.sportType.error}
+                                helperText={formError.sportType.message}
                                 variant={'outlined'}
                                 required
-                                {...params}
                               />
                             }
                           />
@@ -397,6 +504,8 @@ const Page = () => {
                             type="number"
                             name={'playerLimit'}
                             value={formData.playerLimit}
+                            error={formError.playerLimit.error}
+                            helperText={formError.playerLimit.message}
                             onChange={handleInputChange}
                             variant={'outlined'}
                             required
@@ -421,6 +530,7 @@ const Page = () => {
                               label=" Preferred Gender "
                               name={'preferredGender'}
                               value={formData.preferredGender}
+                              error={formError.preferredGender.error}
                               onChange={handleInputChange}
                             >
                               <MenuItem value={'None'}>None</MenuItem>
@@ -428,6 +538,11 @@ const Page = () => {
                               <MenuItem value={'Female'}>Female</MenuItem>
                               <MenuItem value={'Other'}>Other</MenuItem>
                             </Select>
+                            {formError.preferredGender.error && (
+                              <FormHelperText error>
+                                {formError.preferredGender.message}
+                              </FormHelperText>
+                            )}
                           </FormControl>
                         </Grid>
                         <Grid lg={6}
@@ -446,11 +561,17 @@ const Page = () => {
                               label=" Visibility Control "
                               name={'visibilityControl'}
                               value={formData.visibilityControl}
+                              error={formError.visibilityControl.error}
                               onChange={handleInputChange}
                             >
                               <MenuItem value={'Public'}>Public</MenuItem>
                               <MenuItem value={'Private'}>Private</MenuItem>
                             </Select>
+                            {formError.visibilityControl.error && (
+                              <FormHelperText error>
+                                {formError.visibilityControl.message}
+                              </FormHelperText>
+                            )}
                           </FormControl>
                         </Grid>
                       </Grid>
@@ -563,6 +684,14 @@ const Page = () => {
                       value={formData.content}
                       onChange={handleEditorChange}
                     />
+                    {formError.content.error && (
+                      <FormHelperText
+                        error
+                        sx={{ pl: 2 }}
+                      >
+                        {formError.content.message}
+                      </FormHelperText>
+                    )}
                   </Grid>
                 </Grid>
               </CardContent>
