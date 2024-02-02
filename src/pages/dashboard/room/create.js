@@ -14,7 +14,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
-import {FormControl, InputLabel, Select, Slide} from "@mui/material";
+import {FormControl, InputLabel, Select} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import {Autocomplete} from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
@@ -34,7 +34,6 @@ import sendHttpRequest from "src/utils/send-http-request";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 
-
 // const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
@@ -44,6 +43,7 @@ const Page = () => {
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
   const [cover, setCover] = useState(null);
+  const today = new Date().setHours(0, 0, 0, 0);
   const [formData, handleInputChange, handleDateChange, handleEditorChange] = useUserInput({
     title: '',
     shortDescription: '',
@@ -301,6 +301,7 @@ const Page = () => {
                             onChange={(newValue) => {
                               handleDateChange('startTime', newValue);
                             }}
+                            minDateTime={today}
                             slotProps={{
                               textField: {
                                 fullWidth: true,
@@ -325,6 +326,7 @@ const Page = () => {
                             onChange={(newValue) => {
                               handleDateChange('endTime', newValue);
                             }}
+                            minDateTime={today}
                             slotProps={{
                               textField: {
                                 fullWidth: true,
