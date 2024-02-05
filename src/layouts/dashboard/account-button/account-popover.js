@@ -90,7 +90,7 @@ export const AccountPopover = (props) => {
       <Box sx={{ p: 1 }}>
         <ListItemButton
           component={RouterLink}
-          href={paths.dashboard.social.profile}
+          href={paths.dashboard.social && paths.dashboard.social.profile}
           onClick={onClose}
           sx={{
             borderRadius: 1,

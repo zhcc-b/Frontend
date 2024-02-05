@@ -6,5 +6,17 @@ export const useMockedUser = () => {
     avatar: '/assets/avatars/avatar-anika-visser.png',
     name: 'Anika Visser',
     email: 'anika.visser@devias.io',
+    gender: 'Female',
+    sports_you_can_play: 'Football, Tennis',
+    birthyear: '2000',
+    birthmonth: '02',
+    birthday: '04',
+    phone: '1234567890',
+    age: '20',
+    description: 'This is a sample description.',
+    email_product: false,
+    email_security: false,
+    phone_security: false,
+    password: '123',
   };
 };

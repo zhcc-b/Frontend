@@ -9,9 +9,6 @@ export const paths = {
       roomCreate: '/dashboard/room/create',
       roomDetails: '/dashboard/room/:roomId',
     },
-    social: {
-      profile: '/dashboard/social/profile',
-    },
     chat: '/dashboard/chat',
   },
   auth: {
