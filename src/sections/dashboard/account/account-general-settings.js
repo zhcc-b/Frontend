@@ -82,10 +82,8 @@ export const AccountGeneralSettings = (props) => {
     const isUnknownGender = !['Prefer not to say', 'Male', 'Female', 'Other'].includes(
       userData.gender
     );
-    const isUnknownSport = userData.sports.every((sport) => sportsOptions.includes(sport));
+    const isUnknownSport = !userData.sports.every((sport) => sportsOptions.includes(sport));
     const isDescriptionTooLong = userData.description.length > 300;
-
-    console.log(isUnknownSport);
 
     // const isNotBirthdayObject = !userData.birthday instanceof Date;
     // const isInvaildBirthday = userData.birthday > today;
