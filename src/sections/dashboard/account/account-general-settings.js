@@ -155,7 +155,12 @@ export const AccountGeneralSettings = (props) => {
   function handleClick() {
     setLoading(true);
     if (validateProfile()) {
-      sendHttpRequest('http://localhost:8000/userprofile/edit-profile/', 'POST', userData).then(
+      const copyData = { ...userData };
+      const sportString = copyData.sports.join(', ');
+      delete copyData.sports;
+      copyData.sports_you_can_play = sportString;
+      console.log(copyData);
+      sendHttpRequest('http://localhost:8000/userprofile/edit-profile/', 'POST', copyData).then(
         (response) => {
           if (response.status === 200) {
             confetti({
@@ -164,7 +169,7 @@ export const AccountGeneralSettings = (props) => {
               origin: { y: 0.6 },
             });
             setSeverity('success');
-            setMessage('Matching room created successfully');
+            setMessage('User data updated successfully');
             setOpen(true);
           } else if (response.status === 400) {
             setSeverity('warning');
@@ -180,6 +185,18 @@ export const AccountGeneralSettings = (props) => {
     }
     setLoading(false);
   }
+  const [isEditName, setIsEditName] = useState(false);
+  const handleNameEditClick = () => {
+    // Enable name editing
+    setIsEditName(true);
+  };
+
+  const handleNameSaveClick = () => {
+    // Save the updated phone and disable editing
+    setIsEditName(false);
+    handleClick();
+  };
+
   const [isEditEmail, setIsEditEmail] = useState(false);
   const handleEmailEditClick = () => {
     // Enable email editing
@@ -202,6 +219,7 @@ export const AccountGeneralSettings = (props) => {
     setIsEditPhone(false);
     handleClick();
   };
+
   const [isEditGender, setIsEditGender] = useState(false);
   const handleGenderEditClick = () => {
     // Enable gender editing
@@ -238,7 +256,7 @@ export const AccountGeneralSettings = (props) => {
 
   const onSportsChange = (sport) => {
     if (userData.sports.includes(sport)) {
-      yourArray.splice(userData.sports.indexOf(sport), 1);
+      userData.sports.splice(userData.sports.indexOf(sport), 1);
     } else {
       userData.sports.push(sport);
     }
@@ -357,6 +375,7 @@ export const AccountGeneralSettings = (props) => {
                       id={'name'}
                       name={'name'}
                       value={userData.name}
+                      disabled={!isEditName}
                       onChange={handleInputChange}
                       error={profileError.name.error}
                       required
@@ -367,13 +386,23 @@ export const AccountGeneralSettings = (props) => {
                       <FormHelperText error>{profileError.name.message}</FormHelperText>
                     )}
                   </FormControl>
-                  <Button
-                    color="inherit"
-                    size="small"
-                    onClick={handleClick}
-                  >
-                    Save
-                  </Button>
+                  {isEditName ? (
+                    <Button
+                      color="inherit"
+                      size="small"
+                      onClick={handleNameSaveClick}
+                    >
+                      Save
+                    </Button>
+                  ) : (
+                    <Button
+                      color="inherit"
+                      size="small"
+                      onClick={handleNameEditClick}
+                    >
+                      Edit
+                    </Button>
+                  )}
                 </Stack>
                 <Stack
                   alignItems="center"

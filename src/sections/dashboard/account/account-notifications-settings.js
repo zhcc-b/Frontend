@@ -22,28 +22,30 @@ export const AccountNotificationsSettings = (props) => {
   const [message, setMessage] = useState('');
   function handleClick() {
     setLoading(true);
-    sendHttpRequest('http://localhost:3000/api/edit-profile', 'POST', notificationData).then(
-      (response) => {
-        if (response.status === 200) {
-          confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 },
-          });
-          setSeverity('success');
-          setMessage('Matching room created successfully');
-          setOpen(true);
-        } else if (response.status === 400) {
-          setSeverity('warning');
-          setMessage('Please fill in all the required fields');
-          setOpen(true);
-        } else {
-          setSeverity('error');
-          setMessage('An unexpected error occurred: ' + response.data);
-          setOpen(true);
-        }
+    sendHttpRequest(
+      'http://localhost:8000/userprofile/edit-profile/',
+      'POST',
+      notificationData
+    ).then((response) => {
+      if (response.status === 200) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+        setSeverity('success');
+        setMessage('User data updated successfully');
+        setOpen(true);
+      } else if (response.status === 400) {
+        setSeverity('warning');
+        setMessage('Please fill in all the required fields');
+        setOpen(true);
+      } else {
+        setSeverity('error');
+        setMessage('An unexpected error occurred: ' + response.data);
+        setOpen(true);
       }
-    );
+    });
   }
   return (
     <Card>

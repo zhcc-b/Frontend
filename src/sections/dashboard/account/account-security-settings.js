@@ -43,7 +43,7 @@ export const AccountSecuritySettings = (props) => {
 
   function handleClick() {
     setLoading(true);
-    sendHttpRequest('http://localhost:3000/api/edit-profile', 'POST', passwordData).then(
+    sendHttpRequest('http://localhost:8000/userprofile/edit-profile/', 'POST', passwordData).then(
       (response) => {
         if (response.status === 200) {
           confetti({
@@ -52,7 +52,7 @@ export const AccountSecuritySettings = (props) => {
             origin: { y: 0.6 },
           });
           setSeverity('success');
-          setMessage('Matching room created successfully');
+          setMessage('User data updated successfully');
           setOpen(true);
         } else if (response.status === 400) {
           setSeverity('warning');
