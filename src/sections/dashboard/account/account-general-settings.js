@@ -23,7 +23,7 @@ import sendHttpRequest from 'src/utils/send-http-request';
 import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
 
 export const AccountGeneralSettings = (props) => {
-  const { avatar, email, phone, name, sports, age, gender, description } = props;
+  const { avatar, email, phone, username, sports, age, gender, description } = props;
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
@@ -32,7 +32,7 @@ export const AccountGeneralSettings = (props) => {
     avatar: avatar,
     email: email,
     phone: phone,
-    name: name,
+    username: username,
     sports: sports,
     age: age,
     // birthday: null,
@@ -45,7 +45,7 @@ export const AccountGeneralSettings = (props) => {
     email: { error: false, message: '' },
     age: { error: false, message: '' },
     phone: { error: false, message: '' },
-    name: { error: false, message: '' },
+    username: { error: false, message: '' },
     sports: { error: false, message: '' },
     birthday: { error: false, message: '' },
     gender: { error: false, message: '' },
@@ -69,7 +69,7 @@ export const AccountGeneralSettings = (props) => {
   const today = new Date();
 
   function validateProfile() {
-    const isNameEmpty = userData.name === '';
+    const isNameEmpty = userData.username === '';
     const isEmailEmpty = userData.email === '';
     const isPhoneEmpty = userData.phone === '';
     const isAgeEmpty = userData.age === '';
@@ -90,7 +90,7 @@ export const AccountGeneralSettings = (props) => {
 
     setProfileError({
       ...profileError,
-      name: {
+      username: {
         error: isNameEmpty,
         message: isNameEmpty ? 'Name is required' : '',
       },
@@ -372,18 +372,18 @@ export const AccountGeneralSettings = (props) => {
                 >
                   <FormControl fullWidth>
                     <TextField
-                      id={'name'}
-                      name={'name'}
-                      value={userData.name}
+                      id={'username'}
+                      name={'username'}
+                      value={userData.username}
                       disabled={!isEditName}
                       onChange={handleInputChange}
-                      error={profileError.name.error}
+                      error={profileError.username.error}
                       required
-                      label="Full Name"
+                      label="Username"
                       sx={{ flexGrow: 1 }}
                     />
-                    {profileError.name.error && (
-                      <FormHelperText error>{profileError.name.message}</FormHelperText>
+                    {profileError.username.error && (
+                      <FormHelperText error>{profileError.username.message}</FormHelperText>
                     )}
                   </FormControl>
                   {isEditName ? (

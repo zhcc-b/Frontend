@@ -22,9 +22,8 @@ import useUserInput from 'src/hooks/use-user-input';
 
 // import { Scrollbar } from 'src/components/scrollbar';
 
-export const AccountSecuritySettings = (props) => {
-  const { password } = props;
-  const [passwordData, handleInputChange] = useUserInput({ password: password });
+export const AccountSecuritySettings = () => {
+  const [passwordData, handleInputChange] = useUserInput({ password: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);

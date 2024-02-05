@@ -24,8 +24,35 @@ const tabs = [
 ];
 
 const Page = () => {
-  const user = useMockedUser();
   const [currentTab, setCurrentTab] = useState('general');
+  const adminUser = 'admin';
+  function getUser(username) {
+    const url = `http://localhost:8000/userprofile/edit-profile/?username=${encodeURIComponent(
+      username
+    )}`;
+
+    return fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json(); // Parse the JSON response
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        throw error;
+      });
+  }
+
+  const user = getUser(adminUser).catch((error) => {
+    console.error('Request failed:', error.message);
+  });
+  const mockUser = useMockedUser();
 
   const handleTabsChange = useCallback((event, value) => {
     setCurrentTab(value);
@@ -69,24 +96,24 @@ const Page = () => {
           </Stack>
           {currentTab === 'general' && (
             <AccountGeneralSettings
-              avatar={user.avatar || ''}
-              email={user.email || ''}
-              phone={user.phone || ''}
-              name={user.name || ''}
-              gender={user.gender || ''}
-              sports={user.sports_you_can_play.split(', ') || []}
-              age={user.age}
-              description={user.description}
+              avatar={mockUser.avatar || ''}
+              email={mockUser.email || ''}
+              phone={mockUser.phone || ''}
+              username={mockUser.username || ''}
+              gender={mockUser.gender || ''}
+              sports={mockUser.sports_you_can_play.split(', ') || []}
+              age={mockUser.age}
+              description={mockUser.description}
             />
           )}
           {currentTab === 'notifications' && (
             <AccountNotificationsSettings
-              email_product={user.email_product}
-              email_security={user.email_security}
-              phone_security={user.phone_security}
+              email_product={mockUser.email_product}
+              email_security={mockUser.email_security}
+              phone_security={mockUser.phone_security}
             />
           )}
-          {currentTab === 'security' && <AccountSecuritySettings password={user.password} />}
+          {currentTab === 'security' && <AccountSecuritySettings />}
         </Container>
       </Box>
     </>
