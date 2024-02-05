@@ -14,15 +14,13 @@ import SvgIcon from '@mui/material/SvgIcon';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
-import InputLabel from '@mui/material/InputLabel';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useState } from 'react';
 import useUserInput from 'src/hooks/use-user-input';
 import sendHttpRequest from 'src/utils/send-http-request';
+import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
 
 export const AccountGeneralSettings = (props) => {
   const { avatar, email, phone, name, sports, age, gender, description } = props;
@@ -159,7 +157,7 @@ export const AccountGeneralSettings = (props) => {
   function handleClick() {
     setLoading(true);
     if (validateProfile()) {
-      sendHttpRequest('http://localhost:3000/api/edit-profile', 'POST', userData).then(
+      sendHttpRequest('http://localhost:8000/userprofile/edit-profile/', 'POST', userData).then(
         (response) => {
           if (response.status === 200) {
             confetti({
@@ -356,17 +354,21 @@ export const AccountGeneralSettings = (props) => {
                   direction="row"
                   spacing={2}
                 >
-                  <TextField
-                    id={'name'}
-                    name={'name'}
-                    value={userData.name}
-                    onChange={handleInputChange}
-                    error={profileError.name.error}
-                    helperText={profileError.name.message}
-                    required
-                    label="Full Name"
-                    sx={{ flexGrow: 1 }}
-                  />
+                  <FormControl fullWidth>
+                    <TextField
+                      id={'name'}
+                      name={'name'}
+                      value={userData.name}
+                      onChange={handleInputChange}
+                      error={profileError.name.error}
+                      required
+                      label="Full Name"
+                      sx={{ flexGrow: 1 }}
+                    />
+                    {profileError.name.error && (
+                      <FormHelperText error>{profileError.name.message}</FormHelperText>
+                    )}
+                  </FormControl>
                   <Button
                     color="inherit"
                     size="small"
@@ -380,23 +382,27 @@ export const AccountGeneralSettings = (props) => {
                   direction="row"
                   spacing={2}
                 >
-                  <TextField
-                    id={'email'}
-                    name={'email'}
-                    value={userData.email}
-                    onChange={handleInputChange}
-                    disabled={!isEditEmail}
-                    label="Email Address"
-                    error={profileError.email.error}
-                    helperText={profileError.email.message}
-                    required
-                    sx={{
-                      flexGrow: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderStyle: 'dashed',
-                      },
-                    }}
-                  />
+                  <FormControl fullWidth>
+                    <TextField
+                      id={'email'}
+                      name={'email'}
+                      value={userData.email}
+                      onChange={handleInputChange}
+                      disabled={!isEditEmail}
+                      label="Email Address"
+                      error={profileError.email.error}
+                      required
+                      sx={{
+                        flexGrow: 1,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderStyle: 'dashed',
+                        },
+                      }}
+                    />
+                    {profileError.email.error && (
+                      <FormHelperText error>{profileError.email.message}</FormHelperText>
+                    )}
+                  </FormControl>
                   {isEditEmail ? (
                     <Button
                       color="inherit"
@@ -420,25 +426,29 @@ export const AccountGeneralSettings = (props) => {
                   direction="row"
                   spacing={2}
                 >
-                  <TextField
-                    id={'phone'}
-                    name={'phone'}
-                    error={profileError.phone.error}
-                    helperText={profileError.phone.message}
-                    value={userData.phone}
-                    onChange={handleInputChange}
-                    disabled={!isEditPhone}
-                    label="Phone Number"
-                    required
-                    type="number"
-                    inputProps={{ maxLength: 10 }}
-                    sx={{
-                      flexGrow: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderStyle: 'dashed',
-                      },
-                    }}
-                  />
+                  <FormControl fullWidth>
+                    <TextField
+                      id={'phone'}
+                      name={'phone'}
+                      error={profileError.phone.error}
+                      value={userData.phone}
+                      onChange={handleInputChange}
+                      disabled={!isEditPhone}
+                      label="Phone Number"
+                      required
+                      type="number"
+                      inputProps={{ maxLength: 10 }}
+                      sx={{
+                        flexGrow: 1,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderStyle: 'dashed',
+                        },
+                      }}
+                    />
+                    {profileError.phone.error && (
+                      <FormHelperText error>{profileError.phone.message}</FormHelperText>
+                    )}
+                  </FormControl>
                   {isEditPhone ? (
                     <Button
                       color="inherit"
@@ -462,17 +472,13 @@ export const AccountGeneralSettings = (props) => {
                   direction="row"
                   spacing={2}
                 >
-                  <FormControl
-                    fullWidth
-                    disabled
-                  >
+                  <FormControl fullWidth>
                     <InputLabel id="gender-label">Gender</InputLabel>
                     <Select
                       labelId="gender-label"
                       id={'gender'}
                       name={'gender'}
                       error={profileError.gender.error}
-                      helperText={profileError.gender.message}
                       value={userData.gender}
                       onChange={handleInputChange}
                       label="Gender"
@@ -484,6 +490,9 @@ export const AccountGeneralSettings = (props) => {
                       <MenuItem value={'Other'}>Other</MenuItem>
                       <MenuItem value={'Prefer not to say'}>Prefer not to say</MenuItem>
                     </Select>
+                    {profileError.gender.error && (
+                      <FormHelperText error>{profileError.gender.message}</FormHelperText>
+                    )}
                   </FormControl>
                   {isEditGender ? (
                     <Button
@@ -514,7 +523,6 @@ export const AccountGeneralSettings = (props) => {
                     value={userData.age}
                     onChange={handleInputChange}
                     error={profileError.age.error}
-                    helperText={profileError.age.message}
                     required
                     type="number"
                     label="Age"
@@ -575,24 +583,29 @@ export const AccountGeneralSettings = (props) => {
                   direction="row"
                   spacing={2}
                 >
-                  <TextField
-                    id={'description'}
-                    name={'description'}
-                    error={profileError.description.error}
-                    helperText={profileError.description.message}
-                    value={userData.description}
-                    onChange={handleInputChange}
-                    inputProps={{ maxLength: 300 }}
-                    label="Description"
-                    multiline
-                    rows={3}
-                    sx={{
-                      flexGrow: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderStyle: 'dashed',
-                      },
-                    }}
-                  />
+                  <FormControl fullWidth>
+                    <TextField
+                      id={'description'}
+                      name={'description'}
+                      error={profileError.description.error}
+                      value={userData.description}
+                      onChange={handleInputChange}
+                      inputProps={{ maxLength: 300 }}
+                      label="Description"
+                      multiline
+                      rows={3}
+                      sx={{
+                        flexGrow: 1,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderStyle: 'dashed',
+                        },
+                      }}
+                    />
+                    {profileError.description.error && (
+                      <FormHelperText error>{profileError.description.message}</FormHelperText>
+                    )}
+                  </FormControl>
+
                   <Button
                     color="inherit"
                     size="small"
