@@ -63,13 +63,17 @@ const Page = () => {
   const [formData, setFormData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput(initialRoomInfo);
 
   useEffect(() => {
+    if (router.isReady === false) {
+      return;
+    }
+
     sendHttpRequest(
       `http://localhost:8000/events/${roomId}/`,
       'GET'
     ).then(r => {
       if (r.status === 200) {
         setFormData(r.data);
-      } if (r.status === 401) {
+      } if (r.status === 401 || r.status === 403) {
         router.push('/401');
       } else {
         router.push('/500');
@@ -203,7 +207,7 @@ const Page = () => {
     setLoading(true);
     if (validateForm()) {
       sendHttpRequest(
-        'http://localhost:3000/api/room',
+        'http://localhost:8000/events/update/',
         'POST',
         formData
       ).then(response => {
