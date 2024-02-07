@@ -11,6 +11,8 @@ async function sendHttpRequest(url, method, data = null) {
   }
 
   try {
+    console.log('url', url);
+    console.log('options', options);
     const response = await fetch(url, options);
 
     return {

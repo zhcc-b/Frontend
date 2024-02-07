@@ -1,5 +1,4 @@
-import {useCallback, useState} from 'react';
-// import DotsHorizontalIcon from '@untitled-ui/icons-react/build/esm/DotsHorizontal';
+import {useCallback, useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Button from '@mui/material/Button';
@@ -7,10 +6,8 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
-// import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-// import SvgIcon from '@mui/material/SvgIcon';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
@@ -27,7 +24,6 @@ import {FileDropzone} from 'src/components/file-dropzone';
 import {QuillEditor} from 'src/components/quill-editor';
 import {RouterLink} from 'src/components/router-link';
 import {Seo} from 'src/components/seo';
-// import { usePageView } from 'src/hooks/use-page-view';
 import useUserInput from "src/hooks/use-user-input";
 import {Layout as DashboardLayout} from 'src/layouts/dashboard';
 import {paths} from 'src/paths';
@@ -39,13 +35,23 @@ import {useRouter} from "next/router";
 // const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
-  const { roomId } = useRouter().query;
-  let initialRoomInfo = null;
+  const router = useRouter();
+  const { roomId } = router.query;
 
-  sendHttpRequest(
-    'http://localhost:3000/room/' + roomId,
-    'GET'
-  ).then(r => initialRoomInfo = r.data)
+  let initialRoomInfo = {
+    title: '',
+    description: '',
+    location: '',
+    start_time: null,
+    end_time: null,
+    level: '',
+    age_group: '',
+    sports: '',
+    max_players: '',
+    content: '',
+    attachment: '',
+    // preferredGender: '',
+  };
 
   // const [attachment, setAttachment] = useState(initialCover);
   const [loading, setLoading] = useState(false);
@@ -54,7 +60,38 @@ const Page = () => {
   const [message, setMessage] = useState('');
   const [attachment, setAttachment] = useState(null);
   const today = new Date().setHours(0, 0, 0, 0);
-  const [formData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput(initialRoomInfo);
+  const [formData, setFormData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput(initialRoomInfo);
+
+  useEffect(() => {
+    sendHttpRequest(
+      `http://localhost:8000/events/${roomId}/`,
+      'GET'
+    ).then(r => {
+      if (r.status === 200) {
+        setFormData(r.data);
+      } if (r.status === 401) {
+        router.push('/401');
+      } else {
+        router.push('/500');
+      }
+
+      // const simulate = {
+      //   title: 'Badminton',
+      //   description: 'Badminton game',
+      //   location: 'Singapore',
+      //   start_time: new Date(),
+      //   end_time: new Date(),
+      //   level: 'B',
+      //   age_group: 'C',
+      //   sports: 'Badminton',
+      //   max_players: '10',
+      //   content: '<p><strong>This is a badminton game </strong></p>',
+      //   attachment: ''
+      // }
+      // setFormData(simulate);
+
+    })
+  }, [roomId, setFormData, router]);
 
   const [formError, setFormError] = useState({
     title: {error: false, message: ''},
@@ -66,21 +103,13 @@ const Page = () => {
     age_group: {error: false, message: ''},
     sports: {error: false, message: ''},
     max_players: {error: false, message: ''},
-    preferredGender: {error: false, message: ''},
-    visibilityControl: {error: false, message: ''},
+    // preferredGender: {error: false, message: ''},
+    // visibilityControl: {error: false, message: ''},
     content: {error: false, message: ''},
     attachment: {error: false, message: ''}
   });
 
-  const sport_type = [
-    {label: 'badminton'},
-    {label: 'basketball'},
-    {label: 'football'},
-    {label: 'tennis'},
-    {label: 'volleyball'},
-  ];
-
-  // usePageView();
+  const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
 
   function validateForm() {
     const isTitleEmpty = formData.title === '';
@@ -141,14 +170,14 @@ const Page = () => {
         error: isMaxPlayerEmpty || isMaxPlayerNotPositiveInt,
         message: isMaxPlayerEmpty ? 'Max Players is required' : isMaxPlayerNotPositiveInt ? 'Positive integers only' : ''
       },
-      preferredGender: {
-        error: isPreferredGenderEmpty || isUnknownPreferredGender,
-        message: isPreferredGenderEmpty ? 'Preferred gender is required' : isUnknownPreferredGender ? 'Invalid preferred gender' : null
-      },
-      visibilityControl: {
-        error: isVisibilityControlEmpty || isUnknownVisibilityControl,
-        message: isVisibilityControlEmpty ? 'Visibility control is required' : isUnknownVisibilityControl ? 'Invalid visibility control option' : null
-      },
+      // preferredGender: {
+      //   error: isPreferredGenderEmpty || isUnknownPreferredGender,
+      //   message: isPreferredGenderEmpty ? 'Preferred gender is required' : isUnknownPreferredGender ? 'Invalid preferred gender' : null
+      // },
+      // visibilityControl: {
+      //   error: isVisibilityControlEmpty || isUnknownVisibilityControl,
+      //   message: isVisibilityControlEmpty ? 'Visibility control is required' : isUnknownVisibilityControl ? 'Invalid visibility control option' : null
+      // },
       content: {
         error: isContentEmpty,
         message: isContentEmpty ? 'Content is required' : ''
@@ -167,7 +196,7 @@ const Page = () => {
       }
     });
 
-    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportsEmpty && !isMaxPlayerEmpty && !isPreferredGenderEmpty && !isVisibilityControlEmpty && !isContentEmpty && !isCoverEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSports && !isMaxPlayerNotPositiveInt && !isUnknownPreferredGender && !isUnknownVisibilityControl && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty;
+    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportsEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSports && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty;
   }
 
   function handleClick() {
@@ -487,10 +516,11 @@ const Page = () => {
                           <Autocomplete
                             id="sport-type-select"
                             name={'sports'}
+                            value={formData.sports}
                             onChange={(event, value) => {
                               handleAutocompleteChange('sports', value);
                             }}
-                            options={sport_type.map((option) => option.label)}
+                            options={sport_type}
                             renderInput={(params) =>
                               <TextField
                                 {...params}
@@ -588,68 +618,68 @@ const Page = () => {
                           </FormControl>
                         </Grid>
                       </Grid>
-                      <Grid container>
-                        <Grid lg={6}
-                              md={6}
-                              sm={6}
-                              xl={6}
-                              xs={6}
-                              sx={{pr: 1}}
-                        >
-                          <FormControl fullWidth>
-                            <InputLabel id="preferred-gender-select-label">Preferred
-                              Gender</InputLabel>
-                            <Select
-                              labelId="preferred-gender-select-label"
-                              id="preferred-gender-select"
-                              label=" Preferred Gender "
-                              name={'preferredGender'}
-                              value={formData.preferredGender}
-                              error={formError.preferredGender.error}
-                              onChange={handleInputChange}
-                            >
-                              <MenuItem value={'None'}>None</MenuItem>
-                              <MenuItem value={'Male'}>Male</MenuItem>
-                              <MenuItem value={'Female'}>Female</MenuItem>
-                              <MenuItem value={'Other'}>Other</MenuItem>
-                            </Select>
-                            {formError.preferredGender.error && (
-                              <FormHelperText error>
-                                {formError.preferredGender.message}
-                              </FormHelperText>
-                            )}
-                          </FormControl>
-                        </Grid>
-                        <Grid lg={6}
-                              md={6}
-                              sm={6}
-                              xl={6}
-                              xs={6}
-                              sx={{pl: 1}}
-                        >
-                          <FormControl fullWidth>
-                            <InputLabel id="visibility-control-select-label">Visibility
-                              Control</InputLabel>
-                            <Select
-                              labelId="visibility-control-select-label"
-                              id="visibility-control-select"
-                              label=" Visibility Control "
-                              name={'visibilityControl'}
-                              value={formData.visibilityControl}
-                              error={formError.visibilityControl.error}
-                              onChange={handleInputChange}
-                            >
-                              <MenuItem value={'Public'}>Public</MenuItem>
-                              <MenuItem value={'Private'}>Private</MenuItem>
-                            </Select>
-                            {formError.visibilityControl.error && (
-                              <FormHelperText error>
-                                {formError.visibilityControl.message}
-                              </FormHelperText>
-                            )}
-                          </FormControl>
-                        </Grid>
-                      </Grid>
+                      {/*<Grid container>*/}
+                      {/*  <Grid lg={6}*/}
+                      {/*        md={6}*/}
+                      {/*        sm={6}*/}
+                      {/*        xl={6}*/}
+                      {/*        xs={6}*/}
+                      {/*        sx={{pr: 1}}*/}
+                      {/*  >*/}
+                      {/*    <FormControl fullWidth>*/}
+                      {/*      <InputLabel id="preferred-gender-select-label">Preferred*/}
+                      {/*        Gender</InputLabel>*/}
+                      {/*      <Select*/}
+                      {/*        labelId="preferred-gender-select-label"*/}
+                      {/*        id="preferred-gender-select"*/}
+                      {/*        label=" Preferred Gender "*/}
+                      {/*        name={'preferredGender'}*/}
+                      {/*        value={formData.preferredGender}*/}
+                      {/*        error={formError.preferredGender.error}*/}
+                      {/*        onChange={handleInputChange}*/}
+                      {/*      >*/}
+                      {/*        <MenuItem value={'None'}>None</MenuItem>*/}
+                      {/*        <MenuItem value={'Male'}>Male</MenuItem>*/}
+                      {/*        <MenuItem value={'Female'}>Female</MenuItem>*/}
+                      {/*        <MenuItem value={'Other'}>Other</MenuItem>*/}
+                      {/*      </Select>*/}
+                      {/*      {formError.preferredGender.error && (*/}
+                      {/*        <FormHelperText error>*/}
+                      {/*          {formError.preferredGender.message}*/}
+                      {/*        </FormHelperText>*/}
+                      {/*      )}*/}
+                      {/*    </FormControl>*/}
+                      {/*  </Grid>*/}
+                      {/*  <Grid lg={6}*/}
+                      {/*        md={6}*/}
+                      {/*        sm={6}*/}
+                      {/*        xl={6}*/}
+                      {/*        xs={6}*/}
+                      {/*        sx={{pl: 1}}*/}
+                      {/*  >*/}
+                      {/*    <FormControl fullWidth>*/}
+                      {/*      <InputLabel id="visibility-control-select-label">Visibility*/}
+                      {/*        Control</InputLabel>*/}
+                      {/*      <Select*/}
+                      {/*        labelId="visibility-control-select-label"*/}
+                      {/*        id="visibility-control-select"*/}
+                      {/*        label=" Visibility Control "*/}
+                      {/*        name={'visibilityControl'}*/}
+                      {/*        value={formData.visibilityControl}*/}
+                      {/*        error={formError.visibilityControl.error}*/}
+                      {/*        onChange={handleInputChange}*/}
+                      {/*      >*/}
+                      {/*        <MenuItem value={'Public'}>Public</MenuItem>*/}
+                      {/*        <MenuItem value={'Private'}>Private</MenuItem>*/}
+                      {/*      </Select>*/}
+                      {/*      {formError.visibilityControl.error && (*/}
+                      {/*        <FormHelperText error>*/}
+                      {/*          {formError.visibilityControl.message}*/}
+                      {/*        </FormHelperText>*/}
+                      {/*      )}*/}
+                      {/*    </FormControl>*/}
+                      {/*  </Grid>*/}
+                      {/*</Grid>*/}
                     </Stack>
                   </Grid>
                 </Grid>

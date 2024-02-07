@@ -45,7 +45,7 @@ const Page = () => {
   const [message, setMessage] = useState('');
   const [attachment, setAttachment] = useState(null);
   const today = new Date().setHours(0, 0, 0, 0);
-  const [formData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput({
+  const [formData, setFormValue, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput({
     title: '',
     description: '',
     location: '',
@@ -77,13 +77,7 @@ const Page = () => {
     attachment: {error: false, message: ''}
   });
 
-  const sport_type = [
-    {label: 'badminton'},
-    {label: 'basketball'},
-    {label: 'football'},
-    {label: 'tennis'},
-    {label: 'volleyball'},
-  ];
+  const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
 
   // usePageView();
 
@@ -313,19 +307,6 @@ const Page = () => {
               >
                 Publish changes
               </LoadingButton>
-              {/*<Button*/}
-              {/*  // component={RouterLink}*/}
-              {/*  // href={paths.dashboard.room.roomDetails}*/}
-              {/*  variant="contained"*/}
-              {/*  onClick={handleClick}*/}
-              {/*>*/}
-              {/*  Publish changes*/}
-              {/*</Button>*/}
-              {/*<IconButton>*/}
-              {/*  <SvgIcon>*/}
-              {/*    <DotsHorizontalIcon />*/}
-              {/*  </SvgIcon>*/}
-              {/*</IconButton>*/}
             </Stack>
           </Card>
           <Stack spacing={3}>
@@ -492,10 +473,11 @@ const Page = () => {
                           <Autocomplete
                             id="sport-type-select"
                             name={'sports'}
+                            value={formData.sports}
                             onChange={(event, value) => {
                               handleAutocompleteChange('sports', value);
                             }}
-                            options={sport_type.map((option) => option.label)}
+                            options={sport_type}
                             renderInput={(params) =>
                               <TextField
                                 {...params}
