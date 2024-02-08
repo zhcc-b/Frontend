@@ -1,5 +1,4 @@
 async function sendHttpRequest(url, method, data = null) {
-  console.log("This is data" + data);
   const headers = new Headers();
   const options = {
     method,
@@ -9,7 +8,6 @@ async function sendHttpRequest(url, method, data = null) {
   if (method === 'POST' || method === 'PUT') {
     headers.append('Content-Type', 'application/json');
     options.body = JSON.stringify(data);
-    console.log(options.body);
   }
 
   try {
