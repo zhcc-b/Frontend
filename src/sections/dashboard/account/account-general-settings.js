@@ -23,19 +23,18 @@ import sendHttpRequest from 'src/utils/send-http-request';
 import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
 
 export const AccountGeneralSettings = (props) => {
-  const { avatar, email, phone, username, sports, age, gender, description } = props;
+  const { avatar, email, phone, username, sports, age, gender, description, jwtToken } = props;
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
-  const [userData, handleInputChange] = useUserInput({
+  const [userData, setUserData, handleInputChange] = useUserInput({
     avatar: avatar,
     email: email,
     phone: phone,
     username: username,
     sports: sports,
     age: age,
-    // birthday: null,
     gender: gender,
     description: description,
     publicProfile: false,
@@ -66,7 +65,6 @@ export const AccountGeneralSettings = (props) => {
   const sportsRows = Array.from({ length: 2 }, (_, rowIndex) =>
     sportsOptions.slice(rowIndex * 5, (rowIndex + 1) * 5)
   );
-  const today = new Date();
 
   function validateProfile() {
     const isNameEmpty = userData.username === '';

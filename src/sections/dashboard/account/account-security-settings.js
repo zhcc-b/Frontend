@@ -22,14 +22,21 @@ import useUserInput from 'src/hooks/use-user-input';
 
 // import { Scrollbar } from 'src/components/scrollbar';
 
-export const AccountSecuritySettings = () => {
-  const [passwordData, handleInputChange] = useUserInput({ password: '' });
+export const AccountSecuritySettings = (props) => {
+  const { jwtToken } = props;
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
+  const mockPassword = '123456789#';
+  const [password, setPassword] = useState(mockPassword);
+  const [changed, setChanged] = useState(false);
 
+  const handleChange = (event) => {
+    setPassword(event.target.value);
+    setChanged(true);
+  };
   const handleEditClick = () => {
     // Enable editing
     setIsEditing(true);
@@ -37,12 +44,16 @@ export const AccountSecuritySettings = () => {
   const handleSaveClick = () => {
     // Enable editing
     setIsEditing(false);
-    handleClick();
+    if (changed) {
+      setChanged(false);
+      handleClick();
+      setPassword(mockPassword);
+    }
   };
 
   function handleClick() {
     setLoading(true);
-    sendHttpRequest('http://localhost:8000/userprofile/edit-profile/', 'POST', passwordData).then(
+    sendHttpRequest('http://localhost:8000/userprofile/edit-profile', 'POST', passwordData).then(
       (response) => {
         if (response.status === 200) {
           confetti({
@@ -97,8 +108,8 @@ export const AccountSecuritySettings = () => {
                   disabled={!isEditing}
                   label="Password"
                   type="password"
-                  value={passwordData.password}
-                  onChange={handleInputChange}
+                  value={password}
+                  onChange={handleChange}
                   sx={{
                     flexGrow: 1,
                     ...(!isEditing && {

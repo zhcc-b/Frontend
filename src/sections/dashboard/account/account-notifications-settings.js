@@ -20,6 +20,7 @@ export const AccountNotificationsSettings = (props) => {
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
+  const { jwtToken } = props;
   function handleClick() {
     setLoading(true);
     sendHttpRequest(
