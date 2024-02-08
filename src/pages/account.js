@@ -9,13 +9,11 @@ import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 
 import { Seo } from 'src/components/seo';
-import { useMockedUser } from 'src/hooks/use-mocked-user';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
 import { AccountGeneralSettings } from 'src/sections/dashboard/account/account-general-settings';
 import { AccountNotificationsSettings } from 'src/sections/dashboard/account/account-notifications-settings';
 import { AccountSecuritySettings } from 'src/sections/dashboard/account/account-security-settings';
-
-const now = new Date();
+import { useRouter } from 'next/navigation';
 
 const tabs = [
   { label: 'General', value: 'general' },
@@ -24,35 +22,17 @@ const tabs = [
 ];
 
 const Page = () => {
+  const router = useRouter();
   const [currentTab, setCurrentTab] = useState('general');
-  const adminUser = 'admin';
-  function getUser(username) {
-    const url = `http://localhost:8000/userprofile/edit-profile/?username=${encodeURIComponent(
-      username
-    )}`;
 
-    return fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json(); // Parse the JSON response
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        throw error;
-      });
+  const user = null;
+  const response = sendHttpRequest('http://localhost:8000/userprofile/edit-profile/', 'GET');
+  // const mockUser = useMockedUser();
+  if (response.status === 200) {
+    user = response.data;
+  } else {
+    router.push('/404');
   }
-
-  const user = getUser(adminUser).catch((error) => {
-    console.error('Request failed:', error.message);
-  });
-  const mockUser = useMockedUser();
 
   const handleTabsChange = useCallback((event, value) => {
     setCurrentTab(value);
@@ -96,21 +76,22 @@ const Page = () => {
           </Stack>
           {currentTab === 'general' && (
             <AccountGeneralSettings
-              avatar={mockUser.avatar || ''}
-              email={mockUser.email || ''}
-              phone={mockUser.phone || ''}
-              username={mockUser.username || ''}
-              gender={mockUser.gender || ''}
-              sports={mockUser.sports_you_can_play.split(', ') || []}
-              age={mockUser.age}
-              description={mockUser.description}
+              avatar={user.avatar || ''}
+              email={user.email || ''}
+              phone={user.phone || ''}
+              username={user.username || ''}
+              gender={user.gender || ''}
+              sports={user.sports_you_can_play.split(', ') || []}
+              age={user.age}
+              description={user.description}
+              token={jwtToken}
             />
           )}
           {currentTab === 'notifications' && (
             <AccountNotificationsSettings
-              email_product={mockUser.email_product}
-              email_security={mockUser.email_security}
-              phone_security={mockUser.phone_security}
+              email_product={user.email_product}
+              email_security={user.email_security}
+              phone_security={user.phone_security}
             />
           )}
           {currentTab === 'security' && <AccountSecuritySettings />}
