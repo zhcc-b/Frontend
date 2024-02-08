@@ -34,6 +34,7 @@ import {paths} from 'src/paths';
 import {fileToBase64} from 'src/utils/file-to-base64';
 import sendHttpRequest from "src/utils/send-http-request";
 import confetti from "canvas-confetti";
+import {router} from "next/client";
 
 // const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
@@ -99,7 +100,7 @@ const Page = () => {
     const isUnknownLevel = !['B', 'I', 'A', 'P'].includes(formData.level);
     const isUnknownAgeGroup = !['C', 'T', 'A', 'S'].includes(formData.age_group);
 
-    const isUnknownSports = !sport_type.some((type) => type.label === formData.sports);
+    const isUnknownSports = !sport_type.includes(formData.sports);
 
     const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) < 0;
 
@@ -177,6 +178,7 @@ const Page = () => {
         'POST',
         formData
       ).then(response => {
+        console.log(response);
         if (response.status === 200) {
           confetti({
             particleCount: 100,
@@ -188,11 +190,13 @@ const Page = () => {
           setOpen(true);
         } else if (response.status === 400) {
           setSeverity('warning');
-          setMessage('Please fill in all the required fields');
+          setMessage('Please fill in all the required fields in proper format');
           setOpen(true);
+        } else if (response.status === 401) {
+          router.push('/401');
         } else {
           setSeverity('error');
-          setMessage('An unexpected error occurred: ' + response.data);
+          setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
           setOpen(true);
         }
       });

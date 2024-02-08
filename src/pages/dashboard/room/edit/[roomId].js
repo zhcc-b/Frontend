@@ -73,9 +73,11 @@ const Page = () => {
     ).then(r => {
       if (r.status === 200) {
         setFormData(r.data);
-      } if (r.status === 401 || r.status === 403) {
+      } else if (r.status === 401 || r.status === 403) {
         router.push('/401');
-      } else {
+      } else if (r.status === 404) {
+        router.push('/404');
+      }else {
         router.push('/500');
       }
 
@@ -222,11 +224,13 @@ const Page = () => {
           setOpen(true);
         } else if (response.status === 400) {
           setSeverity('warning');
-          setMessage('Please fill in all the required fields');
+          setMessage('Please fill in all the required fields in proper format');
           setOpen(true);
+        } else if (response.status === 401) {
+          router.push('/401');
         } else {
           setSeverity('error');
-          setMessage('An unexpected error occurred: ' + response.data);
+          setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
           setOpen(true);
         }
       });
