@@ -30,7 +30,7 @@ import {paths} from 'src/paths';
 import {fileToBase64} from 'src/utils/file-to-base64';
 import sendHttpRequest from "src/utils/send-http-request";
 import confetti from "canvas-confetti";
-import {useRouter} from "next/router";
+import {useRouter} from "next/navigation";
 
 // const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 

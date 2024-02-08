@@ -34,11 +34,13 @@ import {paths} from 'src/paths';
 import {fileToBase64} from 'src/utils/file-to-base64';
 import sendHttpRequest from "src/utils/send-http-request";
 import confetti from "canvas-confetti";
-import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
 // const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
+  const router = useRouter();
+
   // const [attachment, setAttachment] = useState(initialCover);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
