@@ -23,6 +23,7 @@ import { Issuer } from 'src/utils/auth';
 import {IssuerGuard} from "../../../guards/issuer-guard";
 import {GuestGuard} from "../../../guards/guest-guard";
 import sendHttpRequest from "../../../utils/send-http-request";
+import {useState} from "react";
 
 const initialValues = {
   username: '',
@@ -36,6 +37,35 @@ const validationSchema = Yup.object({
 });
 
 const Page = () => {
+  const [formError, setFormError] = useState({
+    username: {error: false, message: ''},
+    password: {error: false, message: ''},
+    detail: {error: false, message: ''},
+  });
+
+  function displayError(response) {
+
+    const isUsernameError = response.data.username ?? false;
+    const isPasswordError = response.data.password ?? false;
+    const isDetailError = response.data.detail ?? false;
+
+    setFormError({
+      ...formError,
+      username: {
+        error: isUsernameError,
+        message: isUsernameError ? response.data.username : ''
+      },
+      password: {
+        error: isPasswordError,
+        message: isPasswordError ? response.data.password : ''
+      },
+      detail: {
+        error: isDetailError,
+        message: isDetailError ? 'Incorrect username or password!' : ''
+      },
+    });
+  }
+
   //const isMounted = useMounted();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,31 +81,26 @@ const Page = () => {
         // if (isMounted()) {
         //   router.push(returnTo || paths.dashboard.index);
         // }
-        await sendHttpRequest('http://localhost:8000/authentication/login/', 'POST', {
-          username: values.name,
+        await sendHttpRequest('http://127.0.0.1:8000/registration/login/', 'POST', {
+          username: values.username,
           password: values.password
         }).then(
           response => {
-            const parsedResponse = JSON.parse(response.data);
+            // const parsedResponse = JSON.parse(response.data);
             if (response.status === 200){
-              localStorage.setItem('jwttoken', parsedResponse.access);
+              localStorage.setItem('jwttoken', response.data.access);
               router.push(returnTo || paths.dashboard.index);
-            } else if (response.status === 404){
-              console.error(parsedResponse.message);
+            } else if (response.status === 500){
+              router.push('/500');
+            }else if (response.status === 400 || response.status === 401){
+              displayError(response)
               helpers.setStatus({ success: false });
-              helpers.setErrors({ submit: 'wrong'});
               helpers.setSubmitting(false);
             }
           }
         )
       } catch (err) {
         console.error(err);
-
-        // if (isMounted()) {
-        //   helpers.setStatus({ success: false });
-        //   helpers.setErrors({ submit: err.message });
-        //   helpers.setSubmitting(false);
-        // }
       }
     },
   });
@@ -114,10 +139,9 @@ const Page = () => {
             >
               <Stack spacing={3}>
                 <TextField
-                  autoFocus
-                  error={!!(formik.touched.username && formik.errors.username)}
+                  error={!!(formik.touched.username && formik.errors.username || formError.username.error)}
                   fullWidth
-                  helperText={formik.touched.username && formik.errors.username}
+                  helperText={formik.touched.username && formik.errors.username || formError.username.message}
                   label="Username"
                   name="username"
                   onBlur={formik.handleBlur}
@@ -126,9 +150,9 @@ const Page = () => {
                   value={formik.values.username}
                 />
                 <TextField
-                  error={!!(formik.touched.password && formik.errors.password)}
+                  error={!!(formik.touched.password && formik.errors.password || formError.password.error || formError.detail.error)}
                   fullWidth
-                  helperText={formik.touched.password && formik.errors.password}
+                  helperText={formik.touched.password && formik.errors.password || formError.password.message || formError.detail.message}
                   label="Password"
                   name="password"
                   onBlur={formik.handleBlur}

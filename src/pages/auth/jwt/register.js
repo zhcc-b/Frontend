@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
-import React from 'react'
-import { useFormik } from 'formik';
+import React, {useState} from 'react'
+import {useFormik} from 'formik';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -13,18 +13,16 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import { RouterLink } from 'src/components/router-link';
-import { Seo } from 'src/components/seo';
-import { GuestGuard } from 'src/guards/guest-guard';
-import { IssuerGuard } from 'src/guards/issuer-guard';
-import { useAuth } from 'src/hooks/use-auth';
-import { useMounted } from 'src/hooks/use-mounted';
-import { usePageView } from 'src/hooks/use-page-view';
-import { useRouter } from 'src/hooks/use-router';
-import { useSearchParams } from 'src/hooks/use-search-params';
-import { Layout as AuthLayout } from 'src/layouts/auth/modern-layout';
-import { paths } from 'src/paths';
-import { Issuer } from 'src/utils/auth';
+import {RouterLink} from 'src/components/router-link';
+import {Seo} from 'src/components/seo';
+import {GuestGuard} from 'src/guards/guest-guard';
+import {IssuerGuard} from 'src/guards/issuer-guard';
+import {useAuth} from 'src/hooks/use-auth';
+import {useRouter} from 'src/hooks/use-router';
+import {useSearchParams} from 'src/hooks/use-search-params';
+import {Layout as AuthLayout} from 'src/layouts/auth/modern-layout';
+import {paths} from 'src/paths';
+import {Issuer} from 'src/utils/auth';
 import sendHttpRequest from "../../../utils/send-http-request";
 
 const initialValues = {
@@ -39,7 +37,7 @@ const initialValues = {
 const validationSchema = Yup.object({
   email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
   name: Yup.string().max(255).required('Name is required'),
-  password: Yup.string().min(7).max(255).required('Password is required'),
+  password: Yup.string().min(8).max(255).required('Password is required'),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password'), null], 'Passwords must match')
     .required('Confirm Password is required'),
@@ -47,6 +45,35 @@ const validationSchema = Yup.object({
 });
 
 const Page = () => {
+  const [formError, setFormError] = useState({
+    name: {error: false, message: ''},
+    email: {error: false, message: ''},
+    password: {error: false, message: ''},
+  });
+
+  function displayError(response) {
+
+    const isUsernameError = response.data.username ?? false;
+    const isEmailError = response.data.email ?? false;
+    const isPasswordError = response.data.password ?? false;
+
+    setFormError({
+      ...formError,
+      name: {
+        error: isUsernameError,
+        message: isUsernameError ? 'User already Exist!' : ''
+      },
+      email: {
+        error: isEmailError,
+        message: isEmailError ? "Email already registered! " : ''
+      },
+      password: {
+        error: isPasswordError,
+        message: isPasswordError ? response.data.password : ''
+      }
+    });
+  }
+
   //const isMounted = useMounted();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -69,31 +96,24 @@ const Page = () => {
           password: values.password
         }).then(
           response => {
-            const parsedResponse = JSON.parse(response.data);
-            if (response.status === 200){
+            // const parsedResponse = JSON.parse(response.data);
+            if (response.status === 201 || response.status === 200) {
               router.push(returnTo || paths.auth.jwt.login);
-            } else if (response.status === 409){
-              console.error(parsedResponse.message);
+            } else if (response.status === 409 || response.status === 400) {
+              displayError(response)
               helpers.setStatus({ success: false });
-              helpers.setErrors({ submit: parsedResponse.message});
               helpers.setSubmitting(false);//暫定
-            } else if (response.status === 400){
-              console.error('Account creation failed.');
-              helpers.setStatus({ success: false });
-              helpers.setErrors({ submit: parsedResponse.message});
-              helpers.setSubmitting(false);
+            } else if (response.status === 500) {
+              router.push('/500');
             }
           }
         )
       } catch (err) {
         console.error(err);
-        // if (isMounted()) {
-
-        // }
       }
     },
   });
-  usePageView();
+
   return (
     <>
       <Seo title="Register" />
@@ -126,19 +146,19 @@ const Page = () => {
             >
               <Stack spacing={3}>
                 <TextField
-                  error={!!(formik.touched.name && formik.errors.name)}
+                  error={!!(formik.touched.name && formik.errors.name || formError.name.error)}
                   fullWidth
-                  helperText={formik.touched.name && formik.errors.name}
-                  label="Name"
+                  helperText={formik.touched.name && formik.errors.name || formError.name.message}
+                  label="Username"
                   name="name"
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                   value={formik.values.name}
                 />
                 <TextField
-                  error={!!(formik.touched.email && formik.errors.email)}
+                  error={!!(formik.touched.email && formik.errors.email || formError.email.error)}
                   fullWidth
-                  helperText={formik.touched.email && formik.errors.email}
+                  helperText={formik.touched.email && formik.errors.email || formError.email.message}
                   label="Email Address"
                   name="email"
                   onBlur={formik.handleBlur}
@@ -147,9 +167,9 @@ const Page = () => {
                   value={formik.values.email}
                 />
                 <TextField
-                  error={!!(formik.touched.password && formik.errors.password)}
+                  error={!!(formik.touched.password && formik.errors.password || formError.password.error)}
                   fullWidth
-                  helperText={formik.touched.password && formik.errors.password}
+                  helperText={formik.touched.password && formik.errors.password || formError.password.message}
                   label="Password"
                   name="password"
                   onBlur={formik.handleBlur}
