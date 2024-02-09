@@ -86,6 +86,7 @@ const Page = () => {
           attachment_data: response.data.attachment,
           // preferredGender: response.data.preferredGender,
         }
+        setAttachment(response.data.attachment);
         setFormData(originalData);
       } else if (response.status === 401 || response.status === 403) {
         router.push('/401');
