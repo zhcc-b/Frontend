@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Button from '@mui/material/Button';
@@ -29,18 +29,14 @@ import {paths} from 'src/paths';
 import {fileToBase64} from 'src/utils/file-to-base64';
 import sendHttpRequest from "src/utils/send-http-request";
 import confetti from "canvas-confetti";
-import {useRouter} from "next/navigation";
+import {useRouter} from 'next/router'
 
 const Page = () => {
   const router = useRouter();
+  const {roomId} = router.query;
 
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [severity, setSeverity] = useState('success');
-  const [message, setMessage] = useState('');
-  const [attachment, setAttachment] = useState(null);
-  const today = new Date().setHours(0, 0, 0, 0);
-  const [formData, setFormValue, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput({
+  let initialRoomInfo = {
+    id: '',
     title: '',
     description: '',
     location: '',
@@ -50,11 +46,73 @@ const Page = () => {
     age_group: '',
     sport_data: '',
     max_players: '',
-    // preferredGender: 'None',
-    // visibilityControl: 'Public',
     content: '',
-    attachment_data: ''
-  });
+    attachment_data: '',
+    // preferredGender: '',
+  };
+
+  // const [attachment, setAttachment] = useState(initialCover);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [severity, setSeverity] = useState('success');
+  const [message, setMessage] = useState('');
+  const [attachment, setAttachment] = useState(null);
+  const today = new Date().setHours(0, 0, 0, 0);
+  const [formData, setFormData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput(initialRoomInfo);
+
+  useEffect(() => {
+    if (router.isReady === false) {
+      return;
+    }
+
+    sendHttpRequest(
+      `http://localhost:8000/events/${roomId}/`,
+      'GET'
+    ).then(response => {
+
+      if (response.status === 200 || response.status === 201) {
+        const originalData = {
+          id: response.data.id,
+          title: response.data.title,
+          description: response.data.description,
+          location: response.data.location,
+          start_time: new Date(response.data.start_time),
+          end_time: new Date(response.data.end_time),
+          level: response.data.level,
+          age_group: response.data.age_group,
+          sport_data: response.data.sport.name.charAt(0).toUpperCase() + response.data.sport.name.slice(1),
+          max_players: response.data.max_players,
+          content: response.data.content,
+          attachment_data: response.data.attachment,
+          // preferredGender: response.data.preferredGender,
+        }
+        setAttachment(response.data.attachment);
+        setFormData(originalData);
+      } else if (response.status === 401 || response.status === 403) {
+        router.push('/401');
+      } else if (response.status === 404) {
+        router.push('/404');
+      }else {
+        router.push('/500');
+      }
+
+      // const simulate = {
+      //   title: 'Badminton',
+      //   description: 'Badminton game',
+      //   location: 'Singapore',
+      //   start_time: new Date(),
+      //   end_time: new Date(),
+      //   level: 'B',
+      //   age_group: 'C',
+      //   sport: 'Badminton',
+      //   max_players: '10',
+      //   content: '<p><strong>This is a badminton game </strong></p>',
+      //   attachment: ''
+      // }
+      // setFormData(simulate);
+
+    })
+  }, [roomId, setFormData, router]);
 
   const [formError, setFormError] = useState({
     title: {error: false, message: ''},
@@ -66,15 +124,13 @@ const Page = () => {
     age_group: {error: false, message: ''},
     sport_data: {error: false, message: ''},
     max_players: {error: false, message: ''},
-    preferredGender: {error: false, message: ''},
-    visibilityControl: {error: false, message: ''},
+    // preferredGender: {error: false, message: ''},
+    // visibilityControl: {error: false, message: ''},
     content: {error: false, message: ''},
     attachment_data: {error: false, message: ''}
   });
 
   const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
-
-  // usePageView();
 
   function validateForm() {
     const isTitleEmpty = formData.title === '';
@@ -104,6 +160,10 @@ const Page = () => {
     const isNotStartTimeObject = !formData.start_time instanceof Date;
     const isUnknownEndTimeObject = !formData.end_time instanceof Date;
     const isStartTimeAfterEndTime = formData.start_time > formData.end_time;
+
+    if (formData.attachment_data !== null && formData.attachment_data.startsWith('http')) {
+      delete formData.attachment_data;
+    }
 
     setFormError({
       ...formError,
@@ -168,11 +228,10 @@ const Page = () => {
     setLoading(true);
     if (validateForm()) {
       sendHttpRequest(
-        'http://localhost:8000/events/create/',
-        'POST',
+        'http://localhost:8000/events/update/',
+        'PATCH',
         formData
       ).then(response => {
-        console.log(response);
         if (response.status === 200 || response.status === 201) {
           confetti({
             particleCount: 100,
@@ -244,7 +303,7 @@ const Page = () => {
       >
         <Container maxWidth="xl">
           <Stack spacing={1}>
-            <Typography variant="h3">Create a new matching room</Typography>
+            <Typography variant="h3">Edit matching room</Typography>
             <Breadcrumbs separator={<BreadcrumbsSeparator/>}>
               <Link
                 color="text.primary"
@@ -266,7 +325,7 @@ const Page = () => {
                 color="text.secondary"
                 variant="subtitle2"
               >
-                Create
+                Edit
               </Typography>
             </Breadcrumbs>
           </Stack>
@@ -305,6 +364,19 @@ const Page = () => {
               >
                 Publish changes
               </LoadingButton>
+              {/*<Button*/}
+              {/*  // component={RouterLink}*/}
+              {/*  // href={paths.dashboard.room.roomDetails}*/}
+              {/*  variant="contained"*/}
+              {/*  onClick={handleClick}*/}
+              {/*>*/}
+              {/*  Publish changes*/}
+              {/*</Button>*/}
+              {/*<IconButton>*/}
+              {/*  <SvgIcon>*/}
+              {/*    <DotsHorizontalIcon />*/}
+              {/*  </SvgIcon>*/}
+              {/*</IconButton>*/}
             </Stack>
           </Card>
           <Stack spacing={3}>
@@ -473,11 +545,11 @@ const Page = () => {
                             id="sport-type-select"
                             name={'sport_data'}
                             value={formData.sport_data}
-                            options={sport_type}
                             isOptionEqualToValue={(option, value) => option === value || value === ""}
                             onChange={(event, value) => {
                               handleAutocompleteChange('sport_data', value);
                             }}
+                            options={sport_type}
                             renderInput={(params) =>
                               <TextField
                                 {...params}
@@ -511,7 +583,6 @@ const Page = () => {
                               value={formData.level}
                               error={formError.level.error}
                               onChange={handleInputChange}
-                              required
                             >
                               <MenuItem value={'B'}>Beginner</MenuItem>
                               <MenuItem value={'I'}>Intermediate</MenuItem>

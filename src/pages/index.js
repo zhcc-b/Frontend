@@ -14,7 +14,5 @@ const Page = () => {
     </>
   );
 };
-
 // Page.getLayout = (page) => <MarketingLayout>{page}</MarketingLayout>;
-
 export default Page;

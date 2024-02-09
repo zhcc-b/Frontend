@@ -1,30 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-//import { useAuth } from 'src/hooks/use-auth';
+import { useAuth } from 'src/hooks/use-auth';
 import { useRouter } from 'src/hooks/use-router';
 import { paths } from 'src/paths';
-import { Issuer } from 'src/utils/auth';
 
-const loginPaths = {
-  [Issuer.JWT]: paths.auth.jwt.login,
-};
-
-export const AuthGuard = (props) => {
+export const GuestGuard = (props) => {
   const { children } = props;
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
-  //const { isAuthenticated, issuer } = useAuth();
   const [checked, setChecked] = useState(false);
 
   const check = useCallback(() => {
-    if (localStorage.getItem('jwttoken') == null){
-      const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
-      const href = loginPaths['JWT'] + `?${searchParams}`;
-      router.replace(href);
+    if (isAuthenticated) {
+      router.replace(paths.dashboard.index);
     } else {
       setChecked(true);
     }
-  }, [router]);
+  }, [isAuthenticated, router]);
 
   // Only check on mount, this allows us to redirect the user manually when auth state changes
   useEffect(
@@ -40,11 +33,11 @@ export const AuthGuard = (props) => {
   }
 
   // If got here, it means that the redirect did not occur, and that tells us that the user is
-  // authenticated / authorized.
+  // not authenticated / authorized.
 
   return <>{children}</>;
 };
 
-AuthGuard.propTypes = {
+GuestGuard.propTypes = {
   children: PropTypes.node,
 };
