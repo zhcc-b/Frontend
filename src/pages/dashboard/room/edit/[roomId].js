@@ -80,7 +80,7 @@ const Page = () => {
           end_time: new Date(response.data.end_time),
           level: response.data.level,
           age_group: response.data.age_group,
-          sport_data: response.data.sport.name,
+          sport_data: response.data.sport.name.charAt(0).toUpperCase() + response.data.sport.name.slice(1),
           max_players: response.data.max_players,
           content: response.data.content,
           attachment_data: response.data.attachment,
@@ -161,6 +161,10 @@ const Page = () => {
     const isUnknownEndTimeObject = !formData.end_time instanceof Date;
     const isStartTimeAfterEndTime = formData.start_time > formData.end_time;
 
+    if (formData.attachment_data !== null && formData.attachment_data.startsWith('http')) {
+      delete formData.attachment_data;
+    }
+
     setFormError({
       ...formError,
       title: {
@@ -223,9 +227,6 @@ const Page = () => {
   function handleClick() {
     setLoading(true);
     if (validateForm()) {
-      if (formData.attachment_data.startsWith('http')) {
-        delete formData.attachment_data;
-      }
       sendHttpRequest(
         'http://localhost:8000/events/update/',
         'PATCH',
@@ -418,6 +419,7 @@ const Page = () => {
                         helperText={formError.description.message}
                         onChange={handleInputChange}
                         variant={'outlined'}
+                        required
                       />
                     </Stack>
                   </Grid>
@@ -567,7 +569,10 @@ const Page = () => {
                               xs={6}
                               sx={{pl: 1}}
                         >
-                          <FormControl fullWidth>
+                          <FormControl
+                            fullWidth
+                            required
+                          >
                             <InputLabel id="levels-select-label">Skill Level</InputLabel>
                             <Select
                               labelId="levels-select-label"
@@ -620,7 +625,10 @@ const Page = () => {
                               xs={6}
                               sx={{pl: 1}}
                         >
-                          <FormControl fullWidth>
+                          <FormControl
+                            fullWidth
+                            required
+                          >
                             <InputLabel id="age-group-select-label">Age Group</InputLabel>
                             <Select
                               labelId="age-group-select-label"

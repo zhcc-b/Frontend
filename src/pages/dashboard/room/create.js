@@ -347,6 +347,7 @@ const Page = () => {
                         helperText={formError.description.message}
                         onChange={handleInputChange}
                         variant={'outlined'}
+                        required
                       />
                     </Stack>
                   </Grid>
@@ -496,7 +497,10 @@ const Page = () => {
                               xs={6}
                               sx={{pl: 1}}
                         >
-                          <FormControl fullWidth>
+                          <FormControl
+                            fullWidth
+                            required
+                          >
                             <InputLabel id="levels-select-label">Skill Level</InputLabel>
                             <Select
                               labelId="levels-select-label"
@@ -506,6 +510,7 @@ const Page = () => {
                               value={formData.level}
                               error={formError.level.error}
                               onChange={handleInputChange}
+                              required
                             >
                               <MenuItem value={'B'}>Beginner</MenuItem>
                               <MenuItem value={'I'}>Intermediate</MenuItem>
@@ -549,7 +554,10 @@ const Page = () => {
                               xs={6}
                               sx={{pl: 1}}
                         >
-                          <FormControl fullWidth>
+                          <FormControl
+                            fullWidth
+                            required
+                          >
                             <InputLabel id="age-group-select-label">Age Group</InputLabel>
                             <Select
                               labelId="age-group-select-label"
