@@ -47,7 +47,7 @@ export function useUserInput(initialValues) {
 
   console.log(values);
 
-  return [values, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange];
+  return [values, setValues, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange];
 }
 
 export default useUserInput;

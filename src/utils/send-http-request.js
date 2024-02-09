@@ -5,12 +5,19 @@ async function sendHttpRequest(url, method, data = null) {
     headers,
   };
 
-  if (method === 'POST' || method === 'PUT') {
+  let token = localStorage.getItem('jwttoken')
+  if (token !== null) {
+    headers.append('Authorization', `Bearer ${token}`);
+  }
+
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
     headers.append('Content-Type', 'application/json');
     options.body = JSON.stringify(data);
   }
 
   try {
+    console.log('url', url);
+    console.log('options', options);
     const response = await fetch(url, options);
 
     return {
