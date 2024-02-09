@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import Camera01Icon from '@untitled-ui/icons-react/build/esm/Camera01';
-import User01Icon from '@untitled-ui/icons-react/build/esm/User01';
-import { alpha } from '@mui/system/colorManipulator';
-import Avatar from '@mui/material/Avatar';
+// import Camera01Icon from '@untitled-ui/icons-react/build/esm/Camera01';
+// import User01Icon from '@untitled-ui/icons-react/build/esm/User01';
+// import { alpha } from '@mui/system/colorManipulator';
+// import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -10,43 +10,48 @@ import CardContent from '@mui/material/CardContent';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
-import SvgIcon from '@mui/material/SvgIcon';
-import Switch from '@mui/material/Switch';
+// import SvgIcon from '@mui/material/SvgIcon';
+// import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
-import { DatePicker } from '@mui/x-date-pickers';
-import { useState } from 'react';
+// import { DatePicker } from '@mui/x-date-pickers';
+import { useCallback, useEffect, useState } from 'react';
 import useUserInput from 'src/hooks/use-user-input';
 import sendHttpRequest from 'src/utils/send-http-request';
 import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
+import { fileToBase64 } from 'src/utils/file-to-base64';
+import { FileDropzone } from 'src/components/file-dropzone';
+import confetti from 'canvas-confetti';
 
 export const AccountGeneralSettings = (props) => {
-  const { avatar, email, phone, username, sports, age, gender, description, jwtToken } = props;
+  const { init_avatar, avatar_data, email, phone, name, sports, age, gender, description } = props;
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
+  const [avatar, setAvatar] = useState(init_avatar);
   const [userData, setUserData, handleInputChange] = useUserInput({
-    avatar: avatar,
+    avatar_data: avatar_data,
     email: email,
     phone: phone,
-    username: username,
+    name: name,
     sports: sports,
     age: age,
     gender: gender,
     description: description,
-    publicProfile: false,
+    // publicProfile: false,
   });
 
   const [profileError, setProfileError] = useState({
+    avatar_data: { error: false, message: '' },
     email: { error: false, message: '' },
     age: { error: false, message: '' },
     phone: { error: false, message: '' },
-    username: { error: false, message: '' },
+    name: { error: false, message: '' },
     sports: { error: false, message: '' },
-    birthday: { error: false, message: '' },
+    // birthday: { error: false, message: '' },
     gender: { error: false, message: '' },
     description: { error: false, message: '' },
   });
@@ -67,12 +72,13 @@ export const AccountGeneralSettings = (props) => {
   );
 
   function validateProfile() {
-    const isNameEmpty = userData.username === '';
+    const isNameEmpty = userData.name === '';
     const isEmailEmpty = userData.email === '';
     const isPhoneEmpty = userData.phone === '';
     const isAgeEmpty = userData.age === '';
     // const isBirthdayEmpty = userData.birthday === null;
     const isGenderEmpty = userData.gender === null;
+    const isAvatarEmpty = userData.avatar_data === '';
 
     const isInvaildPhone = !/^\d{10}$/.test(userData.phone);
     const isInvaildAge =
@@ -82,13 +88,19 @@ export const AccountGeneralSettings = (props) => {
     );
     const isUnknownSport = !userData.sports.every((sport) => sportsOptions.includes(sport));
     const isDescriptionTooLong = userData.description.length > 300;
-
     // const isNotBirthdayObject = !userData.birthday instanceof Date;
     // const isInvaildBirthday = userData.birthday > today;
+    if (userData.avatar_data !== null && userData.avatar_data.startsWith('http')) {
+      delete userData.avatar_data;
+    }
 
     setProfileError({
       ...profileError,
-      username: {
+      avatar_data: {
+        error: isAvatarEmpty,
+        message: isAvatarEmpty ? 'Avatar image is required' : '',
+      },
+      name: {
         error: isNameEmpty,
         message: isNameEmpty ? 'Name is required' : '',
       },
@@ -144,9 +156,9 @@ export const AccountGeneralSettings = (props) => {
       !isGenderEmpty &&
       !isInvaildPhone &&
       !isUnknownGender &&
-      !isUnknownSport &&
       !isInvaildAge &&
       !isDescriptionTooLong
+      // !isAvatarEmpty
     );
   }
 
@@ -157,25 +169,28 @@ export const AccountGeneralSettings = (props) => {
       const sportString = copyData.sports.join(', ');
       delete copyData.sports;
       copyData.sports_you_can_play = sportString;
-      console.log(copyData);
-      sendHttpRequest('http://localhost:8000/userprofile/edit-profile/', 'POST', copyData).then(
+      sendHttpRequest('http://localhost:8000/userprofile/editprofile/', 'PATCH', userData).then(
         (response) => {
-          if (response.status === 200) {
+          console.log(response.status);
+          if (response.status === 200 || response.status === 201) {
             confetti({
               particleCount: 100,
               spread: 70,
               origin: { y: 0.6 },
             });
             setSeverity('success');
-            setMessage('User data updated successfully');
+            setMessage('Matching room created successfully');
             setOpen(true);
           } else if (response.status === 400) {
             setSeverity('warning');
-            setMessage('Please fill in all the required fields');
+            setMessage('Please fill in all the required fields in proper format');
             setOpen(true);
+          } else if (response.status === 401) {
+            router.push('/401');
           } else {
+            console.log('err');
             setSeverity('error');
-            setMessage('An unexpected error occurred: ' + response.data);
+            setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
             setOpen(true);
           }
         }
@@ -183,72 +198,16 @@ export const AccountGeneralSettings = (props) => {
     }
     setLoading(false);
   }
-  const [isEditName, setIsEditName] = useState(false);
-  const handleNameEditClick = () => {
-    // Enable name editing
-    setIsEditName(true);
+
+  const [isEdit, setIsEdit] = useState(false);
+  const handleEditClick = () => {
+    // Enable editing
+    setIsEdit(true);
   };
 
-  const handleNameSaveClick = () => {
-    // Save the updated phone and disable editing
-    setIsEditName(false);
-    handleClick();
-  };
-
-  const [isEditEmail, setIsEditEmail] = useState(false);
-  const handleEmailEditClick = () => {
-    // Enable email editing
-    setIsEditEmail(true);
-  };
-
-  const handleEmailSaveClick = () => {
-    // Save the updated email and disable editing
-    setIsEditEmail(false);
-    handleClick();
-  };
-  const [isEditPhone, setIsEditPhone] = useState(false);
-  const handlePhoneEditClick = () => {
-    // Enable phone editing
-    setIsEditPhone(true);
-  };
-
-  const handlePhoneSaveClick = () => {
-    // Save the updated phone and disable editing
-    setIsEditPhone(false);
-    handleClick();
-  };
-
-  const [isEditGender, setIsEditGender] = useState(false);
-  const handleGenderEditClick = () => {
-    // Enable gender editing
-    setIsEditGender(true);
-  };
-
-  const handleGenderSaveClick = () => {
-    // Save the updated gender and disable editing
-    setIsEditGender(false);
-    handleClick();
-  };
-  // const [isEditBirth, setIsEditBirth] = useState(false);
-  // const handleBirthEditClick = () => {
-  //   // Enable birthday editing
-  //   setIsEditBirth(true);
-  // };
-
-  // const handleBirthSaveClick = () => {
-  //   // Save the updated birthday and disable editing
-  //   setIsEditBirth(false);
-  //   handleClick();
-  // };
-  const [isEditAge, setIsEditAge] = useState(false);
-  const handleAgeEditClick = () => {
-    // Enable age editing
-    setIsEditAge(true);
-  };
-
-  const handleAgeSaveClick = () => {
-    // Save the updated age and disable editing
-    setIsEditAge(false);
+  const handleSaveClick = () => {
+    // Save the updated and disable editing
+    setIsEdit(false);
     handleClick();
   };
 
@@ -260,6 +219,20 @@ export const AccountGeneralSettings = (props) => {
     }
     handleClick();
   };
+
+  const handleCoverDrop = useCallback(
+    async ([file]) => {
+      const data = await fileToBase64(file);
+      setAvatar(data);
+      userData.avatar_data = data; // directly assign the data to formData.attachment
+    },
+    [userData]
+  );
+
+  const handleCoverRemove = useCallback(() => {
+    setAvatar(null);
+    userData.avatar_data = null;
+  }, [userData]);
 
   return (
     <Stack
@@ -284,85 +257,73 @@ export const AccountGeneralSettings = (props) => {
             >
               <Stack spacing={3}>
                 <Stack
-                  alignItems="center"
-                  direction="row"
-                  spacing={2}
+                  spacing={3}
+                  direction={'row'}
+                  alignItems={'center'}
                 >
-                  <Box
-                    sx={{
-                      borderColor: 'neutral.300',
-                      borderRadius: '50%',
-                      borderStyle: 'dashed',
-                      borderWidth: 1,
-                      p: '4px',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        borderRadius: '50%',
-                        height: '100%',
-                        width: '100%',
-                        position: 'relative',
-                      }}
-                    >
+                  <Stack>
+                    {avatar ? (
+                      <Box
+                        sx={{
+                          backgroundImage: `url(${avatar})`,
+                          backgroundPosition: 'center',
+                          backgroundSize: 'avatar',
+                          borderRadius: '50%',
+                          height: 230,
+                          width: 230,
+                          mt: 3,
+                        }}
+                      />
+                    ) : (
                       <Box
                         sx={{
                           alignItems: 'center',
-                          backgroundColor: (theme) => alpha(theme.palette.neutral[700], 0.5),
-                          borderRadius: '50%',
-                          color: 'common.white',
-                          cursor: 'pointer',
                           display: 'flex',
-                          height: '100%',
+                          flexDirection: 'column',
                           justifyContent: 'center',
-                          left: 0,
-                          opacity: 0,
-                          position: 'absolute',
-                          top: 0,
-                          width: '100%',
-                          zIndex: 1,
-                          '&:hover': {
-                            opacity: 1,
-                          },
+                          border: 1,
+                          borderRadius: '50%',
+                          borderStyle: 'dashed',
+                          borderColor: 'grey.500',
+                          height: 230,
+                          width: 230,
+                          mt: 3,
+                          p: 3,
                         }}
                       >
-                        <Stack
-                          alignItems="center"
-                          direction="row"
-                          spacing={1}
+                        <Typography
+                          align="center"
+                          color="text.secondary"
+                          variant="h6"
                         >
-                          <SvgIcon color="inherit">
-                            <Camera01Icon />
-                          </SvgIcon>
-                          <Typography
-                            color="inherit"
-                            variant="subtitle2"
-                            sx={{ fontWeight: 700 }}
-                          >
-                            Select
-                          </Typography>
-                        </Stack>
+                          Select an avatar
+                        </Typography>
+                        <Typography
+                          align="center"
+                          color="text.secondary"
+                          sx={{ mt: 1 }}
+                          variant="subtitle1"
+                        >
+                          Image used for avatar
+                        </Typography>
                       </Box>
-                      <Avatar
-                        src={userData.avatar}
-                        sx={{
-                          height: 100,
-                          width: 100,
-                        }}
-                      >
-                        <SvgIcon>
-                          <User01Icon />
-                        </SvgIcon>
-                      </Avatar>
-                    </Box>
-                  </Box>
-                  <Button
-                    color="inherit"
-                    size="small"
-                  >
-                    Change
-                  </Button>
+                    )}
+                    <Button
+                      color="inherit"
+                      disabled={!avatar}
+                      onClick={handleCoverRemove}
+                    >
+                      Remove
+                    </Button>
+                  </Stack>
+                  <FileDropzone
+                    accept={{ 'image/*': [] }}
+                    maxFiles={1}
+                    onDrop={handleCoverDrop}
+                    caption="(SVG, JPG, PNG, or gif maximum 900x400)"
+                  />
                 </Stack>
+
                 <Stack
                   alignItems="center"
                   direction="row"
@@ -370,37 +331,20 @@ export const AccountGeneralSettings = (props) => {
                 >
                   <FormControl fullWidth>
                     <TextField
-                      id={'username'}
-                      name={'username'}
-                      value={userData.username}
-                      disabled={!isEditName}
+                      id={'name'}
+                      name={'name'}
+                      value={userData.name}
+                      disabled={!isEdit}
                       onChange={handleInputChange}
-                      error={profileError.username.error}
+                      error={profileError.name.error}
                       required
-                      label="Username"
+                      label="Name"
                       sx={{ flexGrow: 1 }}
                     />
-                    {profileError.username.error && (
-                      <FormHelperText error>{profileError.username.message}</FormHelperText>
+                    {profileError.name.error && (
+                      <FormHelperText error>{profileError.name.message}</FormHelperText>
                     )}
                   </FormControl>
-                  {isEditName ? (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleNameSaveClick}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleNameEditClick}
-                    >
-                      Edit
-                    </Button>
-                  )}
                 </Stack>
                 <Stack
                   alignItems="center"
@@ -413,7 +357,7 @@ export const AccountGeneralSettings = (props) => {
                       name={'email'}
                       value={userData.email}
                       onChange={handleInputChange}
-                      disabled={!isEditEmail}
+                      disabled={!isEdit}
                       label="Email Address"
                       error={profileError.email.error}
                       required
@@ -428,23 +372,6 @@ export const AccountGeneralSettings = (props) => {
                       <FormHelperText error>{profileError.email.message}</FormHelperText>
                     )}
                   </FormControl>
-                  {isEditEmail ? (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleEmailSaveClick}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleEmailEditClick}
-                    >
-                      Edit
-                    </Button>
-                  )}
                 </Stack>
                 <Stack
                   alignItems="center"
@@ -458,7 +385,7 @@ export const AccountGeneralSettings = (props) => {
                       error={profileError.phone.error}
                       value={userData.phone}
                       onChange={handleInputChange}
-                      disabled={!isEditPhone}
+                      disabled={!isEdit}
                       label="Phone Number"
                       required
                       type="number"
@@ -474,23 +401,6 @@ export const AccountGeneralSettings = (props) => {
                       <FormHelperText error>{profileError.phone.message}</FormHelperText>
                     )}
                   </FormControl>
-                  {isEditPhone ? (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handlePhoneSaveClick}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handlePhoneEditClick}
-                    >
-                      Edit
-                    </Button>
-                  )}
                 </Stack>
                 <Stack
                   alignItems="center"
@@ -507,7 +417,7 @@ export const AccountGeneralSettings = (props) => {
                       value={userData.gender}
                       onChange={handleInputChange}
                       label="Gender"
-                      disabled={!isEditGender}
+                      disabled={!isEdit}
                       required
                     >
                       <MenuItem value={'Male'}>Male</MenuItem>
@@ -519,23 +429,6 @@ export const AccountGeneralSettings = (props) => {
                       <FormHelperText error>{profileError.gender.message}</FormHelperText>
                     )}
                   </FormControl>
-                  {isEditGender ? (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleGenderSaveClick}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleGenderEditClick}
-                    >
-                      Edit
-                    </Button>
-                  )}
                 </Stack>
                 <Stack
                   alignItems="center"
@@ -551,26 +444,9 @@ export const AccountGeneralSettings = (props) => {
                     required
                     type="number"
                     label="Age"
-                    disabled={!isEditAge}
+                    disabled={!isEdit}
                     sx={{ flexGrow: 1 }}
                   />
-                  {isEditAge ? (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleAgeSaveClick}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleAgeEditClick}
-                    >
-                      Edit
-                    </Button>
-                  )}
                 </Stack>
                 {/* <Stack
                   alignItems="center"
@@ -630,14 +506,29 @@ export const AccountGeneralSettings = (props) => {
                       <FormHelperText error>{profileError.description.message}</FormHelperText>
                     )}
                   </FormControl>
-
-                  <Button
-                    color="inherit"
-                    size="small"
-                    onClick={handleClick}
-                  >
-                    Save
-                  </Button>
+                </Stack>
+                <Stack
+                  alignItems="center"
+                  direction="row"
+                  justifyContent="flex-end"
+                >
+                  {isEdit ? (
+                    <Button
+                      color="inherit"
+                      size="small"
+                      onClick={handleSaveClick}
+                    >
+                      Save
+                    </Button>
+                  ) : (
+                    <Button
+                      color="inherit"
+                      size="small"
+                      onClick={handleEditClick}
+                    >
+                      Edit
+                    </Button>
+                  )}
                 </Stack>
               </Stack>
             </Grid>
@@ -691,7 +582,7 @@ export const AccountGeneralSettings = (props) => {
           </Grid>
         </CardContent>
       </Card>
-      <Card>
+      {/* <Card>
         <CardContent>
           <Grid
             container
@@ -739,7 +630,7 @@ export const AccountGeneralSettings = (props) => {
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </Card> */}
       <Card>
         <CardContent>
           <Grid
@@ -779,7 +670,7 @@ export const AccountGeneralSettings = (props) => {
 };
 
 AccountGeneralSettings.propTypes = {
-  avatar: PropTypes.string.isRequired,
+  avatar_data: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
 };

@@ -18,12 +18,11 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import sendHttpRequest from 'src/utils/send-http-request';
-import useUserInput from 'src/hooks/use-user-input';
+import confetti from 'canvas-confetti';
 
 // import { Scrollbar } from 'src/components/scrollbar';
 
-export const AccountSecuritySettings = (props) => {
-  const { jwtToken } = props;
+export const AccountSecuritySettings = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -51,11 +50,13 @@ export const AccountSecuritySettings = (props) => {
     }
   };
 
+  const passwordData = { password: password };
+
   function handleClick() {
     setLoading(true);
-    sendHttpRequest('http://localhost:8000/userprofile/edit-profile', 'POST', passwordData).then(
+    sendHttpRequest('http://localhost:8000/userprofile/editprofile', 'POST', passwordData).then(
       (response) => {
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
           confetti({
             particleCount: 100,
             spread: 70,

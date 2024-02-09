@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { subDays, subHours, subMinutes, subMonths } from 'date-fns';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -14,25 +14,69 @@ import { AccountGeneralSettings } from 'src/sections/dashboard/account/account-g
 import { AccountNotificationsSettings } from 'src/sections/dashboard/account/account-notifications-settings';
 import { AccountSecuritySettings } from 'src/sections/dashboard/account/account-security-settings';
 import { useRouter } from 'next/navigation';
+import sendHttpRequest from 'src/utils/send-http-request';
+import useUserInput from 'src/hooks/use-user-input';
+import { useMockedUser } from 'src/hooks/use-mocked-user';
+import { jwtDecode } from 'jwt-decode';
 
 const tabs = [
   { label: 'General', value: 'general' },
-  { label: 'Notifications', value: 'notifications' },
+  // { label: 'Notifications', value: 'notifications' },
   { label: 'Security', value: 'security' },
 ];
 
 const Page = () => {
   const router = useRouter();
   const [currentTab, setCurrentTab] = useState('general');
+  const [init_avatar, setAvatar] = useState(null);
+  const token = localStorage.getItem('jwttoken');
 
-  const user = null;
-  const response = sendHttpRequest('http://localhost:8000/userprofile/edit-profile/', 'GET');
-  // const mockUser = useMockedUser();
-  if (response.status === 200) {
-    user = response.data;
-  } else {
-    router.push('/404');
-  }
+  let initialUserInfo = {
+    avatar_data: '',
+    email: '',
+    gender: '',
+    sports_you_can_play: '',
+    phone: '',
+    age: '',
+    description: '',
+    email_product: false,
+    email_security: false,
+    phone_security: false,
+  };
+  const uid = jwtDecode(token).user_id;
+  const [userData, setFormData, handleInputChange] = useUserInput(initialUserInfo);
+  useEffect(() => {
+    if (router.isReady === false) {
+      return;
+    }
+
+    sendHttpRequest(`http://localhost:8000/userprofile/${uid}`, 'GET').then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        const originalData = {
+          email: response.data.email,
+          gender: response.data.gender,
+          sports_you_can_play: response.data.sports_you_can_play,
+          phone: response.data.phone,
+          age: response.data.age,
+          description: response.data.description,
+          email_product: response.data.email_product,
+          email_security: response.data.email_security,
+          phone_security: response.data.phone_security,
+          avatar_data: response.data.avatar,
+        };
+        console.log(originalData);
+        setAvatar(response.data.avatar);
+        setFormData(originalData);
+      } else if (response.status === 401 || response.status === 403) {
+        router.push('/401');
+      } else if (response.status === 404) {
+        router.push('/404');
+      } else {
+        router.push('/500');
+      }
+    });
+  }, [setFormData, router]);
+  // const userData = useMockedUser();
 
   const handleTabsChange = useCallback((event, value) => {
     setCurrentTab(value);
@@ -76,24 +120,24 @@ const Page = () => {
           </Stack>
           {currentTab === 'general' && (
             <AccountGeneralSettings
-              avatar={user.avatar || ''}
-              email={user.email || ''}
-              phone={user.phone || ''}
-              username={user.username || ''}
-              gender={user.gender || ''}
-              sports={user.sports_you_can_play.split(', ') || []}
-              age={user.age}
-              description={user.description}
-              token={jwtToken}
+              init_avatar={init_avatar || null}
+              avatar_data={userData.avatar_data || null}
+              email={userData.email || ''}
+              phone={userData.phone || ''}
+              name={userData.name || ''}
+              gender={userData.gender || ''}
+              sports={userData.sports_you_can_play ? userData.sports_you_can_play.split(', ') : []}
+              age={userData.age}
+              description={userData.description}
             />
           )}
-          {currentTab === 'notifications' && (
+          {/* {currentTab === 'notifications' && (
             <AccountNotificationsSettings
-              email_product={user.email_product}
-              email_security={user.email_security}
-              phone_security={user.phone_security}
+              email_product={userData.email_product}
+              email_security={userData.email_security}
+              phone_security={userData.phone_security}
             />
-          )}
+          )} */}
           {currentTab === 'security' && <AccountSecuritySettings />}
         </Container>
       </Box>

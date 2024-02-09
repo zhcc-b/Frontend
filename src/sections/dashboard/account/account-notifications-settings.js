@@ -8,27 +8,51 @@ import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import useUserInput from 'src/hooks/use-user-input';
 import sendHttpRequest from 'src/utils/send-http-request';
+import confetti from 'canvas-confetti';
 
 export const AccountNotificationsSettings = (props) => {
   const { email_product, email_security, phone_security } = props;
   const [loading, setLoading] = useState(false);
-  const [notificationData, handleInputChange] = useUserInput({
+  const [notificationData, setUserData, handleInputChange] = useUserInput({
     email_product: email_product,
     email_security: email_security,
     phone_security: phone_security,
   });
+  const [email_product_check, setEailProduct] = useState(email_product);
+  const [email_security_check, setEailSecuity] = useState(email_security);
+  const [phone_security_check, setPhoneSecurity] = useState(phone_security);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
-  const { jwtToken } = props;
+  function toBool() {
+    if (notificationData.email_product === 'on') {
+      notificationData.email_product = true;
+    }
+    if (notificationData.email_security === 'on') {
+      notificationData.email_security = true;
+    }
+    if (notificationData.phone_security === 'on') {
+      notificationData.phone_security = true;
+    }
+  }
+  const handleEmailProductChange = () => {
+    setEailProduct((prev) => !prev);
+  };
+  const handleEmailSecurityChange = () => {
+    setEailSecuity((prev) => !prev);
+  };
+  const handleEPhoneSecurityChange = () => {
+    setPhoneSecurity((prev) => !prev);
+  };
   function handleClick() {
     setLoading(true);
+    toBool();
     sendHttpRequest(
-      'http://localhost:8000/userprofile/edit-profile/',
-      'POST',
+      'http://localhost:8000/userprofile/editprofile/',
+      'PATCH',
       notificationData
     ).then((response) => {
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         confetti({
           particleCount: 100,
           spread: 70,
