@@ -38,39 +38,43 @@ import confetti from "canvas-confetti";
 // const initialCover = '/assets/covers/abstract-1-4x3-large.png';
 
 const Page = () => {
-  // const [cover, setCover] = useState(initialCover);
+  // const [attachment, setAttachment] = useState(initialCover);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
-  const [cover, setCover] = useState(null);
+  const [attachment, setAttachment] = useState(null);
   const today = new Date().setHours(0, 0, 0, 0);
   const [formData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput({
     title: '',
-    shortDescription: '',
+    description: '',
     location: '',
-    startTime: null,
-    endTime: null,
-    sportType: '',
-    playerLimit: '',
+    start_time: null,
+    end_time: null,
+    level: '',
+    age_group: '',
+    sports: '',
+    max_players: '',
     preferredGender: 'None',
     visibilityControl: 'Public',
     content: '',
-    cover: ''
+    attachment: ''
   });
 
   const [formError, setFormError] = useState({
     title: {error: false, message: ''},
-    shortDescription: {error: false, message: ''},
+    description: {error: false, message: ''},
     location: {error: false, message: ''},
-    startTime: {error: false, message: ''},
-    endTime: {error: false, message: ''},
-    sportType: {error: false, message: ''},
-    playerLimit: {error: false, message: ''},
+    start_time: {error: false, message: ''},
+    end_time: {error: false, message: ''},
+    level: {error: false, message: ''},
+    age_group: {error: false, message: ''},
+    sports: {error: false, message: ''},
+    max_players: {error: false, message: ''},
     preferredGender: {error: false, message: ''},
     visibilityControl: {error: false, message: ''},
     content: {error: false, message: ''},
-    cover: {error: false, message: ''}
+    attachment: {error: false, message: ''}
   });
 
   const sport_type = [
@@ -85,30 +89,32 @@ const Page = () => {
 
   function validateForm() {
     const isTitleEmpty = formData.title === '';
-    const isShortDescriptionEmpty = formData.shortDescription === '';
+    const isDescriptionEmpty = formData.description === '';
     const isLocationEmpty = formData.location === '';
-    const isStartTimeEmpty = formData.startTime === null;
-    const isEndTimeEmpty = formData.endTime === null;
-    const isSportTypeEmpty = formData.sportType === '';
-    const isPlayerLimitEmpty = formData.playerLimit === '';
+    const isStartTimeEmpty = formData.start_time === null;
+    const isEndTimeEmpty = formData.end_time === null;
+    const isSportsEmpty = formData.sports === '';
+    const isMaxPlayerEmpty = formData.max_players === '';
     const isPreferredGenderEmpty = formData.preferredGender === '';
     const isVisibilityControlEmpty = formData.visibilityControl === '';
     const isContentEmpty = formData.content === '';
-    const isCoverEmpty = formData.cover === '';
+    const isCoverEmpty = formData.attachment === '';
+    const isLevelEmpty = formData.level === '';
+    const isAgeGroupEmpty = formData.age_group === '';
 
-    const isUnknownSportType = !sport_type.some((type) => type.label === formData.sportType);
+    const isUnknownLevel = !['B', 'I', 'A', 'P'].includes(formData.level);
+    const isUnknownAgeGroup = !['C', 'T', 'A', 'S'].includes(formData.age_group);
 
-    const isPlayerLimitNotPositiveInt = !/^\d+$/.test(formData.playerLimit) || parseInt(formData.playerLimit) < 0;
+    const isUnknownSports = !sport_type.some((type) => type.label === formData.sports);
+
+    const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) < 0;
 
     const isUnknownPreferredGender = !['None', 'Male', 'Female', 'Other'].includes(formData.preferredGender);
     const isUnknownVisibilityControl = !['Public', 'Private'].includes(formData.visibilityControl);
 
-    console.log(isSportTypeEmpty)
-    console.log(isUnknownSportType)
-
-    const isNotStartTimeObject = !formData.startTime instanceof Date;
-    const isUnknownEndTimeObject = !formData.endTime instanceof Date;
-    const isStartTimeAfterEndTime = formData.startTime > formData.endTime;
+    const isNotStartTimeObject = !formData.start_time instanceof Date;
+    const isUnknownEndTimeObject = !formData.end_time instanceof Date;
+    const isStartTimeAfterEndTime = formData.start_time > formData.end_time;
 
     setFormError({
       ...formError,
@@ -116,29 +122,29 @@ const Page = () => {
         error: isTitleEmpty,
         message: isTitleEmpty ? 'Title is required' : ''
       },
-      shortDescription: {
-        error: isShortDescriptionEmpty,
-        message: isShortDescriptionEmpty ? 'Short description is required' : ''
+      description: {
+        error: isDescriptionEmpty,
+        message: isDescriptionEmpty ? 'Short description is required' : ''
       },
       location: {
         error: isLocationEmpty,
         message: isLocationEmpty ? 'Location is required' : ''
       },
-      startTime: {
+      start_time: {
         error: isStartTimeEmpty || isNotStartTimeObject || isStartTimeAfterEndTime,
         message: isStartTimeEmpty ? 'Start time is required' : isNotStartTimeObject ? 'Invalid start time input' : isStartTimeAfterEndTime ? 'Start time must be before end time' : ''
       },
-      endTime: {
+      end_time: {
         error: isEndTimeEmpty || isUnknownEndTimeObject || isStartTimeAfterEndTime,
         message: isEndTimeEmpty ? 'End time is required' : isUnknownEndTimeObject ? 'Invalid end time input' : isStartTimeAfterEndTime ? 'End time must be after start time' : ''
       },
-      sportType: {
-        error: isSportTypeEmpty || isUnknownSportType,
-        message: isSportTypeEmpty ? 'Sport type is required' : isUnknownSportType ? 'Invalid sport type' : ''
+      sports: {
+        error: isSportsEmpty || isUnknownSports,
+        message: isSportsEmpty ? 'Sport type is required' : isUnknownSports ? 'Invalid sport type' : ''
       },
-      playerLimit: {
-        error: isPlayerLimitEmpty || isPlayerLimitNotPositiveInt,
-        message: isPlayerLimitEmpty ? 'Player limit is required' : isPlayerLimitNotPositiveInt ? 'Positive integers only' : ''
+      max_players: {
+        error: isMaxPlayerEmpty || isMaxPlayerNotPositiveInt,
+        message: isMaxPlayerEmpty ? 'Max Players is required' : isMaxPlayerNotPositiveInt ? 'Positive integers only' : ''
       },
       preferredGender: {
         error: isPreferredGenderEmpty || isUnknownPreferredGender,
@@ -152,13 +158,21 @@ const Page = () => {
         error: isContentEmpty,
         message: isContentEmpty ? 'Content is required' : ''
       },
-      cover: {
+      attachment: {
         error: isCoverEmpty,
         message: isCoverEmpty ? 'Cover image is required' : ''
+      },
+      level: {
+        error: isLevelEmpty || isUnknownLevel,
+        message: isLevelEmpty ? 'Level is required' : isUnknownLevel ? 'Invalid level' : ''
+      },
+      age_group: {
+        error: isAgeGroupEmpty || isUnknownAgeGroup,
+        message: isAgeGroupEmpty ? 'Age group is required' : isUnknownAgeGroup ? 'Invalid age group' : ''
       }
     });
 
-    return !isTitleEmpty && !isShortDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportTypeEmpty && !isPlayerLimitEmpty && !isPreferredGenderEmpty && !isVisibilityControlEmpty && !isContentEmpty;
+    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportsEmpty && !isMaxPlayerEmpty && !isPreferredGenderEmpty && !isVisibilityControlEmpty && !isContentEmpty && !isCoverEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSports && !isMaxPlayerNotPositiveInt && !isUnknownPreferredGender && !isUnknownVisibilityControl && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty;
   }
 
   function handleClick() {
@@ -178,13 +192,11 @@ const Page = () => {
           setSeverity('success');
           setMessage('Matching room created successfully');
           setOpen(true);
-        }
-        else if (response.status === 400) {
+        } else if (response.status === 400) {
           setSeverity('warning');
           setMessage('Please fill in all the required fields');
           setOpen(true);
-        }
-        else {
+        } else {
           setSeverity('error');
           setMessage('An unexpected error occurred: ' + response.data);
           setOpen(true);
@@ -203,13 +215,13 @@ const Page = () => {
 
   const handleCoverDrop = useCallback(async ([file]) => {
     const data = await fileToBase64(file);
-    setCover(data);
-    formData.cover = data; // directly assign the data to formData.cover
+    setAttachment(data);
+    formData.attachment = data; // directly assign the data to formData.attachment
   }, [formData]);
 
   const handleCoverRemove = useCallback(() => {
-    setCover(null);
-    formData.cover = null;
+    setAttachment(null);
+    formData.attachment = null;
   }, [formData]);
 
   return (
@@ -218,13 +230,13 @@ const Page = () => {
         open={open}
         autoHideDuration={6000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{vertical: 'top', horizontal: 'center'}}
       >
         <Alert
           onClose={handleClose}
           severity={severity}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{width: '100%'}}
         >
           {message}
         </Alert>
@@ -295,7 +307,7 @@ const Page = () => {
               <LoadingButton
                 loading={loading}
                 loadingPosition="end"
-                endIcon={<SendIcon />}
+                endIcon={<SendIcon/>}
                 variant="contained"
                 onClick={handleClick}
               >
@@ -350,10 +362,10 @@ const Page = () => {
                         fullWidth
                         id={'room-short-description'}
                         label="Short description"
-                        name={'shortDescription'}
-                        value={formData.shortDescription}
-                        error={formError.shortDescription.error}
-                        helperText={formError.shortDescription.message}
+                        name={'description'}
+                        value={formData.description}
+                        error={formError.description.error}
+                        helperText={formError.description.message}
                         onChange={handleInputChange}
                         variant={'outlined'}
                       />
@@ -402,16 +414,16 @@ const Page = () => {
                           <DateTimePicker
                             id={'room-start-time'}
                             label="Start Time"
-                            name={'startTime'}
-                            value={formData.startTime}
+                            name={'start_time'}
+                            value={formData.start_time}
                             onChange={(newValue) => {
-                              handleDateChange('startTime', newValue);
+                              handleDateChange('start_time', newValue);
                             }}
                             minDateTime={today}
                             slotProps={{
                               textField: {
-                                error: formError.startTime.error,
-                                helperText: formError.startTime.message,
+                                error: formError.start_time.error,
+                                helperText: formError.start_time.message,
                                 fullWidth: true,
                                 variant: "outlined",
                                 required: true
@@ -429,16 +441,16 @@ const Page = () => {
                           <DateTimePicker
                             id={'room-end-time'}
                             label="End Time"
-                            name={'endTime'}
-                            value={formData.endTime}
+                            name={'end_time'}
+                            value={formData.end_time}
                             onChange={(newValue) => {
-                              handleDateChange('endTime', newValue);
+                              handleDateChange('end_time', newValue);
                             }}
-                            minDateTime={formData.startTime ? new Date(Math.max(today, formData.startTime.getTime())) : today}
+                            minDateTime={formData.start_time ? new Date(Math.max(today, formData.start_time.getTime())) : today}
                             slotProps={{
                               textField: {
-                                error: formError.endTime.error,
-                                helperText: formError.endTime.message,
+                                error: formError.end_time.error,
+                                helperText: formError.end_time.message,
                                 fullWidth: true,
                                 variant: "outlined",
                                 required: true
@@ -462,7 +474,7 @@ const Page = () => {
                     xs={12}
                     md={4}
                   >
-                    <Typography variant="h6">Preference setting</Typography>
+                    <Typography variant="h6">Activity setting</Typography>
                   </Grid>
                   <Grid
                     xs={12}
@@ -479,18 +491,18 @@ const Page = () => {
                         >
                           <Autocomplete
                             id="sport-type-select"
-                            name={'sportType'}
+                            name={'sports'}
                             onChange={(event, value) => {
-                              handleAutocompleteChange('sportType', value);
+                              handleAutocompleteChange('sports', value);
                             }}
                             options={sport_type.map((option) => option.label)}
                             renderInput={(params) =>
                               <TextField
                                 {...params}
                                 id={'sport-type-select-option'}
-                                label="Sport Type"
-                                error={formError.sportType.error}
-                                helperText={formError.sportType.message}
+                                label="Sport"
+                                error={formError.sports.error}
+                                helperText={formError.sports.message}
                                 variant={'outlined'}
                                 required
                               />
@@ -504,19 +516,81 @@ const Page = () => {
                               xs={6}
                               sx={{pl: 1}}
                         >
+                          <FormControl fullWidth>
+                            <InputLabel id="levels-select-label">Skill Level</InputLabel>
+                            <Select
+                              labelId="levels-select-label"
+                              id="levels-select"
+                              label=" Skill Level "
+                              name={'level'}
+                              value={formData.level}
+                              error={formError.level.error}
+                              onChange={handleInputChange}
+                            >
+                              <MenuItem value={'B'}>Beginner</MenuItem>
+                              <MenuItem value={'I'}>Intermediate</MenuItem>
+                              <MenuItem value={'A'}>Advanced</MenuItem>
+                              <MenuItem value={'P'}>Professional</MenuItem>
+                            </Select>
+                            {formError.level.error && (
+                              <FormHelperText error>
+                                {formError.level.message}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </Grid>
+                      </Grid>
+                      <Grid container>
+                        <Grid lg={6}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pr: 1}}
+                        >
                           <TextField
                             id={'player-limit'}
-                            label="Player Limit"
+                            label="Max Players"
                             // type="number"
-                            name={'playerLimit'}
-                            value={formData.playerLimit}
-                            error={formError.playerLimit.error}
-                            helperText={formError.playerLimit.message}
+                            name={'max_players'}
+                            value={formData.max_players}
+                            error={formError.max_players.error}
+                            helperText={formError.max_players.message}
                             onChange={handleInputChange}
                             variant={'outlined'}
                             required
                             fullWidth
                           />
+                        </Grid>
+                        <Grid lg={6}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pl: 1}}
+                        >
+                          <FormControl fullWidth>
+                            <InputLabel id="age-group-select-label">Age Group</InputLabel>
+                            <Select
+                              labelId="age-group-select-label"
+                              id="age-group-select"
+                              label=" Age Group "
+                              name={'age_group'}
+                              value={formData.age_group}
+                              error={formError.age_group.error}
+                              onChange={handleInputChange}
+                            >
+                              <MenuItem value={'C'}>Children</MenuItem>
+                              <MenuItem value={'T'}>Teenagers</MenuItem>
+                              <MenuItem value={'A'}>Adults</MenuItem>
+                              <MenuItem value={'S'}>Seniors</MenuItem>
+                            </Select>
+                            {formError.age_group.error && (
+                              <FormHelperText error>
+                                {formError.age_group.message}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
                         </Grid>
                       </Grid>
                       <Grid container>
@@ -603,12 +677,12 @@ const Page = () => {
                     md={8}
                   >
                     <Stack spacing={3}>
-                      {cover ? (
+                      {attachment ? (
                         <Box
                           sx={{
-                            backgroundImage: `url(${cover})`,
+                            backgroundImage: `url(${attachment})`,
                             backgroundPosition: 'center',
-                            backgroundSize: 'cover',
+                            backgroundSize: 'attachment',
                             borderRadius: 1,
                             height: 230,
                             mt: 3,
@@ -650,7 +724,7 @@ const Page = () => {
                       <div>
                         <Button
                           color="inherit"
-                          disabled={!cover}
+                          disabled={!attachment}
                           onClick={handleCoverRemove}
                         >
                           Remove photo
@@ -693,7 +767,7 @@ const Page = () => {
                     {formError.content.error && (
                       <FormHelperText
                         error
-                        sx={{ pl: 2 }}
+                        sx={{pl: 2}}
                       >
                         {formError.content.message}
                       </FormHelperText>
