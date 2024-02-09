@@ -222,12 +222,15 @@ const Page = () => {
   function handleClick() {
     setLoading(true);
     if (validateForm()) {
+      if (formData.attachment_data.startsWith('http')) {
+        delete formData.attachment_data;
+      }
       sendHttpRequest(
         'http://localhost:8000/events/update/',
-        'POST',
+        'PATCH',
         formData
       ).then(response => {
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
           confetti({
             particleCount: 100,
             spread: 70,

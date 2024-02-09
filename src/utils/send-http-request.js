@@ -5,12 +5,12 @@ async function sendHttpRequest(url, method, data = null) {
     headers,
   };
 
-  const token = localStorage.getItem('jwttoken')
+  let token = localStorage.getItem('jwttoken')
   if (token !== null) {
     headers.append('Authorization', `Bearer ${token}`);
   }
 
-  if (method === 'POST' || method === 'PUT') {
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
     headers.append('Content-Type', 'application/json');
     options.body = JSON.stringify(data);
   }
