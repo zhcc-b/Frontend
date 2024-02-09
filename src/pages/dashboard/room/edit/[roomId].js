@@ -11,9 +11,8 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
-import {FormControl, FormHelperText, InputLabel, Select} from "@mui/material";
+import {Autocomplete, FormControl, FormHelperText, InputLabel, Select} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
-import {Autocomplete} from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import {LoadingButton} from "@mui/lab";
 import Alert from "@mui/material/Alert";
@@ -30,15 +29,14 @@ import {paths} from 'src/paths';
 import {fileToBase64} from 'src/utils/file-to-base64';
 import sendHttpRequest from "src/utils/send-http-request";
 import confetti from "canvas-confetti";
-import {useRouter} from "next/navigation";
-
-// const initialCover = '/assets/covers/abstract-1-4x3-large.png';
+import {useRouter} from 'next/router'
 
 const Page = () => {
   const router = useRouter();
-  const { roomId } = router.query;
+  const {roomId} = router.query;
 
   let initialRoomInfo = {
+    id: '',
     title: '',
     description: '',
     location: '',
@@ -46,10 +44,10 @@ const Page = () => {
     end_time: null,
     level: '',
     age_group: '',
-    sports: '',
+    sport_data: '',
     max_players: '',
     content: '',
-    attachment: '',
+    attachment_data: '',
     // preferredGender: '',
   };
 
@@ -70,12 +68,28 @@ const Page = () => {
     sendHttpRequest(
       `http://localhost:8000/events/${roomId}/`,
       'GET'
-    ).then(r => {
-      if (r.status === 200) {
-        setFormData(r.data);
-      } else if (r.status === 401 || r.status === 403) {
+    ).then(response => {
+
+      if (response.status === 200 || response.status === 201) {
+        const originalData = {
+          id: response.data.id,
+          title: response.data.title,
+          description: response.data.description,
+          location: response.data.location,
+          start_time: new Date(response.data.start_time),
+          end_time: new Date(response.data.end_time),
+          level: response.data.level,
+          age_group: response.data.age_group,
+          sport_data: response.data.sport.name,
+          max_players: response.data.max_players,
+          content: response.data.content,
+          attachment_data: response.data.attachment,
+          // preferredGender: response.data.preferredGender,
+        }
+        setFormData(originalData);
+      } else if (response.status === 401 || response.status === 403) {
         router.push('/401');
-      } else if (r.status === 404) {
+      } else if (response.status === 404) {
         router.push('/404');
       }else {
         router.push('/500');
@@ -89,7 +103,7 @@ const Page = () => {
       //   end_time: new Date(),
       //   level: 'B',
       //   age_group: 'C',
-      //   sports: 'Badminton',
+      //   sport: 'Badminton',
       //   max_players: '10',
       //   content: '<p><strong>This is a badminton game </strong></p>',
       //   attachment: ''
@@ -107,12 +121,12 @@ const Page = () => {
     end_time: {error: false, message: ''},
     level: {error: false, message: ''},
     age_group: {error: false, message: ''},
-    sports: {error: false, message: ''},
+    sport_data: {error: false, message: ''},
     max_players: {error: false, message: ''},
     // preferredGender: {error: false, message: ''},
     // visibilityControl: {error: false, message: ''},
     content: {error: false, message: ''},
-    attachment: {error: false, message: ''}
+    attachment_data: {error: false, message: ''}
   });
 
   const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
@@ -123,19 +137,19 @@ const Page = () => {
     const isLocationEmpty = formData.location === '';
     const isStartTimeEmpty = formData.start_time === null;
     const isEndTimeEmpty = formData.end_time === null;
-    const isSportsEmpty = formData.sports === '';
+    const isSportEmpty = formData.sport_data === '';
     const isMaxPlayerEmpty = formData.max_players === '';
     const isPreferredGenderEmpty = formData.preferredGender === '';
     const isVisibilityControlEmpty = formData.visibilityControl === '';
     const isContentEmpty = formData.content === '';
-    const isCoverEmpty = formData.attachment === '';
+    const isCoverEmpty = formData.attachment_data === '';
     const isLevelEmpty = formData.level === '';
     const isAgeGroupEmpty = formData.age_group === '';
 
     const isUnknownLevel = !['B', 'I', 'A', 'P'].includes(formData.level);
     const isUnknownAgeGroup = !['C', 'T', 'A', 'S'].includes(formData.age_group);
 
-    const isUnknownSports = !sport_type.some((type) => type.label === formData.sports);
+    const isUnknownSport = !sport_type.includes(formData.sport_data);
 
     const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) < 0;
 
@@ -168,9 +182,9 @@ const Page = () => {
         error: isEndTimeEmpty || isUnknownEndTimeObject || isStartTimeAfterEndTime,
         message: isEndTimeEmpty ? 'End time is required' : isUnknownEndTimeObject ? 'Invalid end time input' : isStartTimeAfterEndTime ? 'End time must be after start time' : ''
       },
-      sports: {
-        error: isSportsEmpty || isUnknownSports,
-        message: isSportsEmpty ? 'Sport type is required' : isUnknownSports ? 'Invalid sport type' : ''
+      sport_data: {
+        error: isSportEmpty || isUnknownSport,
+        message: isSportEmpty ? 'Sport type is required' : isUnknownSport ? 'Invalid sport type' : ''
       },
       max_players: {
         error: isMaxPlayerEmpty || isMaxPlayerNotPositiveInt,
@@ -188,7 +202,7 @@ const Page = () => {
         error: isContentEmpty,
         message: isContentEmpty ? 'Content is required' : ''
       },
-      attachment: {
+      attachment_data: {
         error: isCoverEmpty,
         message: isCoverEmpty ? 'Cover image is required' : ''
       },
@@ -202,7 +216,7 @@ const Page = () => {
       }
     });
 
-    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportsEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSports && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty;
+    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSport && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty;
   }
 
   function handleClick() {
@@ -248,12 +262,12 @@ const Page = () => {
   const handleCoverDrop = useCallback(async ([file]) => {
     const data = await fileToBase64(file);
     setAttachment(data);
-    formData.attachment = data; // directly assign the data to formData.attachment
+    formData.attachment_data = data; // directly assign the data to formData.attachment
   }, [formData]);
 
   const handleCoverRemove = useCallback(() => {
     setAttachment(null);
-    formData.attachment = null;
+    formData.attachment_data = null;
   }, [formData]);
 
   return (
@@ -523,10 +537,10 @@ const Page = () => {
                         >
                           <Autocomplete
                             id="sport-type-select"
-                            name={'sports'}
-                            value={formData.sports}
+                            name={'sport_data'}
+                            value={formData.sport_data}
                             onChange={(event, value) => {
-                              handleAutocompleteChange('sports', value);
+                              handleAutocompleteChange('sport_data', value);
                             }}
                             options={sport_type}
                             renderInput={(params) =>
@@ -534,8 +548,8 @@ const Page = () => {
                                 {...params}
                                 id={'sport-type-select-option'}
                                 label="Sport"
-                                error={formError.sports.error}
-                                helperText={formError.sports.message}
+                                error={formError.sport_data.error}
+                                helperText={formError.sport_data.message}
                                 variant={'outlined'}
                                 required
                               />
