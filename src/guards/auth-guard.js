@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import { useRouter } from 'src/hooks/use-router';
 import { paths } from 'src/paths';
 import { Issuer } from 'src/utils/auth';
+import sendHttpRequest from "../utils/send-http-request";
+import {jwtDecode} from "jwt-decode";
 
 const loginPaths = {
   [Issuer.JWT]: paths.auth.jwt.login,
@@ -17,12 +19,25 @@ export const AuthGuard = (props) => {
   const [checked, setChecked] = useState(false);
 
   const check = useCallback(() => {
-    if (localStorage.getItem('jwttoken') == null){
+
+    const token = localStorage.getItem('jwttoken');
+    if (token == null){
       const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
       const href = loginPaths['JWT'] + `?${searchParams}`;
       router.replace(href);
     } else {
-      setChecked(true);
+
+      const user_id = jwtDecode(token).user_id;
+      sendHttpRequest(`http://localhost:8000/userprofile/${user_id}`, 'GET').then(response => {
+        if (response.status === 200 || response.status === 201) {
+          setChecked(true);
+        } else {
+          localStorage.removeItem('jwttoken')
+          const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
+          const href = loginPaths['JWT'] + `?${searchParams}`;
+          router.replace(href);
+        }
+      })
     }
   }, [router]);
 

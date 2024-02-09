@@ -66,7 +66,6 @@ const Page = () => {
     });
   }
 
-  //const isMounted = useMounted();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get('returnTo');
@@ -76,11 +75,9 @@ const Page = () => {
     validationSchema,
     onSubmit: async (values, helpers) => {
       try {
-        // await signIn(values.email, values.password);
-        //
-        // if (isMounted()) {
-        //   router.push(returnTo || paths.dashboard.index);
-        // }
+
+        localStorage.removeItem('jwttoken');
+
         await sendHttpRequest('http://127.0.0.1:8000/registration/login/', 'POST', {
           username: values.username,
           password: values.password
