@@ -474,6 +474,7 @@ const Page = () => {
                             name={'sport_data'}
                             value={formData.sport_data}
                             options={sport_type}
+                            isOptionEqualToValue={(option, value) => option === value || value === ""}
                             onChange={(event, value) => {
                               handleAutocompleteChange('sport_data', value);
                             }}
