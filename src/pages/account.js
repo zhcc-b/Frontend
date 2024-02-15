@@ -21,7 +21,7 @@ import { jwtDecode } from 'jwt-decode';
 
 const tabs = [
   { label: 'General', value: 'general' },
-  // { label: 'Notifications', value: 'notifications' },
+  { label: 'Notifications', value: 'notifications' },
   { label: 'Security', value: 'security' },
 ];
 
@@ -30,6 +30,17 @@ const Page = () => {
   const [currentTab, setCurrentTab] = useState('general');
   const [init_avatar, setAvatar] = useState(null);
   const token = localStorage.getItem('jwttoken');
+  // const [email, setEail] = useState('');
+  // const [name, setName] = useState('');
+  // const [gender, setGender] = useState('');
+  // const [sports, setSports] = useState([]);
+  // const [phone, setPhone] = useState('');
+  // const [age, setAge] = useState('');
+  // const [description, setDescription] = useState('');
+  // const [email_product, setEmailProduct] = useState(false);
+  // const [email_security, setEmailProduct] = useState(false);
+  // const [phone_security, setEmailProduct] = useState(false);
+  // const [avatar_data, setAvatarData] = useState(null);
 
   let initialUserInfo = {
     avatar_data: '',
@@ -44,7 +55,8 @@ const Page = () => {
     phone_security: false,
   };
   const uid = jwtDecode(token).user_id;
-  const [userData, setFormData, handleInputChange] = useUserInput(initialUserInfo);
+  const [userData, setUserData, handleInputChange] = useUserInput(initialUserInfo);
+
   useEffect(() => {
     if (router.isReady === false) {
       return;
@@ -53,7 +65,8 @@ const Page = () => {
     sendHttpRequest(`http://localhost:8000/userprofile/${uid}`, 'GET').then((response) => {
       if (response.status === 200 || response.status === 201) {
         const originalData = {
-          email: response.data.email,
+          email: response.data['user']['email'],
+          name: response.data.name,
           gender: response.data.gender,
           sports_you_can_play: response.data.sports_you_can_play,
           phone: response.data.phone,
@@ -64,9 +77,8 @@ const Page = () => {
           phone_security: response.data.phone_security,
           avatar_data: response.data.avatar,
         };
-        console.log(originalData);
         setAvatar(response.data.avatar);
-        setFormData(originalData);
+        setUserData(originalData);
       } else if (response.status === 401 || response.status === 403) {
         router.push('/401');
       } else if (response.status === 404) {
@@ -75,8 +87,7 @@ const Page = () => {
         router.push('/500');
       }
     });
-  }, [setFormData, router]);
-  // const userData = useMockedUser();
+  }, [uid, setUserData, router]);
 
   const handleTabsChange = useCallback((event, value) => {
     setCurrentTab(value);
@@ -121,23 +132,17 @@ const Page = () => {
           {currentTab === 'general' && (
             <AccountGeneralSettings
               init_avatar={init_avatar || null}
-              avatar_data={userData.avatar_data || null}
-              email={userData.email || ''}
-              phone={userData.phone || ''}
-              name={userData.name || ''}
-              gender={userData.gender || ''}
-              sports={userData.sports_you_can_play ? userData.sports_you_can_play.split(', ') : []}
-              age={userData.age}
-              description={userData.description}
+              userData={userData || null}
+              handler={handleInputChange}
             />
           )}
-          {/* {currentTab === 'notifications' && (
+          {currentTab === 'notifications' && (
             <AccountNotificationsSettings
-              email_product={userData.email_product}
-              email_security={userData.email_security}
-              phone_security={userData.phone_security}
+              email_product={userData.email_product || false}
+              email_security={userData.email_security || false}
+              phone_security={userData.phone_security || false}
             />
-          )} */}
+          )}
           {currentTab === 'security' && <AccountSecuritySettings />}
         </Container>
       </Box>

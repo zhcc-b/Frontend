@@ -54,7 +54,7 @@ export const AccountSecuritySettings = () => {
 
   function handleClick() {
     setLoading(true);
-    sendHttpRequest('http://localhost:8000/userprofile/editprofile', 'POST', passwordData).then(
+    sendHttpRequest('http://localhost:8000/userprofile/editprofile', 'PATCH', passwordData).then(
       (response) => {
         if (response.status === 200 || response.status === 201) {
           confetti({

@@ -22,27 +22,48 @@ import useUserInput from 'src/hooks/use-user-input';
 import sendHttpRequest from 'src/utils/send-http-request';
 import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
 import { fileToBase64 } from 'src/utils/file-to-base64';
-import { FileDropzone } from 'src/components/file-dropzone';
+// import { FileDropzone } from 'src/components/file-dropzone';
 import confetti from 'canvas-confetti';
+import { AvatarDropzone } from 'src/components/avatar-dropzone';
 
 export const AccountGeneralSettings = (props) => {
-  const { init_avatar, avatar_data, email, phone, name, sports, age, gender, description } = props;
+  const { init_avatar, userData } = props;
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
   const [avatar, setAvatar] = useState(init_avatar);
-  const [userData, setUserData, handleInputChange] = useUserInput({
-    avatar_data: avatar_data,
-    email: email,
-    phone: phone,
-    name: name,
-    sports: sports,
-    age: age,
-    gender: gender,
-    description: description,
-    // publicProfile: false,
+  console.log(userData);
+  const [values, setValues] = useState({
+    avatar_data: null,
+    email: '',
+    age: '',
+    phone: '',
+    name: '',
+    sports: [],
+    gender: '',
+    description: '',
   });
+
+  useEffect(() => {
+    setValues({
+      avatar_data: userData.avatar_data,
+      email: userData.email,
+      age: userData.age,
+      phone: userData.phone,
+      name: userData.name,
+      sports: userData.sports_you_can_play ? userData.sports_you_can_play.split(', ') : [],
+      gender: userData.gender,
+      description: userData.description,
+    });
+  }, [userData]);
+
+  const handleChange = (event) => {
+    setValues({
+      ...values,
+      [event.target.name]: event.target.value,
+    });
+  };
 
   const [profileError, setProfileError] = useState({
     avatar_data: { error: false, message: '' },
@@ -55,7 +76,7 @@ export const AccountGeneralSettings = (props) => {
     gender: { error: false, message: '' },
     description: { error: false, message: '' },
   });
-  const isSportSelected = (sport) => userData.sports.includes(sport);
+  const isSportSelected = (sport) => values.sports.includes(sport);
   const sportsOptions = [
     'Soccer',
     'Football',
@@ -72,26 +93,26 @@ export const AccountGeneralSettings = (props) => {
   );
 
   function validateProfile() {
-    const isNameEmpty = userData.name === '';
-    const isEmailEmpty = userData.email === '';
-    const isPhoneEmpty = userData.phone === '';
-    const isAgeEmpty = userData.age === '';
-    // const isBirthdayEmpty = userData.birthday === null;
-    const isGenderEmpty = userData.gender === null;
-    const isAvatarEmpty = userData.avatar_data === '';
+    const isNameEmpty = values.name === '';
+    const isEmailEmpty = values.email === '';
+    const isPhoneEmpty = values.phone === '';
+    const isAgeEmpty = values.age === '';
+    // const isBirthdayEmpty = values.birthday === null;
+    const isGenderEmpty = values.gender === null;
+    const isAvatarEmpty = values.avatar_data === '';
 
-    const isInvaildPhone = !/^\d{10}$/.test(userData.phone);
+    // const isInvaildPhone = !/^\d{10}$/.test(values.phone);
     const isInvaildAge =
-      !/^\d+$/.test(userData.age) || parseInt(userData.age) < 0 || parseInt(userData.age) > 200;
+      !/^\d+$/.test(values.age) || parseInt(values.age) < 0 || parseInt(values.age) > 200;
     const isUnknownGender = !['Prefer not to say', 'Male', 'Female', 'Other'].includes(
-      userData.gender
+      values.gender
     );
-    const isUnknownSport = !userData.sports.every((sport) => sportsOptions.includes(sport));
-    const isDescriptionTooLong = userData.description.length > 300;
-    // const isNotBirthdayObject = !userData.birthday instanceof Date;
-    // const isInvaildBirthday = userData.birthday > today;
-    if (userData.avatar_data !== null && userData.avatar_data.startsWith('http')) {
-      delete userData.avatar_data;
+    const isUnknownSport = !values.sports.every((sport) => sportsOptions.includes(sport));
+    const isDescriptionTooLong = values.description.length > 300;
+    // const isNotBirthdayObject = !values.birthday instanceof Date;
+    // const isInvaildBirthday = values.birthday > today;
+    if (values.avatar_data !== null && values.avatar_data.startsWith('http')) {
+      delete values.avatar_data;
     }
 
     setProfileError({
@@ -112,14 +133,14 @@ export const AccountGeneralSettings = (props) => {
         error: isAgeEmpty || isInvaildAge,
         message: isAgeEmpty ? 'Age is required' : isInvaildAge ? 'Invaild age.' : '',
       },
-      phone: {
-        error: isPhoneEmpty || isInvaildPhone,
-        message: isPhoneEmpty
-          ? 'Phone number is required'
-          : isInvaildPhone
-          ? 'Invaild phone number'
-          : '',
-      },
+      // phone: {
+      //   error: isPhoneEmpty || isInvaildPhone,
+      //   message: isPhoneEmpty
+      //     ? 'Phone number is required'
+      //     : isInvaildPhone
+      //     ? 'Invaild phone number'
+      //     : '',
+      // },
       sports: {
         error: isUnknownSport,
         message: isUnknownSport ? 'Unknown sport type' : '',
@@ -154,7 +175,7 @@ export const AccountGeneralSettings = (props) => {
       !isPhoneEmpty &&
       !isAgeEmpty &&
       !isGenderEmpty &&
-      !isInvaildPhone &&
+      // !isInvaildPhone &&
       !isUnknownGender &&
       !isInvaildAge &&
       !isDescriptionTooLong
@@ -165,13 +186,12 @@ export const AccountGeneralSettings = (props) => {
   function handleClick() {
     setLoading(true);
     if (validateProfile()) {
-      const copyData = { ...userData };
+      const copyData = { ...values };
       const sportString = copyData.sports.join(', ');
       delete copyData.sports;
       copyData.sports_you_can_play = sportString;
-      sendHttpRequest('http://localhost:8000/userprofile/editprofile/', 'PATCH', userData).then(
+      sendHttpRequest('http://localhost:8000/userprofile/editprofile/', 'PATCH', copyData).then(
         (response) => {
-          console.log(response.status);
           if (response.status === 200 || response.status === 201) {
             confetti({
               particleCount: 100,
@@ -188,7 +208,6 @@ export const AccountGeneralSettings = (props) => {
           } else if (response.status === 401) {
             router.push('/401');
           } else {
-            console.log('err');
             setSeverity('error');
             setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
             setOpen(true);
@@ -212,10 +231,10 @@ export const AccountGeneralSettings = (props) => {
   };
 
   const onSportsChange = (sport) => {
-    if (userData.sports.includes(sport)) {
-      userData.sports.splice(userData.sports.indexOf(sport), 1);
+    if (values.sports.includes(sport)) {
+      values.sports.splice(values.sports.indexOf(sport), 1);
     } else {
-      userData.sports.push(sport);
+      values.sports.push(sport);
     }
     handleClick();
   };
@@ -224,15 +243,15 @@ export const AccountGeneralSettings = (props) => {
     async ([file]) => {
       const data = await fileToBase64(file);
       setAvatar(data);
-      userData.avatar_data = data; // directly assign the data to formData.attachment
+      values.avatar_data = data; // directly assign the data to formData.attachment
     },
-    [userData]
+    [values]
   );
 
   const handleCoverRemove = useCallback(() => {
     setAvatar(null);
-    userData.avatar_data = null;
-  }, [userData]);
+    values.avatar_data = null;
+  }, [values]);
 
   return (
     <Stack
@@ -259,7 +278,7 @@ export const AccountGeneralSettings = (props) => {
                 <Stack
                   spacing={3}
                   direction={'row'}
-                  alignItems={'center'}
+                  alignItems={'flex-start'}
                 >
                   <Stack>
                     {avatar ? (
@@ -267,10 +286,11 @@ export const AccountGeneralSettings = (props) => {
                         sx={{
                           backgroundImage: `url(${avatar})`,
                           backgroundPosition: 'center',
+                          alignItems: 'center',
                           backgroundSize: 'avatar',
                           borderRadius: '50%',
-                          height: 230,
-                          width: 230,
+                          height: 300,
+                          width: 300,
                           mt: 3,
                         }}
                       />
@@ -285,10 +305,9 @@ export const AccountGeneralSettings = (props) => {
                           borderRadius: '50%',
                           borderStyle: 'dashed',
                           borderColor: 'grey.500',
-                          height: 230,
-                          width: 230,
+                          height: 300,
+                          width: 300,
                           mt: 3,
-                          p: 3,
                         }}
                       >
                         <Typography
@@ -296,15 +315,7 @@ export const AccountGeneralSettings = (props) => {
                           color="text.secondary"
                           variant="h6"
                         >
-                          Select an avatar
-                        </Typography>
-                        <Typography
-                          align="center"
-                          color="text.secondary"
-                          sx={{ mt: 1 }}
-                          variant="subtitle1"
-                        >
-                          Image used for avatar
+                          Avatar Preview
                         </Typography>
                       </Box>
                     )}
@@ -316,7 +327,8 @@ export const AccountGeneralSettings = (props) => {
                       Remove
                     </Button>
                   </Stack>
-                  <FileDropzone
+
+                  <AvatarDropzone
                     accept={{ 'image/*': [] }}
                     maxFiles={1}
                     onDrop={handleCoverDrop}
@@ -333,13 +345,18 @@ export const AccountGeneralSettings = (props) => {
                     <TextField
                       id={'name'}
                       name={'name'}
-                      value={userData.name}
+                      value={values.name}
+                      onChange={handleChange}
                       disabled={!isEdit}
-                      onChange={handleInputChange}
+                      label="Name"
                       error={profileError.name.error}
                       required
-                      label="Name"
-                      sx={{ flexGrow: 1 }}
+                      sx={{
+                        flexGrow: 1,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderStyle: 'dashed',
+                        },
+                      }}
                     />
                     {profileError.name.error && (
                       <FormHelperText error>{profileError.name.message}</FormHelperText>
@@ -355,8 +372,8 @@ export const AccountGeneralSettings = (props) => {
                     <TextField
                       id={'email'}
                       name={'email'}
-                      value={userData.email}
-                      onChange={handleInputChange}
+                      value={values.email}
+                      onChange={handleChange}
                       disabled={!isEdit}
                       label="Email Address"
                       error={profileError.email.error}
@@ -383,8 +400,8 @@ export const AccountGeneralSettings = (props) => {
                       id={'phone'}
                       name={'phone'}
                       error={profileError.phone.error}
-                      value={userData.phone}
-                      onChange={handleInputChange}
+                      value={values.phone}
+                      onChange={handleChange}
                       disabled={!isEdit}
                       label="Phone Number"
                       required
@@ -414,8 +431,8 @@ export const AccountGeneralSettings = (props) => {
                       id={'gender'}
                       name={'gender'}
                       error={profileError.gender.error}
-                      value={userData.gender}
-                      onChange={handleInputChange}
+                      value={values.gender}
+                      onChange={handleChange}
                       label="Gender"
                       disabled={!isEdit}
                       required
@@ -438,8 +455,8 @@ export const AccountGeneralSettings = (props) => {
                   <TextField
                     id={'age'}
                     name={'age'}
-                    value={userData.age}
-                    onChange={handleInputChange}
+                    value={values.age}
+                    onChange={handleChange}
                     error={profileError.age.error}
                     required
                     type="number"
@@ -456,8 +473,8 @@ export const AccountGeneralSettings = (props) => {
                   <DatePicker
                     label="Birthday"
                     disabled={!isEditBirth}
-                    onChange={handleInputChange}
-                    value={userData.birthday}
+                    onChange={handleChange}
+                    value={values.birthday}
                     maxDate={today}
                     required
                   />
@@ -489,8 +506,9 @@ export const AccountGeneralSettings = (props) => {
                       id={'description'}
                       name={'description'}
                       error={profileError.description.error}
-                      value={userData.description}
-                      onChange={handleInputChange}
+                      disabled={!isEdit}
+                      value={values.description}
+                      onChange={handleChange}
                       inputProps={{ maxLength: 300 }}
                       label="Description"
                       multiline
@@ -622,7 +640,7 @@ export const AccountGeneralSettings = (props) => {
                   <Switch
                     id={'publicProfile'}
                     name={'publicProfile'}
-                    value={userData.publicProfile}
+                    value={values.publicProfile}
                     onChange={handleClick}
                   />
                 </Stack>
@@ -670,7 +688,6 @@ export const AccountGeneralSettings = (props) => {
 };
 
 AccountGeneralSettings.propTypes = {
-  avatar_data: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
 };

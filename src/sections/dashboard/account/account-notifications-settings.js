@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Divider from '@mui/material/Divider';
@@ -6,72 +6,51 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
-import useUserInput from 'src/hooks/use-user-input';
 import sendHttpRequest from 'src/utils/send-http-request';
 import confetti from 'canvas-confetti';
 
 export const AccountNotificationsSettings = (props) => {
   const { email_product, email_security, phone_security } = props;
   const [loading, setLoading] = useState(false);
-  const [notificationData, setUserData, handleInputChange] = useUserInput({
-    email_product: email_product,
-    email_security: email_security,
-    phone_security: phone_security,
-  });
   const [email_product_check, setEailProduct] = useState(email_product);
   const [email_security_check, setEailSecuity] = useState(email_security);
   const [phone_security_check, setPhoneSecurity] = useState(phone_security);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
-  function toBool() {
-    if (notificationData.email_product === 'on') {
-      notificationData.email_product = true;
-    }
-    if (notificationData.email_security === 'on') {
-      notificationData.email_security = true;
-    }
-    if (notificationData.phone_security === 'on') {
-      notificationData.phone_security = true;
-    }
-  }
-  const handleEmailProductChange = () => {
-    setEailProduct((prev) => !prev);
-  };
-  const handleEmailSecurityChange = () => {
-    setEailSecuity((prev) => !prev);
-  };
-  const handleEPhoneSecurityChange = () => {
-    setPhoneSecurity((prev) => !prev);
-  };
-  function handleClick() {
+  const [notification, setNotification] = useState({
+    email_product: email_product,
+    email_security: email_security,
+    phone_security: phone_security,
+  });
+
+  const handleClick = (event) => {
+    const checked = !notification[event.target.name];
+    notification[event.target.name] = checked;
     setLoading(true);
-    toBool();
-    sendHttpRequest(
-      'http://localhost:8000/userprofile/editprofile/',
-      'PATCH',
-      notificationData
-    ).then((response) => {
-      if (response.status === 200 || response.status === 201) {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-        setSeverity('success');
-        setMessage('User data updated successfully');
-        setOpen(true);
-      } else if (response.status === 400) {
-        setSeverity('warning');
-        setMessage('Please fill in all the required fields');
-        setOpen(true);
-      } else {
-        setSeverity('error');
-        setMessage('An unexpected error occurred: ' + response.data);
-        setOpen(true);
+    sendHttpRequest('http://localhost:8000/userprofile/editprofile/', 'PATCH', notification).then(
+      (response) => {
+        if (response.status === 200 || response.status === 201) {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+          setSeverity('success');
+          setMessage('User data updated successfully');
+          setOpen(true);
+        } else if (response.status === 400) {
+          setSeverity('warning');
+          setMessage('Please fill in all the required fields');
+          setOpen(true);
+        } else {
+          setSeverity('error');
+          setMessage('An unexpected error occurred: ' + response.data);
+          setOpen(true);
+        }
       }
-    });
-  }
+    );
+  };
   return (
     <Card>
       <CardContent>
@@ -112,8 +91,7 @@ export const AccountNotificationsSettings = (props) => {
                 <Switch
                   id={'email_product'}
                   name={'email_product'}
-                  value={email_product}
-                  onChange={handleInputChange}
+                  checked={notification.email_product}
                   onClick={handleClick}
                 />
               </Stack>
@@ -135,8 +113,7 @@ export const AccountNotificationsSettings = (props) => {
                 <Switch
                   id={'email_security'}
                   name={'email_security'}
-                  value={email_security}
-                  onChange={handleInputChange}
+                  checked={notification.email_security}
                   onClick={handleClick}
                 />
               </Stack>
@@ -181,8 +158,7 @@ export const AccountNotificationsSettings = (props) => {
                 <Switch
                   id={'phone_security'}
                   name={'phone_security'}
-                  value={phone_security}
-                  onChange={handleInputChange}
+                  checked={notification.phone_security}
                   onClick={handleClick}
                 />
               </Stack>
