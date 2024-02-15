@@ -11,18 +11,20 @@ import SvgIcon from '@mui/material/SvgIcon';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
-import { RouterLink } from 'src/components/router-link';
-import { Seo } from 'src/components/seo';
-import { paths } from 'src/paths';
+import {RouterLink} from 'src/components/router-link';
+import {Seo} from 'src/components/seo';
+import {paths} from 'src/paths';
 import {useRouter} from "next/router";
-import sendHttpRequest from "../../utils/send-http-request";
-import { RoomSummary } from 'src/sections/rooms/room-summary';
-import { RoomOverview } from "../../sections/rooms/room-overview";
+import sendHttpRequest from "src/utils/send-http-request";
+import {RoomSummary} from 'src/sections/rooms/room-summary';
+import {RoomOverview} from "src/sections/rooms/room-overview";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 
-import { Share03 } from '@untitled-ui/icons-react'
+import {Share03} from '@untitled-ui/icons-react'
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
 
 const tabs = [
   { label: 'Overview', value: 'overview' },
@@ -83,7 +85,7 @@ const Page = () => {
               xs={12}
               lg={8.5}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Stack spacing={4}>
                 <Link
                   color="text.primary"
                   component={RouterLink}
@@ -94,23 +96,53 @@ const Page = () => {
                   }}
                   underline="hover"
                 >
-                  <SvgIcon sx={{ mr: 1 }}>
-                    <ArrowLeftIcon />
+                  <SvgIcon sx={{mr: 1}}>
+                    <ArrowLeftIcon/>
                   </SvgIcon>
                   <Typography variant="subtitle2">Home</Typography>
                 </Link>
-                <Button
-                  startIcon={
-                    <SvgIcon>
-                      <PlusIcon />
-                    </SvgIcon>
-                  }
-                  variant="contained"
-                  size="small"
+                <Stack
+                  alignItems="center"
+                  direction="row"
+                  justifyContent="space-between"
+                  spacing={3}
                 >
-                  Join
-                </Button>
-              </div>
+                  <Stack
+                    alignItems="center"
+                    direction="row"
+                    spacing={2}
+                  >
+                    {room ? <Avatar src={room.attachment}/> : null}
+                    {room ? <div>
+                      <Typography variant="subtitle2">
+                        By {room.owner}
+                      </Typography>
+                      <Typography
+                        color="text.secondary"
+                        variant="body2"
+                      >
+                        {new Date(room.start_time).toLocaleString('default', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </Typography>
+                    </div> : null}
+                  </Stack>
+                  <Button
+                    startIcon={
+                      <SvgIcon>
+                        <PlusIcon/>
+                      </SvgIcon>
+                    }
+                    variant="contained"
+                  >
+                    Join
+                  </Button>
+                </Stack>
+              </Stack>
             </Grid>
             <Grid
               xs={12}

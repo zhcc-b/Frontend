@@ -18,32 +18,13 @@ export const RoomOverview = (props) => {
         <div>
           <Chip label={room.sport.name.charAt(0).toUpperCase() + room.sport.name.slice(1)} />
         </div>
-        <Typography variant="h3">{room.title}</Typography>
+        <Typography variant="h4">{room.title}</Typography>
         <Typography
           color="text.secondary"
           variant="subtitle1"
         >
           {room.description}
         </Typography>
-        {/*<Stack*/}
-        {/*  alignItems="center"*/}
-        {/*  direction="row"*/}
-        {/*  spacing={2}*/}
-        {/*  sx={{ mt: 3 }}*/}
-        {/*>*/}
-        {/*  <Avatar src={room.author.avatar} />*/}
-        {/*  <div>*/}
-        {/*    <Typography variant="subtitle2">*/}
-        {/*      By {room.author.name} • {publishedAt}*/}
-        {/*    </Typography>*/}
-        {/*    <Typography*/}
-        {/*      color="text.secondary"*/}
-        {/*      variant="body2"*/}
-        {/*    >*/}
-        {/*      {room.readTime} read*/}
-        {/*    </Typography>*/}
-        {/*  </div>*/}
-        {/*</Stack>*/}
       </Stack>
       <Box
         sx={{
