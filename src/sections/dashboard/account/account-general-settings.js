@@ -199,7 +199,7 @@ export const AccountGeneralSettings = (props) => {
               origin: { y: 0.6 },
             });
             setSeverity('success');
-            setMessage('Matching room created successfully');
+            setMessage('User profile update successfully');
             setOpen(true);
           } else if (response.status === 400) {
             setSeverity('warning');
@@ -216,6 +216,35 @@ export const AccountGeneralSettings = (props) => {
       );
     }
     setLoading(false);
+  }
+  function handleDeleteClick() {
+    const isConfirmed = window.confirm(
+      'Are you sure you want to delete your account? This action cannot be undone.'
+    );
+    if (isConfirmed) {
+      setLoading(true);
+      sendHttpRequest('http://localhost:8000/userprofile/editprofile/', 'DELETE').then(
+        (response) => {
+          if (response.status === 200 || response.status === 201) {
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+            });
+            setSeverity('success');
+            setMessage('Successfully delete account');
+            setOpen(true);
+          } else if (response.status === 401) {
+            router.push('/401');
+          } else {
+            setSeverity('error');
+            setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
+            setOpen(true);
+          }
+        }
+      );
+      setLoading(false);
+    }
   }
 
   const onSportsChange = (sport) => {
@@ -647,6 +676,7 @@ export const AccountGeneralSettings = (props) => {
                 <Button
                   color="error"
                   variant="outlined"
+                  onClick={handleDeleteClick}
                 >
                   Delete account
                 </Button>
@@ -661,5 +691,4 @@ export const AccountGeneralSettings = (props) => {
 
 AccountGeneralSettings.propTypes = {
   email: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
 };
