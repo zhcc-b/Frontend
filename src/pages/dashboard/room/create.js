@@ -190,7 +190,7 @@ const Page = () => {
           router.push('/401');
         } else {
           setSeverity('error');
-          setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
+          setMessage('An unexpected error occurred: ' + response.data.detail);
           setOpen(true);
         }
       });

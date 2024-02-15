@@ -25,6 +25,10 @@ import {Share03} from '@untitled-ui/icons-react'
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
+import {jwtDecode} from "jwt-decode";
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
+import confetti from "canvas-confetti";
 
 const tabs = [
   { label: 'Overview', value: 'overview' },
@@ -34,12 +38,14 @@ const tabs = [
   // { label: 'Assets', value: 'assets' },
 ];
 
-
 const Page = () => {
   const router = useRouter();
   const {roomId} = router.query;
   const [room, setRoom] = useState(null);
   const [currentTab, setCurrentTab] = useState('overview');
+  const [open, setOpen] = useState(false);
+  const [severity, setSeverity] = useState('success');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     // Ensure the effect runs only when the router is ready and roomId is available
@@ -61,13 +67,67 @@ const Page = () => {
     }
   }, [roomId, router]);
 
+  function handleJoin() {
+    const token = localStorage.getItem('jwttoken');
+    const user_id = jwtDecode(token).user_id;
+    if (!token) {
+      const returnTo = encodeURIComponent(window.location.href);
+      window.location.href = `/auth/jwt/login?returnTo=${returnTo}`;
+    } else {
+      sendHttpRequest(
+        'http://localhost:8000/events/join/',
+        'PUT',
+        {id: user_id}
+      ).then(response =>{
+        if (response.status === 200 || response.status === 201) {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: {y: 0.6}
+          });
+          setSeverity('success');
+          setMessage('You have successfully joined the room!');
+          setOpen(true);
+        } else if (response.status === 401) {
+          router.push('/401');
+        } else {
+          setSeverity('error');
+          setMessage('An unexpected error occurred: ' + response.data.detail);
+          setOpen(true);
+        }
+      });
+    }
+  }
 
   const handleTabsChange = useCallback((event, value) => {
     setCurrentTab(value);
   }, []);
 
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
   return (
     <>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{width: '100%'}}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+
       <Seo title="Matching Room Details" />
       <Box
         component="main"
@@ -138,6 +198,7 @@ const Page = () => {
                       </SvgIcon>
                     }
                     variant="contained"
+                    onClick={handleJoin}
                   >
                     Join
                   </Button>
