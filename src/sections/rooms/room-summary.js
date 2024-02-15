@@ -10,10 +10,22 @@ import { PropertyList } from 'src/components/property-list';
 import { PropertyListItem } from 'src/components/property-list-item';
 // import { getInitials } from 'src/utils/get-initials';
 
+const ageGroupMapping = {
+  C: 'Children',
+  T: 'Teenagers',
+  A: 'Adults',
+  S: 'Seniors'
+};
+
+const skillMapping = {
+  B: 'Beginner',
+  I: 'Intermediate',
+  A: 'Advanced',
+  P: 'Professional'
+};
+
 export const RoomSummary = (props) => {
   const { room, ...other } = props;
-
-  console.log(room);
 
   return (
     <Card {...other}>
@@ -29,21 +41,48 @@ export const RoomSummary = (props) => {
         <PropertyList>
           <PropertyListItem
             align="vertical"
-            label="Start Time"
+            label="Activity"
             sx={{
               px: 0,
               py: 1,
             }}
-            value={new Date(room.start_time).toLocaleString()}
+            value={room.sport.name.charAt(0).toUpperCase() + room.sport.name.slice(1) + ' (' + ageGroupMapping[room.age_group] + ')'}
           />
           <PropertyListItem
             align="vertical"
-            label="End Time"
+            label="Skill Level"
             sx={{
               px: 0,
               py: 1,
             }}
-            value={new Date(room.end_time).toLocaleString()}
+            value={skillMapping[room.level]}
+          />
+          <PropertyListItem
+            align="vertical"
+            label="Duration"
+            sx={{
+              px: 0,
+              py: 1,
+            }}
+            value={(() => {
+              const start_time= new Date(room.start_time).toLocaleString('default', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              });
+              const end_time = new Date(room.end_time).toLocaleString('default', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              });
+              return `${start_time} - ${end_time}`;
+            })()}
           />
           <PropertyListItem
             align="vertical"

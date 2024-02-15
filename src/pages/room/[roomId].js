@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import ArrowLeftIcon from '@untitled-ui/icons-react/build/esm/ArrowLeft';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -17,6 +17,12 @@ import { paths } from 'src/paths';
 import {useRouter} from "next/router";
 import sendHttpRequest from "../../utils/send-http-request";
 import { RoomSummary } from 'src/sections/rooms/room-summary';
+import { RoomOverview } from "../../sections/rooms/room-overview";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+
+import { Share03 } from '@untitled-ui/icons-react'
+import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
 
 const tabs = [
   { label: 'Overview', value: 'overview' },
@@ -73,8 +79,11 @@ const Page = () => {
             container
             spacing={4}
           >
-            <Grid xs={12}>
-              <div>
+            <Grid
+              xs={12}
+              lg={8.5}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Link
                   color="text.primary"
                   component={RouterLink}
@@ -88,8 +97,19 @@ const Page = () => {
                   <SvgIcon sx={{ mr: 1 }}>
                     <ArrowLeftIcon />
                   </SvgIcon>
-                  <Typography variant="subtitle2">Jobs</Typography>
+                  <Typography variant="subtitle2">Home</Typography>
                 </Link>
+                <Button
+                  startIcon={
+                    <SvgIcon>
+                      <PlusIcon />
+                    </SvgIcon>
+                  }
+                  variant="contained"
+                  size="small"
+                >
+                  Join
+                </Button>
               </div>
             </Grid>
             <Grid
@@ -97,27 +117,39 @@ const Page = () => {
               lg={8.5}
             >
               <Card>
-                <Tabs
-                  indicatorColor="primary"
-                  onChange={handleTabsChange}
-                  scrollButtons="auto"
-                  sx={{ px: 3 }}
-                  textColor="primary"
-                  value={currentTab}
-                  variant="scrollable"
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    px: 3,
+                  }}
                 >
-                  {tabs.map((tab) => (
-                    <Tab
-                      key={tab.value}
-                      label={tab.label}
-                      value={tab.value}
-                    />
-                  ))}
-                </Tabs>
-                <Divider />
+                  <Tabs
+                    indicatorColor="primary"
+                    onChange={handleTabsChange}
+                    scrollButtons="auto"
+                    textColor="primary"
+                    value={currentTab}
+                    variant="scrollable"
+                  >
+                    {tabs.map((tab) => (
+                      <Tab
+                        key={tab.value}
+                        label={tab.label}
+                        value={tab.value}
+                        sx={{px: 1}}
+                      />
+                    ))}
+                  </Tabs>
+                  <IconButton aria-label="share">
+                    <Share03/>
+                  </IconButton>
+                </Box>
+                <Divider/>
                 {/*内容填充*/}
                 <CardContent>
-                  {/*{currentTab === 'overview' && <CompanyOverview company={company} />}*/}
+                  {room ? currentTab === 'overview' && <RoomOverview room={room}/> : null}
                   {/*{currentTab === 'reviews' && (*/}
                   {/*  <CompanyReviews*/}
                   {/*    reviews={company.reviews || []}*/}
