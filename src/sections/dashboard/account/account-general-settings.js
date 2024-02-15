@@ -218,18 +218,6 @@ export const AccountGeneralSettings = (props) => {
     setLoading(false);
   }
 
-  const [isEdit, setIsEdit] = useState(false);
-  const handleEditClick = () => {
-    // Enable editing
-    setIsEdit(true);
-  };
-
-  const handleSaveClick = () => {
-    // Save the updated and disable editing
-    setIsEdit(false);
-    handleClick();
-  };
-
   const onSportsChange = (sport) => {
     if (values.sports.includes(sport)) {
       values.sports.splice(values.sports.indexOf(sport), 1);
@@ -347,7 +335,6 @@ export const AccountGeneralSettings = (props) => {
                       name={'name'}
                       value={values.name}
                       onChange={handleChange}
-                      disabled={!isEdit}
                       label="Name"
                       error={profileError.name.error}
                       required
@@ -374,7 +361,6 @@ export const AccountGeneralSettings = (props) => {
                       name={'email'}
                       value={values.email}
                       onChange={handleChange}
-                      disabled={!isEdit}
                       label="Email Address"
                       error={profileError.email.error}
                       required
@@ -402,7 +388,6 @@ export const AccountGeneralSettings = (props) => {
                       error={profileError.phone.error}
                       value={values.phone}
                       onChange={handleChange}
-                      disabled={!isEdit}
                       label="Phone Number"
                       required
                       type="number"
@@ -434,7 +419,6 @@ export const AccountGeneralSettings = (props) => {
                       value={values.gender}
                       onChange={handleChange}
                       label="Gender"
-                      disabled={!isEdit}
                       required
                     >
                       <MenuItem value={'Male'}>Male</MenuItem>
@@ -461,7 +445,6 @@ export const AccountGeneralSettings = (props) => {
                     required
                     type="number"
                     label="Age"
-                    disabled={!isEdit}
                     sx={{ flexGrow: 1 }}
                   />
                 </Stack>
@@ -506,7 +489,6 @@ export const AccountGeneralSettings = (props) => {
                       id={'description'}
                       name={'description'}
                       error={profileError.description.error}
-                      disabled={!isEdit}
                       value={values.description}
                       onChange={handleChange}
                       inputProps={{ maxLength: 300 }}
@@ -530,23 +512,13 @@ export const AccountGeneralSettings = (props) => {
                   direction="row"
                   justifyContent="flex-end"
                 >
-                  {isEdit ? (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleSaveClick}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleEditClick}
-                    >
-                      Edit
-                    </Button>
-                  )}
+                  <Button
+                    color="inherit"
+                    size="small"
+                    onClick={handleClick}
+                  >
+                    Save
+                  </Button>
                 </Stack>
               </Stack>
             </Grid>
