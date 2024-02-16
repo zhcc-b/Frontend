@@ -262,7 +262,7 @@ const Page = () => {
     <>
       <Snackbar
         open={open}
-        autoHideDuration={6000}
+        autoHideDuration={5000}
         onClose={handleClose}
         anchorOrigin={{vertical: 'top', horizontal: 'center'}}
       >
