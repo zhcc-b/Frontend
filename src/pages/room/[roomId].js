@@ -21,7 +21,7 @@ import {RoomOverview} from "src/sections/rooms/room-overview";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 
-import {Share03} from '@untitled-ui/icons-react'
+import {Link01} from '@untitled-ui/icons-react'
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
@@ -99,6 +99,14 @@ const Page = () => {
     }
   }
 
+  function handleShare() {
+    let roomIdStr = Array.isArray(roomId) ? roomId.join('') : roomId;
+    navigator.clipboard.writeText(btoa(`room=${roomIdStr}`));
+    setSeverity('success');
+    setMessage('Link copied to clipboard!');
+    setOpen(true);
+  }
+
   const handleTabsChange = useCallback((event, value) => {
     setCurrentTab(value);
   }, []);
@@ -114,7 +122,7 @@ const Page = () => {
     <>
       <Snackbar
         open={open}
-        autoHideDuration={6000}
+        autoHideDuration={5000}
         onClose={handleClose}
         anchorOrigin={{vertical: 'top', horizontal: 'center'}}
       >
@@ -235,9 +243,22 @@ const Page = () => {
                       />
                     ))}
                   </Tabs>
-                  <IconButton aria-label="share">
-                    <Share03/>
+                  <IconButton
+                    aria-label="share"
+                    onClick={handleShare}
+                  >
+                    <Link01/>
                   </IconButton>
+                  {/*<Button*/}
+                  {/*  startIcon={*/}
+                  {/*    <SvgIcon>*/}
+                  {/*      <Link01/>*/}
+                  {/*    </SvgIcon>*/}
+                  {/*  }*/}
+                  {/*  variant='text'*/}
+                  {/*>*/}
+                  {/*  Copy Link*/}
+                  {/*</Button>*/}
                 </Box>
                 <Divider/>
                 {/*内容填充*/}
