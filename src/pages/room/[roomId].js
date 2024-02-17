@@ -29,6 +29,8 @@ import {jwtDecode} from "jwt-decode";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import confetti from "canvas-confetti";
+import {formatDateTime} from "src/utils/format-datetime";
+
 
 const tabs = [
   { label: 'Overview', value: 'overview' },
@@ -189,13 +191,7 @@ const Page = () => {
                         color="text.secondary"
                         variant="body2"
                       >
-                        {new Date(room.start_time).toLocaleString('default', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {formatDateTime(room.created_at)}
                       </Typography>
                     </div> : null}
                   </Stack>
@@ -215,7 +211,7 @@ const Page = () => {
             </Grid>
             <Grid
               xs={12}
-              lg={8.5}
+              lg={8.4}
             >
               <Card>
                 <Box
@@ -280,7 +276,7 @@ const Page = () => {
             </Grid>
             <Grid
               xs={12}
-              lg={3.5}
+              lg={3.6}
             >
               {room ? <RoomSummary room={room} /> : null}
             </Grid>
