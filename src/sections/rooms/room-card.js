@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import {format} from 'date-fns';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -15,6 +14,7 @@ import {paths} from 'src/paths';
 import Calendar from '@untitled-ui/icons-react/build/esm/Calendar';
 import UsersCheck from '@untitled-ui/icons-react/build/esm/UsersCheck';
 import CardHeader from "@mui/material/CardHeader";
+import {formatDateTime} from "src/utils/format-datetime";
 
 
 export const RoomCard = (props) => {
@@ -27,10 +27,12 @@ export const RoomCard = (props) => {
     publishedAt,
     shortDescription,
     title,
+    currentPlayer,
+    maxPlayer,
+    startTime,
+    endTime,
     ...other
   } = props;
-
-  const formattedPublishedAt = format(publishedAt, 'MMM d, yyyy');
 
   return (
     <Card
@@ -42,7 +44,7 @@ export const RoomCard = (props) => {
           <Avatar src={authorAvatar}/>
         }
         title={authorName}
-        subheader={'Published on ' + formattedPublishedAt}
+        subheader={'Published on ' + formatDateTime(publishedAt)}
       />
       <CardMedia
         component={RouterLink}
@@ -100,7 +102,7 @@ export const RoomCard = (props) => {
           >
             <Calendar/>
             <Typography variant="subtitle2">
-              {formattedPublishedAt}
+              {formatDateTime(startTime, endTime)}
             </Typography>
           </Stack>
 
@@ -115,7 +117,7 @@ export const RoomCard = (props) => {
               sx={{flexGrow: 1}}
               variant="subtitle2"
             >
-              1/2
+              {currentPlayer}/{maxPlayer}
             </Typography>
           </Stack>
 
@@ -134,4 +136,8 @@ RoomCard.propTypes = {
   publishedAt: PropTypes.number.isRequired,
   shortDescription: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
+  currentPlayer: PropTypes.string.isRequired,
+  maxPlayer: PropTypes.string.isRequired,
+  startTime: PropTypes.string.isRequired,
+  endTime: PropTypes.string.isRequired,
 };
