@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import { PropertyList } from 'src/components/property-list';
 import { PropertyListItem } from 'src/components/property-list-item';
+import {formatDateTime} from "src/utils/format-datetime";
 // import { getInitials } from 'src/utils/get-initials';
 
 const ageGroupMapping = {
@@ -64,25 +65,7 @@ export const RoomSummary = (props) => {
               px: 0,
               py: 1,
             }}
-            value={(() => {
-              const start_time= new Date(room.start_time).toLocaleString('default', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-              });
-              const end_time = new Date(room.end_time).toLocaleString('default', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-              });
-              return `${start_time} - ${end_time}`;
-            })()}
+            value={formatDateTime(room.start_time, room.end_time)}
           />
           <PropertyListItem
             align="vertical"
