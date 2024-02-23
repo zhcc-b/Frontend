@@ -90,7 +90,7 @@ export const AccountPopover = (props) => {
       <Box sx={{ p: 1 }}>
         <ListItemButton
           component={RouterLink}
-          href={paths.dashboard.social && paths.dashboard.social.profile}
+          href={paths.account}
           onClick={onClose}
           sx={{
             borderRadius: 1,
@@ -105,56 +105,19 @@ export const AccountPopover = (props) => {
           </ListItemIcon>
           <ListItemText primary={<Typography variant="body1">Profile</Typography>} />
         </ListItemButton>
-        <ListItemButton
-          component={RouterLink}
-          href={paths.dashboard.account}
-          onClick={onClose}
-          sx={{
-            borderRadius: 1,
-            px: 1,
-            py: 0.5,
-          }}
-        >
-          <ListItemIcon>
-            <SvgIcon fontSize="small">
-              <Settings04Icon />
-            </SvgIcon>
-          </ListItemIcon>
-          <ListItemText primary={<Typography variant="body1">Settings</Typography>} />
-        </ListItemButton>
-        <ListItemButton
-          component={RouterLink}
-          href={paths.dashboard.index}
-          onClick={onClose}
-          sx={{
-            borderRadius: 1,
-            px: 1,
-            py: 0.5,
-          }}
-        >
-          <ListItemIcon>
-            <SvgIcon fontSize="small">
-              <CreditCard01Icon />
-            </SvgIcon>
-          </ListItemIcon>
-          <ListItemText primary={<Typography variant="body1">Billing</Typography>} />
-        </ListItemButton>
       </Box>
       <Divider sx={{ my: '0 !important' }} />
-      <Box
-        sx={{
-          display: 'flex',
-          p: 1,
-          justifyContent: 'center',
-        }}
-      >
-        <Button
-          color="inherit"
+      <Box sx={{ p: 1 }}>
+        <ListItemButton
           onClick={handleLogout}
-          size="small"
+          sx={{
+            borderRadius: 1,
+            px: 1,
+            py: 0.5,
+          }}
         >
-          Logout
-        </Button>
+          <ListItemText primary={<Typography variant="body1">Logout</Typography>} />
+        </ListItemButton>
       </Box>
     </Popover>
   );
