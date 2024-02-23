@@ -31,27 +31,28 @@ import sendHttpRequest from "src/utils/send-http-request";
 import confetti from "canvas-confetti";
 import {useRouter} from 'next/router'
 
+let initialRoomInfo = {
+  id: '',
+  title: '',
+  description: '',
+  location: '',
+  start_time: null,
+  end_time: null,
+  level: '',
+  age_group: '',
+  sport_data: '',
+  max_players: '',
+  content: '',
+  attachment_data: '',
+  // preferredGender: '',
+};
+
+const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
+
 const Page = () => {
   const router = useRouter();
   const {roomId} = router.query;
 
-  let initialRoomInfo = {
-    id: '',
-    title: '',
-    description: '',
-    location: '',
-    start_time: null,
-    end_time: null,
-    level: '',
-    age_group: '',
-    sport_data: '',
-    max_players: '',
-    content: '',
-    attachment_data: '',
-    // preferredGender: '',
-  };
-
-  // const [attachment, setAttachment] = useState(initialCover);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
@@ -95,22 +96,6 @@ const Page = () => {
       }else {
         router.push('/500');
       }
-
-      // const simulate = {
-      //   title: 'Badminton',
-      //   description: 'Badminton game',
-      //   location: 'Singapore',
-      //   start_time: new Date(),
-      //   end_time: new Date(),
-      //   level: 'B',
-      //   age_group: 'C',
-      //   sport: 'Badminton',
-      //   max_players: '10',
-      //   content: '<p><strong>This is a badminton game </strong></p>',
-      //   attachment: ''
-      // }
-      // setFormData(simulate);
-
     })
   }, [roomId, setFormData, router]);
 
@@ -129,8 +114,6 @@ const Page = () => {
     content: {error: false, message: ''},
     attachment_data: {error: false, message: ''}
   });
-
-  const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
 
   function validateForm() {
     const isTitleEmpty = formData.title === '';
@@ -249,7 +232,7 @@ const Page = () => {
           router.push('/401');
         } else {
           setSeverity('error');
-          setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
+          setMessage('An unexpected error occurred: ' + response.data.detail);
           setOpen(true);
         }
       });
@@ -279,7 +262,7 @@ const Page = () => {
     <>
       <Snackbar
         open={open}
-        autoHideDuration={6000}
+        autoHideDuration={5000}
         onClose={handleClose}
         anchorOrigin={{vertical: 'top', horizontal: 'center'}}
       >
