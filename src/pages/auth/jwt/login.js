@@ -75,7 +75,7 @@ const Page = () => {
 
         localStorage.removeItem('jwttoken');
 
-        await sendHttpRequest('http://127.0.0.1:8000/registration/login/', 'POST', {
+        await sendHttpRequest('http://127.0.0.1:8000/accounts/login/', 'POST', {
           username: values.username,
           password: values.password
         }).then(
