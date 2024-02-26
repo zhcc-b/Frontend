@@ -62,7 +62,7 @@ const Page = () => {
       return;
     }
 
-    sendHttpRequest(`http://localhost:8000/userprofile/${uid}`, 'GET').then((response) => {
+    sendHttpRequest(`http://localhost:8000/accounts/${uid}`, 'GET').then((response) => {
       if (response.status === 200 || response.status === 201) {
         const originalData = {
           email: response.data['user']['email'],

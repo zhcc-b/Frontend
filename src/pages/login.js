@@ -18,9 +18,9 @@ import { useSearchParams } from 'src/hooks/use-search-params';
 import { Layout as AuthLayout } from 'src/layouts/auth/modern-layout';
 import { paths } from 'src/paths';
 import { Issuer } from 'src/utils/auth';
-import {IssuerGuard} from "../../../guards/issuer-guard";
-import {GuestGuard} from "../../../guards/guest-guard";
-import sendHttpRequest from "../../../utils/send-http-request";
+import {IssuerGuard} from "src/guards/issuer-guard";
+import {GuestGuard} from "src/guards/guest-guard";
+import sendHttpRequest from "src/utils/send-http-request";
 import {useState} from "react";
 
 const initialValues = {
@@ -75,7 +75,7 @@ const Page = () => {
 
         localStorage.removeItem('jwttoken');
 
-        await sendHttpRequest('http://127.0.0.1:8000/registration/login/', 'POST', {
+        await sendHttpRequest('http://localhost:8000/accounts/login/', 'POST', {
           username: values.username,
           password: values.password
         }).then(
@@ -115,7 +115,7 @@ const Page = () => {
                 Don&apos;t have an account? &nbsp;
                 <Link
                   component={RouterLink}
-                  href={paths.auth.jwt.register}
+                  href={paths.register}
                   underline="hover"
                   variant="subtitle2"
                 >
