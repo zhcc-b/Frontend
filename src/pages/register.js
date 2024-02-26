@@ -84,7 +84,7 @@ const Page = () => {
     onSubmit: async (values, helpers) => {
       try {
 
-        localStorage.removeItem('jwttoken');
+        localStorage.removeItem('JWT');
 
         await sendHttpRequest('http://localhost:8000/accounts/register/', 'POST', {
           email: values.email,

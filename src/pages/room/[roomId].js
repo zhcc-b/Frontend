@@ -70,7 +70,7 @@ const Page = () => {
   }, [roomId, router]);
 
   function handleJoin() {
-    const token = localStorage.getItem('jwttoken');
+    const token = localStorage.getItem('JWT');
     const user_id = jwtDecode(token).user_id;
     if (!token) {
       const returnTo = encodeURIComponent(window.location.href);

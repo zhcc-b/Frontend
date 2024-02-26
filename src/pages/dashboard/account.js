@@ -29,7 +29,7 @@ const Page = () => {
   const router = useRouter();
   const [currentTab, setCurrentTab] = useState('general');
   const [init_avatar, setAvatar] = useState(null);
-  const token = localStorage.getItem('jwttoken');
+  const token = localStorage.getItem('JWT');
   // const [email, setEail] = useState('');
   // const [name, setName] = useState('');
   // const [gender, setGender] = useState('');

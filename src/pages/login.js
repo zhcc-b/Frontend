@@ -73,7 +73,7 @@ const Page = () => {
     onSubmit: async (values, helpers) => {
       try {
 
-        localStorage.removeItem('jwttoken');
+        localStorage.removeItem('JWT');
 
         await sendHttpRequest('http://localhost:8000/accounts/login/', 'POST', {
           username: values.username,
@@ -82,7 +82,7 @@ const Page = () => {
           response => {
             // const parsedResponse = JSON.parse(response.data);
             if (response.status === 200){
-              localStorage.setItem('jwttoken', response.data.access);
+              localStorage.setItem('JWT', response.data.access);
               router.push(returnTo || paths.dashboard.index);
             } else if (response.status === 500){
               router.push('/500');

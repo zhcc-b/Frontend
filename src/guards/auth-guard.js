@@ -20,7 +20,7 @@ export const AuthGuard = (props) => {
 
   const check = useCallback(() => {
 
-    const token = localStorage.getItem('jwttoken');
+    const token = localStorage.getItem('JWT');
     if (token == null) {
       const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
       const href = loginPaths['JWT'] + `?${searchParams}`;
@@ -32,7 +32,7 @@ export const AuthGuard = (props) => {
         if (response.status === 200 || response.status === 201) {
           setChecked(true);
         } else {
-          localStorage.removeItem('jwttoken')
+          localStorage.removeItem('JWT')
           const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
           const href = loginPaths['JWT'] + `?${searchParams}`;
           router.replace(href);
