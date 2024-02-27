@@ -86,7 +86,6 @@ export const RoomSummary = (props) => {
             ))}
           </PropertyListItem>
         </PropertyList>
-        {/*TODO: Add Admins and Owners*/}
         <Divider sx={{ my: 2 }} />
         <Typography
           color="text.secondary"
@@ -96,27 +95,27 @@ export const RoomSummary = (props) => {
         >
           Admins
         </Typography>
-        {/*<Stack spacing={2}>*/}
-        {/*  {(company.founders || []).map((founder) => (*/}
-        {/*    <Stack*/}
-        {/*      alignItems="center"*/}
-        {/*      direction="row"*/}
-        {/*      key={founder.id}*/}
-        {/*      spacing={2}*/}
-        {/*    >*/}
-        {/*      <Avatar src={founder.avatar}>{getInitials(founder.name)}</Avatar>*/}
-        {/*      <div>*/}
-        {/*        <Typography variant="subtitle2">{founder.name}</Typography>*/}
-        {/*        <Typography*/}
-        {/*          color="text.secondary"*/}
-        {/*          variant="body2"*/}
-        {/*        >*/}
-        {/*          {founder.role}*/}
-        {/*        </Typography>*/}
-        {/*      </div>*/}
-        {/*    </Stack>*/}
-        {/*  ))}*/}
-        {/*</Stack>*/}
+        <Stack spacing={2}>
+          {(room.admins).map((admin) => (
+            <Stack
+              alignItems="center"
+              direction="row"
+              key={admin.id}
+              spacing={2}
+            >
+              <Avatar src={admin.avatar}></Avatar>
+              <div>
+                <Typography variant="subtitle2">{admin.username}</Typography>
+                {/*<Typography*/}
+                {/*  color="text.secondary"*/}
+                {/*  variant="body2"*/}
+                {/*>*/}
+                {/*  {admin.description}*/}
+                {/*</Typography>*/}
+              </div>
+            </Stack>
+          ))}
+        </Stack>
       </CardContent>
     </Card>
   );
