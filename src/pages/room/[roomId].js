@@ -23,6 +23,7 @@ import Button from "@mui/material/Button";
 
 import {Link01} from '@untitled-ui/icons-react'
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
+import MinusIcon from '@untitled-ui/icons-react/build/esm/Minus';
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 import {jwtDecode} from "jwt-decode";
@@ -48,6 +49,10 @@ const Page = () => {
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
+  const [isUserInRoom, setIsUserInRoom] = useState(false);
+
+  const token = localStorage.getItem('JWT');
+  const user_id = token ? jwtDecode(token).user_id : null;
 
   useEffect(() => {
     // Ensure the effect runs only when the router is ready and roomId is available
@@ -58,6 +63,7 @@ const Page = () => {
       ).then(response => {
         if (response.status === 200 || response.status === 201) {
           setRoom(response.data);
+          setIsUserInRoom( response.data.players && response.data.players.some(player => player.id === user_id));
         } else if (response.status === 401 || response.status === 403) {
           router.push('/401');
         } else if (response.status === 404) {
@@ -67,14 +73,12 @@ const Page = () => {
         }
       });
     }
-  }, [roomId, router]);
+  }, [roomId, router, user_id]);
 
   function handleJoin() {
-    const token = localStorage.getItem('JWT');
-    const user_id = jwtDecode(token).user_id;
     if (!token) {
       const returnTo = encodeURIComponent(window.location.href);
-      window.location.href = `/auth/jwt/login?returnTo=${returnTo}`;
+      window.location.href = `/login?returnTo=${returnTo}`;
     } else {
       sendHttpRequest(
         'http://localhost:8000/events/join/',
@@ -82,6 +86,7 @@ const Page = () => {
         {id: user_id}
       ).then(response =>{
         if (response.status === 200 || response.status === 201) {
+          setIsUserInRoom(true);
           confetti({
             particleCount: 100,
             spread: 70,
@@ -94,16 +99,47 @@ const Page = () => {
           router.push('/401');
         } else {
           setSeverity('error');
-          setMessage('An unexpected error occurred: ' + response.data.detail);
+          setMessage(response.data.message);
           setOpen(true);
         }
       });
     }
   }
 
+  function handleLeave() {
+    if (!token) {
+      const returnTo = encodeURIComponent(window.location.href);
+      window.location.href = `/login?returnTo=${returnTo}`;
+    } else {
+     sendHttpRequest(
+       'http://localhost:8000/events/quit/',
+       'PUT',
+        {id: user_id}
+     ).then (response => {
+        if (response.status === 200 || response.status === 201) {
+          setIsUserInRoom(false);
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: {y: 0.6}
+          });
+          setSeverity('success');
+          setMessage('You have successfully left the room!');
+          setOpen(true);
+        } else if (response.status === 401) {
+          router.push('/401');
+        } else {
+          setSeverity('error');
+          setMessage(response.data.message);
+          setOpen(true);
+        }
+     });
+    }
+  }
+
   function handleShare() {
     let roomIdStr = Array.isArray(roomId) ? roomId.join('') : roomId;
-    navigator.clipboard.writeText(btoa(`room=${roomIdStr}`));
+    navigator.clipboard.writeText('http://localhost:3000/invite/' + btoa(`room=${roomIdStr}`));
     setSeverity('success');
     setMessage('Link copied to clipboard!');
     setOpen(true);
@@ -198,13 +234,14 @@ const Page = () => {
                   <Button
                     startIcon={
                       <SvgIcon>
-                        <PlusIcon/>
+                        {isUserInRoom ? <MinusIcon/> : <PlusIcon/>}
                       </SvgIcon>
                     }
                     variant="contained"
-                    onClick={handleJoin}
+                    color={isUserInRoom ? "error" : "primary"}
+                    onClick={isUserInRoom ? handleLeave : handleJoin}
                   >
-                    Join
+                    {isUserInRoom ? 'Leave' : 'Join'}
                   </Button>
                 </Stack>
               </Stack>
