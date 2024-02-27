@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ArrowLeftIcon from '@untitled-ui/icons-react/build/esm/ArrowLeft';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -11,26 +11,28 @@ import SvgIcon from '@mui/material/SvgIcon';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
-import {RouterLink} from 'src/components/router-link';
-import {Seo} from 'src/components/seo';
-import {paths} from 'src/paths';
-import {useRouter} from "next/router";
+import { RouterLink } from 'src/components/router-link';
+import { Seo } from 'src/components/seo';
+import { paths } from 'src/paths';
+import { useRouter } from "next/router";
 import sendHttpRequest from "src/utils/send-http-request";
-import {RoomSummary} from 'src/sections/rooms/room-summary';
-import {RoomOverview} from "src/sections/rooms/room-overview";
+import { RoomSummary } from 'src/sections/rooms/room-summary';
+import { RoomOverview } from "src/sections/rooms/room-overview";
+import { RoomMembers } from "src/sections/rooms/room-members";
+
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 
-import {Link01} from '@untitled-ui/icons-react'
+import { Link01 } from '@untitled-ui/icons-react'
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
 import MinusIcon from '@untitled-ui/icons-react/build/esm/Minus';
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import confetti from "canvas-confetti";
-import {formatDateTime} from "src/utils/format-datetime";
+import { formatDateTime } from "src/utils/format-datetime";
 
 
 const tabs = [
@@ -294,7 +296,6 @@ const Page = () => {
                   {/*</Button>*/}
                 </Box>
                 <Divider/>
-                {/*内容填充*/}
                 <CardContent>
                   {room ? currentTab === 'overview' && <RoomOverview room={room}/> : null}
                   {/*{currentTab === 'reviews' && (*/}
@@ -306,7 +307,7 @@ const Page = () => {
                   {/*{currentTab === 'activity' && (*/}
                   {/*  <CompanyActivity activities={company.activities || []} />*/}
                   {/*)}*/}
-                  {/*{currentTab === 'team' && <CompanyTeam members={company.members || []} />}*/}
+                  {room ? currentTab === 'members' && <RoomMembers members={room.players}/> : null}
                   {/*{currentTab === 'assets' && <CompanyAssets assets={company.assets || []} />}*/}
                 </CardContent>
               </Card>
