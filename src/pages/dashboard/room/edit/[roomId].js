@@ -44,7 +44,7 @@ let initialRoomInfo = {
   max_players: '',
   visibility: '',
   content: '',
-  attachment_data: ''
+  attachment_data: '',
 };
 
 const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
@@ -85,7 +85,7 @@ const Page = () => {
           max_players: response.data.max_players,
           content: response.data.content,
           attachment_data: response.data.attachment,
-          visibility: response.data.visibility
+          visibility: response.data.visibility,
         }
         setAttachment(response.data.attachment);
         setFormData(originalData);
@@ -141,7 +141,7 @@ const Page = () => {
     const isUnknownEndTimeObject = !formData.end_time instanceof Date;
     const isStartTimeAfterEndTime = formData.start_time > formData.end_time;
 
-    if (formData && formData.attachment_data && typeof formData.attachment_data === 'string' && formData.attachment_data.startsWith('http')) {
+    if (formData.hasOwnProperty('attachment_data') && formData.attachment_data !== null && formData.attachment_data.startsWith('http')) {
       delete formData.attachment_data;
     }
 
