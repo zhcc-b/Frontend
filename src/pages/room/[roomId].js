@@ -182,10 +182,10 @@ const Page = () => {
                     direction="row"
                     spacing={2}
                   >
-                    {room ? <Avatar src={room.attachment}/> : null}
+                    {room ? <Avatar src={room.owner.avatar}/> : null}
                     {room ? <div>
                       <Typography variant="subtitle2">
-                        By {room.owner}
+                        By {room.owner.username}
                       </Typography>
                       <Typography
                         color="text.secondary"
