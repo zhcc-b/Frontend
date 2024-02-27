@@ -23,7 +23,7 @@ import {useSearchParams} from 'src/hooks/use-search-params';
 import {Layout as AuthLayout} from 'src/layouts/auth/modern-layout';
 import {paths} from 'src/paths';
 import {Issuer} from 'src/utils/auth';
-import sendHttpRequest from "../../../utils/send-http-request";
+import sendHttpRequest from "src/utils/send-http-request";
 
 const initialValues = {
   email: '',
@@ -84,9 +84,9 @@ const Page = () => {
     onSubmit: async (values, helpers) => {
       try {
 
-        localStorage.removeItem('jwttoken');
+        localStorage.removeItem('JWT');
 
-        await sendHttpRequest('http://localhost:8000/registration/register/', 'POST', {
+        await sendHttpRequest('http://localhost:8000/accounts/register/', 'POST', {
           email: values.email,
           username: values.name,
           password: values.password
@@ -94,7 +94,7 @@ const Page = () => {
           response => {
             // const parsedResponse = JSON.parse(response.data);
             if (response.status === 201 || response.status === 200) {
-              router.push(returnTo || paths.auth.jwt.login);
+              router.push(returnTo || paths.login);
             } else if (response.status === 409 || response.status === 400) {
               displayError(response)
               helpers.setStatus({ success: false });
@@ -124,7 +124,7 @@ const Page = () => {
                 Already have an account? &nbsp;
                 <Link
                   component={RouterLink}
-                  href={paths.auth.jwt.login}
+                  href={paths.login}
                   underline="hover"
                   variant="subtitle2"
                 >

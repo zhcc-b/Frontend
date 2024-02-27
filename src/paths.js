@@ -11,12 +11,8 @@ export const paths = {
     },
     chat: '/dashboard/chat',
   },
-  auth: {
-    jwt: {
-      login: '/auth/jwt/login',
-      register: '/auth/jwt/register',
-    },
-  },
+  login: '/login',
+  register: '/register',
   notAuthorized: '/401',
   notFound: '/404',
   serverError: '/500',

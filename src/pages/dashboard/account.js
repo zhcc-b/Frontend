@@ -29,7 +29,7 @@ const Page = () => {
   const router = useRouter();
   const [currentTab, setCurrentTab] = useState('general');
   const [init_avatar, setAvatar] = useState(null);
-  const token = localStorage.getItem('jwttoken');
+  const token = localStorage.getItem('JWT');
   // const [email, setEail] = useState('');
   // const [name, setName] = useState('');
   // const [gender, setGender] = useState('');
@@ -62,7 +62,7 @@ const Page = () => {
       return;
     }
 
-    sendHttpRequest(`http://localhost:8000/userprofile/${uid}`, 'GET').then((response) => {
+    sendHttpRequest(`http://localhost:8000/accounts/${uid}`, 'GET').then((response) => {
       if (response.status === 200 || response.status === 201) {
         const originalData = {
           email: response.data['user']['email'],

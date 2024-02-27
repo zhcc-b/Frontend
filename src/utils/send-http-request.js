@@ -5,7 +5,7 @@ async function sendHttpRequest(url, method, data = null) {
     headers,
   };
 
-  let token = localStorage.getItem('jwttoken')
+  let token = localStorage.getItem('JWT')
   if (token !== null) {
     headers.append('Authorization', `Bearer ${token}`);
   }
