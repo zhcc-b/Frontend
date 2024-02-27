@@ -28,7 +28,7 @@ export const AuthGuard = (props) => {
     } else {
 
       const user_id = jwtDecode(token).user_id;
-      sendHttpRequest(`http://localhost:8000/accounts/${user_id}`, 'GET').then(response => {
+      sendHttpRequest(`http://localhost:8000/accounts/${user_id}/`, 'GET').then(response => {
         if (response.status === 200 || response.status === 201) {
           setChecked(true);
         } else {
