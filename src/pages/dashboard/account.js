@@ -26,7 +26,6 @@ const tabs = [
 const Page = () => {
   const router = useRouter();
   const [currentTab, setCurrentTab] = useState('general');
-  const [init_avatar, setAvatar] = useState(null);
   const token = localStorage.getItem('JWT');
 
   let initialUserInfo = {
@@ -63,9 +62,8 @@ const Page = () => {
           email_product: response.data.email_product,
           email_security: response.data.email_security,
           phone_security: response.data.phone_security,
-          avatar_data: response.data.avatar_data,
+          avatar_data: response.data.avatar,
         };
-        setAvatar(response.data.avatar);
         setUserData(originalData);
       } else if (response.status === 401 || response.status === 403) {
         router.push('/401');
@@ -117,13 +115,7 @@ const Page = () => {
               <Divider />
             </div>
           </Stack>
-          {currentTab === 'general' && (
-            <AccountGeneralSettings
-              init_avatar={init_avatar || null}
-              userData={userData || null}
-              handler={handleInputChange}
-            />
-          )}
+          {currentTab === 'general' && <AccountGeneralSettings userData={userData || null} />}
           {currentTab === 'notifications' && (
             <AccountNotificationsSettings
               email_product={userData.email_product || false}

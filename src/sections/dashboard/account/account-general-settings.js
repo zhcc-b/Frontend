@@ -10,35 +10,24 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
-import { useCallback, useEffect, useState, Fragment } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import sendHttpRequest from 'src/utils/send-http-request';
 import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
 import { fileToBase64 } from 'src/utils/file-to-base64';
 import confetti from 'canvas-confetti';
 import { AvatarDropzone } from 'src/components/avatar-dropzone';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import Avatar from '@mui/material/Avatar';
+
 import { useRouter } from 'next/navigation';
 
 export const AccountGeneralSettings = (props) => {
-  const { init_avatar, userData } = props;
+  const { userData } = props;
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
-  const [avatar, setAvatar] = useState(init_avatar);
   const router = useRouter();
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
   const [values, setValues] = useState({
     avatar_data: null,
     email: '',
@@ -220,33 +209,6 @@ export const AccountGeneralSettings = (props) => {
     }
     setLoading(false);
   }
-  function handleDeleteClick() {
-    const isConfirmed = window.confirm(
-      'Are you sure you want to delete your account? This action cannot be undone.'
-    );
-    if (isConfirmed) {
-      setLoading(true);
-      sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'DELETE').then((response) => {
-        if (response.status === 200 || response.status === 201) {
-          confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 },
-          });
-          setSeverity('success');
-          setMessage('Successfully delete account');
-          setOpen(true);
-        } else if (response.status === 401) {
-          router.push('/401');
-        } else {
-          setSeverity('error');
-          setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
-          setOpen(true);
-        }
-      });
-      setLoading(false);
-    }
-  }
 
   const onSportsChange = (sport) => {
     if (values.sports_data.includes(sport)) {
@@ -257,18 +219,16 @@ export const AccountGeneralSettings = (props) => {
     handleClick();
   };
 
-  const handleCoverDrop = useCallback(
+  const handleAvatarDrop = useCallback(
     async ([file]) => {
       const data = await fileToBase64(file);
-      setAvatar(data);
-      values.avatar_data = data; // directly assign the data to formData.attachment
+      setValues({ ...values, avatar_data: data }); // directly assign the data to values.avatar
     },
     [values]
   );
 
-  const handleCoverRemove = useCallback(() => {
-    setAvatar(null);
-    values.avatar_data = null;
+  const handleAvatarRemove = useCallback(() => {
+    setValues({ ...values, avatar_data: null });
   }, [values]);
 
   return (
@@ -299,10 +259,10 @@ export const AccountGeneralSettings = (props) => {
                   alignItems={'flex-start'}
                 >
                   <Stack>
-                    {avatar ? (
+                    {values.avatar_data ? (
                       <Box
                         sx={{
-                          backgroundImage: `url(${avatar})`,
+                          backgroundImage: `url(${values.avatar_data})`,
                           backgroundPosition: 'center',
                           alignItems: 'center',
                           backgroundSize: 'avatar',
@@ -339,8 +299,8 @@ export const AccountGeneralSettings = (props) => {
                     )}
                     <Button
                       color="inherit"
-                      disabled={!avatar}
-                      onClick={handleCoverRemove}
+                      disabled={!values.avatar_data}
+                      onClick={handleAvatarRemove}
                     >
                       Remove
                     </Button>
@@ -349,7 +309,7 @@ export const AccountGeneralSettings = (props) => {
                   <AvatarDropzone
                     accept={{ 'image/*': [] }}
                     maxFiles={1}
-                    onDrop={handleCoverDrop}
+                    onDrop={handleAvatarDrop}
                     caption="(SVG, JPG, PNG, or gif maximum 900x400)"
                   />
                 </Stack>
@@ -646,74 +606,6 @@ export const AccountGeneralSettings = (props) => {
                     onChange={handleClick}
                   />
                 </Stack>
-              </Stack>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card> */}
-      {/* <Card>
-        <CardContent>
-          <Grid
-            container
-            spacing={3}
-          >
-            <Grid
-              xs={12}
-              md={4}
-            >
-              <Typography variant="h6">Delete Account</Typography>
-              <Fragment>
-                <Button
-                  variant="outlined"
-                  onClick={handleClickOpen}
-                >
-                  Open alert dialog
-                </Button>
-                <Dialog
-                  open={open}
-                  onClose={handleClose}
-                  aria-labelledby="alert-dialog-title"
-                  aria-describedby="alert-dialog-description"
-                >
-                  <DialogTitle id="alert-dialog-title">
-                    {"Use Google's location service?"}
-                  </DialogTitle>
-                  <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                      Let Google help apps determine location. This means sending anonymous location
-                      data to Google, even when no apps are running.
-                    </DialogContentText>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={handleClose}>Disagree</Button>
-                    <Button
-                      onClick={handleClose}
-                      autoFocus
-                    >
-                      Agree
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </Fragment>
-            </Grid>
-            <Grid
-              xs={12}
-              md={8}
-            >
-              <Stack
-                alignItems="flex-start"
-                spacing={3}
-              >
-                <Typography variant="subtitle1">
-                  Delete your account and all of your source data. This is irreversible.
-                </Typography>
-                <Button
-                  color="error"
-                  variant="outlined"
-                  onClick={handleDeleteClick}
-                >
-                  Delete account
-                </Button>
               </Stack>
             </Grid>
           </Grid>
