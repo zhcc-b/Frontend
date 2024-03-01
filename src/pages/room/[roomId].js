@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ArrowLeftIcon from '@untitled-ui/icons-react/build/esm/ArrowLeft';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -11,25 +11,28 @@ import SvgIcon from '@mui/material/SvgIcon';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
-import {RouterLink} from 'src/components/router-link';
-import {Seo} from 'src/components/seo';
-import {paths} from 'src/paths';
-import {useRouter} from "next/router";
+import { RouterLink } from 'src/components/router-link';
+import { Seo } from 'src/components/seo';
+import { paths } from 'src/paths';
+import { useRouter } from "next/router";
 import sendHttpRequest from "src/utils/send-http-request";
-import {RoomSummary} from 'src/sections/rooms/room-summary';
-import {RoomOverview} from "src/sections/rooms/room-overview";
+import { RoomSummary } from 'src/sections/rooms/room-summary';
+import { RoomOverview } from "src/sections/rooms/room-overview";
+import { RoomMembers } from "src/sections/rooms/room-members";
+
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 
-import {Link01} from '@untitled-ui/icons-react'
+import { Link01 } from '@untitled-ui/icons-react'
 import PlusIcon from '@untitled-ui/icons-react/build/esm/Plus';
+import MinusIcon from '@untitled-ui/icons-react/build/esm/Minus';
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import confetti from "canvas-confetti";
-import {formatDateTime} from "src/utils/format-datetime";
+import { formatDateTime } from "src/utils/format-datetime";
 
 
 const tabs = [
@@ -48,6 +51,10 @@ const Page = () => {
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
+  const [isUserInRoom, setIsUserInRoom] = useState(false);
+
+  const token = localStorage.getItem('JWT');
+  const user_id = token ? jwtDecode(token).user_id : null;
 
   useEffect(() => {
     // Ensure the effect runs only when the router is ready and roomId is available
@@ -58,6 +65,7 @@ const Page = () => {
       ).then(response => {
         if (response.status === 200 || response.status === 201) {
           setRoom(response.data);
+          setIsUserInRoom( response.data.players && response.data.players.some(player => player.id === user_id));
         } else if (response.status === 401 || response.status === 403) {
           router.push('/401');
         } else if (response.status === 404) {
@@ -67,21 +75,20 @@ const Page = () => {
         }
       });
     }
-  }, [roomId, router]);
+  }, [roomId, router, user_id]);
 
   function handleJoin() {
-    const token = localStorage.getItem('JWT');
-    const user_id = jwtDecode(token).user_id;
     if (!token) {
       const returnTo = encodeURIComponent(window.location.href);
-      window.location.href = `/auth/jwt/login?returnTo=${returnTo}`;
+      window.location.href = `/login?returnTo=${returnTo}`;
     } else {
       sendHttpRequest(
         'http://localhost:8000/events/join/',
         'PUT',
-        {id: user_id}
+        {id: roomId}
       ).then(response =>{
         if (response.status === 200 || response.status === 201) {
+          setIsUserInRoom(true);
           confetti({
             particleCount: 100,
             spread: 70,
@@ -94,16 +101,47 @@ const Page = () => {
           router.push('/401');
         } else {
           setSeverity('error');
-          setMessage('An unexpected error occurred: ' + response.data.detail);
+          setMessage(response.data.message);
           setOpen(true);
         }
       });
     }
   }
 
+  function handleLeave() {
+    if (!token) {
+      const returnTo = encodeURIComponent(window.location.href);
+      window.location.href = `/login?returnTo=${returnTo}`;
+    } else {
+     sendHttpRequest(
+       'http://localhost:8000/events/quit/',
+       'PUT',
+        {id: roomId}
+     ).then (response => {
+        if (response.status === 200 || response.status === 201) {
+          setIsUserInRoom(false);
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: {y: 0.6}
+          });
+          setSeverity('success');
+          setMessage('You have successfully left the room!');
+          setOpen(true);
+        } else if (response.status === 401) {
+          router.push('/401');
+        } else {
+          setSeverity('error');
+          setMessage(response.data.message);
+          setOpen(true);
+        }
+     });
+    }
+  }
+
   function handleShare() {
     let roomIdStr = Array.isArray(roomId) ? roomId.join('') : roomId;
-    navigator.clipboard.writeText(btoa(`room=${roomIdStr}`));
+    navigator.clipboard.writeText('http://localhost:3000/invite/' + btoa(`room=${roomIdStr}`));
     setSeverity('success');
     setMessage('Link copied to clipboard!');
     setOpen(true);
@@ -182,10 +220,10 @@ const Page = () => {
                     direction="row"
                     spacing={2}
                   >
-                    {room ? <Avatar src={room.attachment}/> : null}
+                    {room ? <Avatar src={room.owner.avatar}/> : null}
                     {room ? <div>
                       <Typography variant="subtitle2">
-                        By {room.owner}
+                        By {room.owner.username}
                       </Typography>
                       <Typography
                         color="text.secondary"
@@ -198,13 +236,14 @@ const Page = () => {
                   <Button
                     startIcon={
                       <SvgIcon>
-                        <PlusIcon/>
+                        {isUserInRoom ? <MinusIcon/> : <PlusIcon/>}
                       </SvgIcon>
                     }
                     variant="contained"
-                    onClick={handleJoin}
+                    color={isUserInRoom ? "error" : "primary"}
+                    onClick={isUserInRoom ? handleLeave : handleJoin}
                   >
-                    Join
+                    {isUserInRoom ? 'Leave' : 'Join'}
                   </Button>
                 </Stack>
               </Stack>
@@ -257,7 +296,6 @@ const Page = () => {
                   {/*</Button>*/}
                 </Box>
                 <Divider/>
-                {/*内容填充*/}
                 <CardContent>
                   {room ? currentTab === 'overview' && <RoomOverview room={room}/> : null}
                   {/*{currentTab === 'reviews' && (*/}
@@ -269,7 +307,7 @@ const Page = () => {
                   {/*{currentTab === 'activity' && (*/}
                   {/*  <CompanyActivity activities={company.activities || []} />*/}
                   {/*)}*/}
-                  {/*{currentTab === 'team' && <CompanyTeam members={company.members || []} />}*/}
+                  {room ? currentTab === 'members' && <RoomMembers members={room.players}/> : null}
                   {/*{currentTab === 'assets' && <CompanyAssets assets={company.assets || []} />}*/}
                 </CardContent>
               </Card>

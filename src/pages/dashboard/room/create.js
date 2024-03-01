@@ -50,8 +50,7 @@ const Page = () => {
     age_group: '',
     sport_data: '',
     max_players: '',
-    // preferredGender: 'None',
-    // visibilityControl: 'Public',
+    visibility: 'Public',
     content: '',
     attachment_data: ''
   });
@@ -66,8 +65,7 @@ const Page = () => {
     age_group: {error: false, message: ''},
     sport_data: {error: false, message: ''},
     max_players: {error: false, message: ''},
-    preferredGender: {error: false, message: ''},
-    visibilityControl: {error: false, message: ''},
+    visibility: {error: false, message: ''},
     content: {error: false, message: ''},
     attachment_data: {error: false, message: ''}
   });
@@ -84,8 +82,7 @@ const Page = () => {
     const isEndTimeEmpty = formData.end_time === null;
     const isSportEmpty = formData.sport_data === '';
     const isMaxPlayerEmpty = formData.max_players === '';
-    const isPreferredGenderEmpty = formData.preferredGender === '';
-    const isVisibilityControlEmpty = formData.visibilityControl === '';
+    const isVisibilityEmpty = formData.visibility === '';
     const isContentEmpty = formData.content === '';
     const isCoverEmpty = formData.attachment_data === '';
     const isLevelEmpty = formData.level === '';
@@ -98,8 +95,7 @@ const Page = () => {
 
     const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) < 0;
 
-    const isUnknownPreferredGender = !['None', 'Male', 'Female', 'Other'].includes(formData.preferredGender);
-    const isUnknownVisibilityControl = !['Public', 'Private'].includes(formData.visibilityControl);
+    const isUnknownVisibility = !['Public', 'Private'].includes(formData.visibility);
 
     const isNotStartTimeObject = !formData.start_time instanceof Date;
     const isUnknownEndTimeObject = !formData.end_time instanceof Date;
@@ -135,14 +131,10 @@ const Page = () => {
         error: isMaxPlayerEmpty || isMaxPlayerNotPositiveInt,
         message: isMaxPlayerEmpty ? 'Max Players is required' : isMaxPlayerNotPositiveInt ? 'Positive integers only' : ''
       },
-      // preferredGender: {
-      //   error: isPreferredGenderEmpty || isUnknownPreferredGender,
-      //   message: isPreferredGenderEmpty ? 'Preferred gender is required' : isUnknownPreferredGender ? 'Invalid preferred gender' : null
-      // },
-      // visibilityControl: {
-      //   error: isVisibilityControlEmpty || isUnknownVisibilityControl,
-      //   message: isVisibilityControlEmpty ? 'Visibility control is required' : isUnknownVisibilityControl ? 'Invalid visibility control option' : null
-      // },
+      visibility: {
+        error: isVisibilityEmpty || isUnknownVisibility,
+        message: isVisibilityEmpty ? 'Visibility control is required' : isUnknownVisibility ? 'Invalid visibility control option' : null
+      },
       content: {
         error: isContentEmpty,
         message: isContentEmpty ? 'Content is required' : ''
@@ -161,7 +153,7 @@ const Page = () => {
       }
     });
 
-    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSport && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty;
+    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSport && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty && !isUnknownVisibility && !isVisibilityEmpty;
   }
 
   function handleClick() {
@@ -582,68 +574,37 @@ const Page = () => {
                           </FormControl>
                         </Grid>
                       </Grid>
-                      {/*<Grid container>*/}
-                      {/*  <Grid lg={6}*/}
-                      {/*        md={6}*/}
-                      {/*        sm={6}*/}
-                      {/*        xl={6}*/}
-                      {/*        xs={6}*/}
-                      {/*        sx={{pr: 1}}*/}
-                      {/*  >*/}
-                      {/*    <FormControl fullWidth>*/}
-                      {/*      <InputLabel id="preferred-gender-select-label">Preferred*/}
-                      {/*        Gender</InputLabel>*/}
-                      {/*      <Select*/}
-                      {/*        labelId="preferred-gender-select-label"*/}
-                      {/*        id="preferred-gender-select"*/}
-                      {/*        label=" Preferred Gender "*/}
-                      {/*        name={'preferredGender'}*/}
-                      {/*        value={formData.preferredGender}*/}
-                      {/*        error={formError.preferredGender.error}*/}
-                      {/*        onChange={handleInputChange}*/}
-                      {/*      >*/}
-                      {/*        <MenuItem value={'None'}>None</MenuItem>*/}
-                      {/*        <MenuItem value={'Male'}>Male</MenuItem>*/}
-                      {/*        <MenuItem value={'Female'}>Female</MenuItem>*/}
-                      {/*        <MenuItem value={'Other'}>Other</MenuItem>*/}
-                      {/*      </Select>*/}
-                      {/*      {formError.preferredGender.error && (*/}
-                      {/*        <FormHelperText error>*/}
-                      {/*          {formError.preferredGender.message}*/}
-                      {/*        </FormHelperText>*/}
-                      {/*      )}*/}
-                      {/*    </FormControl>*/}
-                      {/*  </Grid>*/}
-                      {/*  <Grid lg={6}*/}
-                      {/*        md={6}*/}
-                      {/*        sm={6}*/}
-                      {/*        xl={6}*/}
-                      {/*        xs={6}*/}
-                      {/*        sx={{pl: 1}}*/}
-                      {/*  >*/}
-                      {/*    <FormControl fullWidth>*/}
-                      {/*      <InputLabel id="visibility-control-select-label">Visibility*/}
-                      {/*        Control</InputLabel>*/}
-                      {/*      <Select*/}
-                      {/*        labelId="visibility-control-select-label"*/}
-                      {/*        id="visibility-control-select"*/}
-                      {/*        label=" Visibility Control "*/}
-                      {/*        name={'visibilityControl'}*/}
-                      {/*        value={formData.visibilityControl}*/}
-                      {/*        error={formError.visibilityControl.error}*/}
-                      {/*        onChange={handleInputChange}*/}
-                      {/*      >*/}
-                      {/*        <MenuItem value={'Public'}>Public</MenuItem>*/}
-                      {/*        <MenuItem value={'Private'}>Private</MenuItem>*/}
-                      {/*      </Select>*/}
-                      {/*      {formError.visibilityControl.error && (*/}
-                      {/*        <FormHelperText error>*/}
-                      {/*          {formError.visibilityControl.message}*/}
-                      {/*        </FormHelperText>*/}
-                      {/*      )}*/}
-                      {/*    </FormControl>*/}
-                      {/*  </Grid>*/}
-                      {/*</Grid>*/}
+                      <Grid container>
+                        <Grid lg={6}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pr: 1}}
+                        >
+                          <FormControl fullWidth>
+                            <InputLabel id="visibility-control-select-label">Visibility
+                              Control</InputLabel>
+                            <Select
+                              labelId="visibility-control-select-label"
+                              id="visibility-control-select"
+                              label=" Visibility Control "
+                              name={'visibility'}
+                              value={formData.visibility}
+                              error={formError.visibility.error}
+                              onChange={handleInputChange}
+                            >
+                              <MenuItem value={'Public'}>Public</MenuItem>
+                              <MenuItem value={'Private'}>Private</MenuItem>
+                            </Select>
+                            {formError.visibility.error && (
+                              <FormHelperText error>
+                                {formError.visibility.message}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </Grid>
+                      </Grid>
                     </Stack>
                   </Grid>
                 </Grid>
