@@ -100,7 +100,7 @@ export const AccountGeneralSettings = (props) => {
     const isAgeEmpty = values.age === '';
     // const isBirthdayEmpty = values.birthday === null;
     const isGenderEmpty = values.gender === null;
-    const isAvatarEmpty = values.avatar_data === '';
+    const isAvatarEmpty = values.avatar_data === null;
 
     // const isInvaildphone_no = !/^\d{10}$/.test(values.phone_no);
     const isInvaildAge =
@@ -170,8 +170,8 @@ export const AccountGeneralSettings = (props) => {
       // !isInvaildphone_no &&
       !isUnknownGender &&
       !isInvaildAge &&
-      !isDescriptionTooLong
-      // !isAvatarEmpty
+      !isDescriptionTooLong &&
+      !isAvatarEmpty
     );
   }
 
@@ -253,66 +253,71 @@ export const AccountGeneralSettings = (props) => {
               md={8}
             >
               <Stack spacing={3}>
-                <Stack
-                  spacing={3}
-                  direction={'row'}
-                  alignItems={'flex-start'}
-                >
-                  <Stack>
-                    {values.avatar_data ? (
-                      <Box
-                        sx={{
-                          backgroundImage: `url(${values.avatar_data})`,
-                          backgroundPosition: 'center',
-                          alignItems: 'center',
-                          backgroundSize: 'avatar',
-                          borderRadius: '50%',
-                          height: 300,
-                          width: 300,
-                          mt: 3,
-                        }}
-                      />
-                    ) : (
-                      <Box
-                        sx={{
-                          alignItems: 'center',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          border: 1,
-                          borderRadius: '50%',
-                          borderStyle: 'dashed',
-                          borderColor: 'grey.500',
-                          height: 300,
-                          width: 300,
-                          mt: 3,
-                        }}
-                      >
-                        <Typography
-                          align="center"
-                          color="text.secondary"
-                          variant="h6"
+                <FormControl fullWidth>
+                  <Stack
+                    spacing={3}
+                    direction={'row'}
+                    alignItems={'flex-start'}
+                  >
+                    <Stack>
+                      {values.avatar_data ? (
+                        <Box
+                          sx={{
+                            backgroundImage: `url(${values.avatar_data})`,
+                            backgroundPosition: 'center',
+                            alignItems: 'center',
+                            backgroundSize: 'avatar',
+                            borderRadius: '50%',
+                            height: 300,
+                            width: 300,
+                            mt: 3,
+                          }}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            alignItems: 'center',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            border: 1,
+                            borderRadius: '50%',
+                            borderStyle: 'dashed',
+                            borderColor: 'grey.500',
+                            height: 300,
+                            width: 300,
+                            mt: 3,
+                          }}
                         >
-                          Avatar Preview
-                        </Typography>
-                      </Box>
-                    )}
-                    <Button
-                      color="inherit"
-                      disabled={!values.avatar_data}
-                      onClick={handleAvatarRemove}
-                    >
-                      Remove
-                    </Button>
-                  </Stack>
+                          <Typography
+                            align="center"
+                            color="text.secondary"
+                            variant="h6"
+                          >
+                            Avatar Preview
+                          </Typography>
+                        </Box>
+                      )}
+                      <Button
+                        color="inherit"
+                        disabled={!values.avatar_data}
+                        onClick={handleAvatarRemove}
+                      >
+                        Remove
+                      </Button>
+                    </Stack>
 
-                  <AvatarDropzone
-                    accept={{ 'image/*': [] }}
-                    maxFiles={1}
-                    onDrop={handleAvatarDrop}
-                    caption="(SVG, JPG, PNG, or gif maximum 900x400)"
-                  />
-                </Stack>
+                    <AvatarDropzone
+                      accept={{ 'image/*': [] }}
+                      maxFiles={1}
+                      onDrop={handleAvatarDrop}
+                      caption="(SVG, JPG, PNG, or gif maximum 900x400)"
+                    />
+                  </Stack>
+                  {profileError.avatar_data.error && (
+                    <FormHelperText error>{profileError.avatar_data.message}</FormHelperText>
+                  )}
+                </FormControl>
 
                 <Stack
                   alignItems="center"
