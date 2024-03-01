@@ -20,18 +20,14 @@ const Page = () => {
   const router = useRouter();
   const { inviteId } = router.query;
   const [roomname, setroomname] = useState(null);
-  const [roomId, setroomId] = useState(null);
-  const token = localStorage.getItem('JWT');
 
   useEffect(() => {
     if(!router.isReady) return;
     const decoderoomId = atob(inviteId);
     const parts = decoderoomId.split('=');
     const gotroomId = parts[1];
-    setroomId(gotroomId);
-    console.log("Room ID is: " + roomId);
     sendHttpRequest(
-        `http://localhost:8000/events/${roomId}/`,
+        `http://localhost:8000/events/${gotroomId}/`,
         'GET'
     ).then(response => {
       if (response.status === 200 || response.status === 201) {
@@ -57,12 +53,14 @@ const Page = () => {
       const returnTo = encodeURIComponent(window.location.href);
       window.location.href = `/login?returnTo=${returnTo}`;
     } else {
-      const user_id = jwtDecode(token).user_id;
-      console.log("This is room id: " + roomId);
+      const myroomId = atob(inviteId);
+      const parts = myroomId.split('=');
+      const finalroomId = parts[1];
+      console.log("finalRoom ID is: " + finalroomId);
       sendHttpRequest(
           'http://localhost:8000/events/join/',
           'PUT',
-          { id: roomId }
+          { id: finalroomId }
       ).then(response => {
         if (response.status === 200 || response.status === 201) {
           router.push(paths.roomDetails);
