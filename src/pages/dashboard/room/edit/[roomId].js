@@ -58,6 +58,8 @@ const Page = () => {
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
   const [attachment, setAttachment] = useState(null);
+  // This is used because if we directly use formData.content, somehow it will trigger setFormData 3rd time and all fields will be emptied except for the content field.
+  const [editorContent, setEditorContent] = useState('');
   const today = new Date().setHours(0, 0, 0, 0);
   const [formData, setFormData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput(initialRoomInfo);
 
@@ -89,6 +91,7 @@ const Page = () => {
         }
         setAttachment(response.data.attachment);
         setFormData(originalData);
+        setEditorContent(response.data.content);
       } else if (response.status === 401 || response.status === 403) {
         router.push('/401');
       } else if (response.status === 404) {
@@ -115,6 +118,9 @@ const Page = () => {
   });
 
   function validateForm() {
+
+    formData.content = editorContent;
+
     const isTitleEmpty = formData.title === '';
     const isDescriptionEmpty = formData.description === '';
     const isLocationEmpty = formData.location === '';
@@ -123,7 +129,8 @@ const Page = () => {
     const isSportEmpty = formData.sport_data === '';
     const isMaxPlayerEmpty = formData.max_players === '';
     const isVisibilityEmpty = formData.visibility === '';
-    const isContentEmpty = formData.content === '';
+    // We move the check for empty content to the here since handleEditorChange cannot be used to here according to the bug above.
+    const isContentEmpty = formData.content === '' || formData.content === '<p><br></p>';
     const isCoverEmpty = formData.attachment_data === '';
     const isLevelEmpty = formData.level === '';
     const isAgeGroupEmpty = formData.age_group === '';
@@ -637,7 +644,10 @@ const Page = () => {
                               xs={6}
                               sx={{pr: 1}}
                         >
-                          <FormControl fullWidth>
+                          <FormControl
+                            fullWidth
+                            required
+                          >
                             <InputLabel id="visibility-control-select-label">Visibility
                               Control</InputLabel>
                             <Select
@@ -766,8 +776,8 @@ const Page = () => {
                       placeholder="Write something"
                       sx={{height: 330}}
                       name={'content'}
-                      value={formData.content}
-                      onChange={handleEditorChange}
+                      value={editorContent}
+                      onChange={(e) => { setEditorContent(e); }}
                     />
                     {formError.content.error && (
                       <FormHelperText
