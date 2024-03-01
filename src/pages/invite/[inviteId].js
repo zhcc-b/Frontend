@@ -78,7 +78,7 @@ const Page = () => {
           setSeverity('success');
           setMessage('You have successfully joined the room!');
           setOpen(true);
-          router.push(paths.roomDetails);
+          router.push(`${paths.roomDetails.replace(':roomId', finalroomId)}`);
         } else if (response.status === 401) {
           router.push('/401');
         } else if (response.status === 400) {
