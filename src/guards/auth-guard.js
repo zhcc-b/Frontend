@@ -6,10 +6,10 @@ import { useRouter } from 'src/hooks/use-router';
 import { paths } from 'src/paths';
 import { Issuer } from 'src/utils/auth';
 import sendHttpRequest from "../utils/send-http-request";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const loginPaths = {
-  [Issuer.JWT]: paths.auth.jwt.login,
+  [Issuer.JWT]: paths.login,
 };
 
 export const AuthGuard = (props) => {
@@ -20,19 +20,19 @@ export const AuthGuard = (props) => {
 
   const check = useCallback(() => {
 
-    const token = localStorage.getItem('jwttoken');
-    if (token == null){
+    const token = localStorage.getItem('JWT');
+    if (token == null) {
       const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
       const href = loginPaths['JWT'] + `?${searchParams}`;
       router.replace(href);
     } else {
 
       const user_id = jwtDecode(token).user_id;
-      sendHttpRequest(`http://localhost:8000/userprofile/${user_id}`, 'GET').then(response => {
+      sendHttpRequest(`http://localhost:8000/accounts/${user_id}/`, 'GET').then(response => {
         if (response.status === 200 || response.status === 201) {
           setChecked(true);
         } else {
-          localStorage.removeItem('jwttoken')
+          localStorage.removeItem('JWT')
           const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
           const href = loginPaths['JWT'] + `?${searchParams}`;
           router.replace(href);

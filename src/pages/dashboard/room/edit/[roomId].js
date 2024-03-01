@@ -42,9 +42,9 @@ let initialRoomInfo = {
   age_group: '',
   sport_data: '',
   max_players: '',
+  visibility: '',
   content: '',
   attachment_data: '',
-  // preferredGender: '',
 };
 
 const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
@@ -58,6 +58,8 @@ const Page = () => {
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
   const [attachment, setAttachment] = useState(null);
+  // This is used because if we directly use formData.content, somehow it will trigger setFormData 3rd time and all fields will be emptied except for the content field.
+  const [editorContent, setEditorContent] = useState('');
   const today = new Date().setHours(0, 0, 0, 0);
   const [formData, setFormData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput(initialRoomInfo);
 
@@ -85,10 +87,11 @@ const Page = () => {
           max_players: response.data.max_players,
           content: response.data.content,
           attachment_data: response.data.attachment,
-          // preferredGender: response.data.preferredGender,
+          visibility: response.data.visibility,
         }
         setAttachment(response.data.attachment);
         setFormData(originalData);
+        setEditorContent(response.data.content);
       } else if (response.status === 401 || response.status === 403) {
         router.push('/401');
       } else if (response.status === 404) {
@@ -109,13 +112,15 @@ const Page = () => {
     age_group: {error: false, message: ''},
     sport_data: {error: false, message: ''},
     max_players: {error: false, message: ''},
-    // preferredGender: {error: false, message: ''},
-    // visibilityControl: {error: false, message: ''},
+    visibility: {error: false, message: ''},
     content: {error: false, message: ''},
     attachment_data: {error: false, message: ''}
   });
 
   function validateForm() {
+
+    formData.content = editorContent;
+
     const isTitleEmpty = formData.title === '';
     const isDescriptionEmpty = formData.description === '';
     const isLocationEmpty = formData.location === '';
@@ -123,9 +128,9 @@ const Page = () => {
     const isEndTimeEmpty = formData.end_time === null;
     const isSportEmpty = formData.sport_data === '';
     const isMaxPlayerEmpty = formData.max_players === '';
-    const isPreferredGenderEmpty = formData.preferredGender === '';
-    const isVisibilityControlEmpty = formData.visibilityControl === '';
-    const isContentEmpty = formData.content === '';
+    const isVisibilityEmpty = formData.visibility === '';
+    // We move the check for empty content to the here since handleEditorChange cannot be used to here according to the bug above.
+    const isContentEmpty = formData.content === '' || formData.content === '<p><br></p>';
     const isCoverEmpty = formData.attachment_data === '';
     const isLevelEmpty = formData.level === '';
     const isAgeGroupEmpty = formData.age_group === '';
@@ -137,14 +142,13 @@ const Page = () => {
 
     const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) < 0;
 
-    const isUnknownPreferredGender = !['None', 'Male', 'Female', 'Other'].includes(formData.preferredGender);
-    const isUnknownVisibilityControl = !['Public', 'Private'].includes(formData.visibilityControl);
+    const isUnknownVisibility = !['Public', 'Private'].includes(formData.visibility);
 
     const isNotStartTimeObject = !formData.start_time instanceof Date;
     const isUnknownEndTimeObject = !formData.end_time instanceof Date;
     const isStartTimeAfterEndTime = formData.start_time > formData.end_time;
 
-    if (formData.attachment_data !== null && formData.attachment_data.startsWith('http')) {
+    if (formData.hasOwnProperty('attachment_data') && formData.attachment_data !== null && formData.attachment_data.startsWith('http')) {
       delete formData.attachment_data;
     }
 
@@ -178,14 +182,10 @@ const Page = () => {
         error: isMaxPlayerEmpty || isMaxPlayerNotPositiveInt,
         message: isMaxPlayerEmpty ? 'Max Players is required' : isMaxPlayerNotPositiveInt ? 'Positive integers only' : ''
       },
-      // preferredGender: {
-      //   error: isPreferredGenderEmpty || isUnknownPreferredGender,
-      //   message: isPreferredGenderEmpty ? 'Preferred gender is required' : isUnknownPreferredGender ? 'Invalid preferred gender' : null
-      // },
-      // visibilityControl: {
-      //   error: isVisibilityControlEmpty || isUnknownVisibilityControl,
-      //   message: isVisibilityControlEmpty ? 'Visibility control is required' : isUnknownVisibilityControl ? 'Invalid visibility control option' : null
-      // },
+      visibility: {
+        error: isVisibilityEmpty || isUnknownVisibility,
+        message: isVisibilityEmpty ? 'Visibility control is required' : isUnknownVisibility ? 'Invalid visibility control option' : null
+      },
       content: {
         error: isContentEmpty,
         message: isContentEmpty ? 'Content is required' : ''
@@ -204,7 +204,7 @@ const Page = () => {
       }
     });
 
-    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSport && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty;
+    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSport && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty && !isUnknownVisibility && !isVisibilityEmpty;
   }
 
   function handleClick() {
@@ -636,68 +636,40 @@ const Page = () => {
                           </FormControl>
                         </Grid>
                       </Grid>
-                      {/*<Grid container>*/}
-                      {/*  <Grid lg={6}*/}
-                      {/*        md={6}*/}
-                      {/*        sm={6}*/}
-                      {/*        xl={6}*/}
-                      {/*        xs={6}*/}
-                      {/*        sx={{pr: 1}}*/}
-                      {/*  >*/}
-                      {/*    <FormControl fullWidth>*/}
-                      {/*      <InputLabel id="preferred-gender-select-label">Preferred*/}
-                      {/*        Gender</InputLabel>*/}
-                      {/*      <Select*/}
-                      {/*        labelId="preferred-gender-select-label"*/}
-                      {/*        id="preferred-gender-select"*/}
-                      {/*        label=" Preferred Gender "*/}
-                      {/*        name={'preferredGender'}*/}
-                      {/*        value={formData.preferredGender}*/}
-                      {/*        error={formError.preferredGender.error}*/}
-                      {/*        onChange={handleInputChange}*/}
-                      {/*      >*/}
-                      {/*        <MenuItem value={'None'}>None</MenuItem>*/}
-                      {/*        <MenuItem value={'Male'}>Male</MenuItem>*/}
-                      {/*        <MenuItem value={'Female'}>Female</MenuItem>*/}
-                      {/*        <MenuItem value={'Other'}>Other</MenuItem>*/}
-                      {/*      </Select>*/}
-                      {/*      {formError.preferredGender.error && (*/}
-                      {/*        <FormHelperText error>*/}
-                      {/*          {formError.preferredGender.message}*/}
-                      {/*        </FormHelperText>*/}
-                      {/*      )}*/}
-                      {/*    </FormControl>*/}
-                      {/*  </Grid>*/}
-                      {/*  <Grid lg={6}*/}
-                      {/*        md={6}*/}
-                      {/*        sm={6}*/}
-                      {/*        xl={6}*/}
-                      {/*        xs={6}*/}
-                      {/*        sx={{pl: 1}}*/}
-                      {/*  >*/}
-                      {/*    <FormControl fullWidth>*/}
-                      {/*      <InputLabel id="visibility-control-select-label">Visibility*/}
-                      {/*        Control</InputLabel>*/}
-                      {/*      <Select*/}
-                      {/*        labelId="visibility-control-select-label"*/}
-                      {/*        id="visibility-control-select"*/}
-                      {/*        label=" Visibility Control "*/}
-                      {/*        name={'visibilityControl'}*/}
-                      {/*        value={formData.visibilityControl}*/}
-                      {/*        error={formError.visibilityControl.error}*/}
-                      {/*        onChange={handleInputChange}*/}
-                      {/*      >*/}
-                      {/*        <MenuItem value={'Public'}>Public</MenuItem>*/}
-                      {/*        <MenuItem value={'Private'}>Private</MenuItem>*/}
-                      {/*      </Select>*/}
-                      {/*      {formError.visibilityControl.error && (*/}
-                      {/*        <FormHelperText error>*/}
-                      {/*          {formError.visibilityControl.message}*/}
-                      {/*        </FormHelperText>*/}
-                      {/*      )}*/}
-                      {/*    </FormControl>*/}
-                      {/*  </Grid>*/}
-                      {/*</Grid>*/}
+                      <Grid container>
+                        <Grid lg={6}
+                              md={6}
+                              sm={6}
+                              xl={6}
+                              xs={6}
+                              sx={{pr: 1}}
+                        >
+                          <FormControl
+                            fullWidth
+                            required
+                          >
+                            <InputLabel id="visibility-control-select-label">Visibility
+                              Control</InputLabel>
+                            <Select
+                              labelId="visibility-control-select-label"
+                              id="visibility-control-select"
+                              label=" Visibility Control "
+                              name={'visibility'}
+                              value={formData.visibility}
+                              error={formError.visibility.error}
+                              onChange={handleInputChange}
+                            >
+                              <MenuItem value={'Public'}>Public</MenuItem>
+                              <MenuItem value={'Private'}>Private</MenuItem>
+                            </Select>
+                            {formError.visibility.error && (
+                              <FormHelperText error>
+                                {formError.visibility.message}
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </Grid>
+                      </Grid>
                     </Stack>
                   </Grid>
                 </Grid>
@@ -804,8 +776,8 @@ const Page = () => {
                       placeholder="Write something"
                       sx={{height: 330}}
                       name={'content'}
-                      value={formData.content}
-                      onChange={handleEditorChange}
+                      value={editorContent}
+                      onChange={(e) => { setEditorContent(e); }}
                     />
                     {formError.content.error && (
                       <FormHelperText

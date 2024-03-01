@@ -18,9 +18,9 @@ import { useSearchParams } from 'src/hooks/use-search-params';
 import { Layout as AuthLayout } from 'src/layouts/auth/modern-layout';
 import { paths } from 'src/paths';
 import { Issuer } from 'src/utils/auth';
-import {IssuerGuard} from "../../../guards/issuer-guard";
-import {GuestGuard} from "../../../guards/guest-guard";
-import sendHttpRequest from "../../../utils/send-http-request";
+import {IssuerGuard} from "src/guards/issuer-guard";
+import {GuestGuard} from "src/guards/guest-guard";
+import sendHttpRequest from "src/utils/send-http-request";
 import {useState} from "react";
 
 const initialValues = {
@@ -73,16 +73,16 @@ const Page = () => {
     onSubmit: async (values, helpers) => {
       try {
 
-        localStorage.removeItem('jwttoken');
+        localStorage.removeItem('JWT');
 
-        await sendHttpRequest('http://127.0.0.1:8000/accounts/login/', 'POST', {
+        await sendHttpRequest('http://localhost:8000/accounts/login/', 'POST', {
           username: values.username,
           password: values.password
         }).then(
           response => {
             // const parsedResponse = JSON.parse(response.data);
             if (response.status === 200){
-              localStorage.setItem('jwttoken', response.data.access);
+              localStorage.setItem('JWT', response.data.access);
               router.push(returnTo || paths.dashboard.index);
             } else if (response.status === 500){
               router.push('/500');
@@ -115,7 +115,7 @@ const Page = () => {
                 Don&apos;t have an account? &nbsp;
                 <Link
                   component={RouterLink}
-                  href={paths.auth.jwt.register}
+                  href={paths.register}
                   underline="hover"
                   variant="subtitle2"
                 >
