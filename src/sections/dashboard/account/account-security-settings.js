@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import sendHttpRequest from 'src/utils/send-http-request';
 import confetti from 'canvas-confetti';
-import { FormControl } from '@mui/material';
+import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -143,6 +143,7 @@ export const AccountSecuritySettings = () => {
                     label="Password"
                     type="password"
                     value={password}
+                    error={errorMessage.error}
                     onChange={handleChange}
                     sx={{
                       flexGrow: 1,
