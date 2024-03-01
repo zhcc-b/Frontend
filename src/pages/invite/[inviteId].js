@@ -15,11 +15,16 @@ import { useEffect, useState } from "react";
 import sendHttpRequest from "../../utils/send-http-request";
 import { useRouter } from "next/router";
 import { jwtDecode } from "jwt-decode";
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
 
 const Page = () => {
   const router = useRouter();
   const { inviteId } = router.query;
   const [roomname, setroomname] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [severity, setSeverity] = useState('success');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     if(!router.isReady) return;
@@ -46,7 +51,14 @@ const Page = () => {
     router.push('/');
   };
 
-  const handleJoin = (event) => {
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const handleJoin = () => {
     if(!router.isReady) return;
     const token = localStorage.getItem('JWT');
     if (!token) {
@@ -63,18 +75,43 @@ const Page = () => {
           { id: finalroomId }
       ).then(response => {
         if (response.status === 200 || response.status === 201) {
+          setSeverity('success');
+          setMessage('You have successfully joined the room!');
+          setOpen(true);
           router.push(paths.roomDetails);
         } else if (response.status === 401) {
           router.push('/401');
+        } else if (response.status === 400) {
+          setSeverity('warning');
+          setMessage(response.data.message);
+          setOpen(true);
         }
       }).catch(error => {
-        console.error('Request failed', error);
+        setSeverity('error');
+        setMessage(response.data.message);
+        setOpen(true);
       });
     }
   };
 
   return (
       <>
+        <Snackbar
+          open={open}
+          autoHideDuration={5000}
+          onClose={handleClose}
+          anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+        >
+          <Alert
+            onClose={handleClose}
+            severity={severity}
+            variant="filled"
+            sx={{width: '100%'}}
+          >
+            {message}
+          </Alert>
+        </Snackbar>
+
         <Seo title="Invitation" />
         <div>
           <Box sx={{ mb: 4 }}>
