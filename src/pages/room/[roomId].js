@@ -85,7 +85,7 @@ const Page = () => {
       sendHttpRequest(
         'http://localhost:8000/events/join/',
         'PUT',
-        {id: user_id}
+        {id: roomId}
       ).then(response =>{
         if (response.status === 200 || response.status === 201) {
           setIsUserInRoom(true);
@@ -116,7 +116,7 @@ const Page = () => {
      sendHttpRequest(
        'http://localhost:8000/events/quit/',
        'PUT',
-        {id: user_id}
+        {id: roomId}
      ).then (response => {
         if (response.status === 200 || response.status === 201) {
           setIsUserInRoom(false);
