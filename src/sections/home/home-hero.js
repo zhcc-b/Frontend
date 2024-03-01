@@ -34,7 +34,7 @@ export const HomeHero = () => {
                 variant="h1"
                 sx={{ mb: 2 }}
               >
-                You don't have to&nbsp;
+                You don&apos;t have to&nbsp;
                 <Typography
                   component="span"
                   color="primary.main"
