@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { subDays, subHours, subMinutes, subMonths } from 'date-fns';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
@@ -16,7 +15,6 @@ import { AccountSecuritySettings } from 'src/sections/dashboard/account/account-
 import { useRouter } from 'next/navigation';
 import sendHttpRequest from 'src/utils/send-http-request';
 import useUserInput from 'src/hooks/use-user-input';
-import { useMockedUser } from 'src/hooks/use-mocked-user';
 import { jwtDecode } from 'jwt-decode';
 
 const tabs = [
@@ -30,24 +28,14 @@ const Page = () => {
   const [currentTab, setCurrentTab] = useState('general');
   const [init_avatar, setAvatar] = useState(null);
   const token = localStorage.getItem('JWT');
-  // const [email, setEail] = useState('');
-  // const [name, setName] = useState('');
-  // const [gender, setGender] = useState('');
-  // const [sports, setSports] = useState([]);
-  // const [phone, setPhone] = useState('');
-  // const [age, setAge] = useState('');
-  // const [description, setDescription] = useState('');
-  // const [email_product, setEmailProduct] = useState(false);
-  // const [email_security, setEmailProduct] = useState(false);
-  // const [phone_security, setEmailProduct] = useState(false);
-  // const [avatar_data, setAvatarData] = useState(null);
 
   let initialUserInfo = {
+    username: '',
     avatar_data: '',
     email: '',
     gender: '',
-    sports_you_can_play: '',
-    phone: '',
+    sports_data: '',
+    phone_no: '',
     age: '',
     description: '',
     email_product: false,
@@ -62,20 +50,20 @@ const Page = () => {
       return;
     }
 
-    sendHttpRequest(`http://localhost:8000/accounts/${uid}`, 'GET').then((response) => {
+    sendHttpRequest(`http://localhost:8000/accounts/${uid}/`, 'GET').then((response) => {
       if (response.status === 200 || response.status === 201) {
         const originalData = {
-          email: response.data['user']['email'],
-          name: response.data.name,
+          email: response.data.email,
+          username: response.data.username,
           gender: response.data.gender,
-          sports_you_can_play: response.data.sports_you_can_play,
-          phone: response.data.phone,
+          sports_data: response.data.sports_you_can_play,
+          phone_no: response.data.phone_no,
           age: response.data.age,
           description: response.data.description,
           email_product: response.data.email_product,
           email_security: response.data.email_security,
           phone_security: response.data.phone_security,
-          avatar_data: response.data.avatar,
+          avatar_data: response.data.avatar_data,
         };
         setAvatar(response.data.avatar);
         setUserData(originalData);

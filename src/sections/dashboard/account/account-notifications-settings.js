@@ -12,9 +12,6 @@ import confetti from 'canvas-confetti';
 export const AccountNotificationsSettings = (props) => {
   const { email_product, email_security, phone_security } = props;
   const [loading, setLoading] = useState(false);
-  const [email_product_check, setEailProduct] = useState(email_product);
-  const [email_security_check, setEailSecuity] = useState(email_security);
-  const [phone_security_check, setPhoneSecurity] = useState(phone_security);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
@@ -28,7 +25,8 @@ export const AccountNotificationsSettings = (props) => {
     const checked = !notification[event.target.name];
     notification[event.target.name] = checked;
     setLoading(true);
-    sendHttpRequest('http://localhost:8000/userprofile/editprofile/', 'PATCH', notification).then(
+    console.log(notification);
+    sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', notification).then(
       (response) => {
         if (response.status === 200 || response.status === 201) {
           confetti({
