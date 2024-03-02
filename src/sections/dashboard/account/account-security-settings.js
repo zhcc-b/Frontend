@@ -1,26 +1,21 @@
-import { useCallback, useState } from 'react';
-// import PropTypes from 'prop-types';
-// import { format } from 'date-fns';
-// import ArrowRightIcon from '@untitled-ui/icons-react/build/esm/ArrowRight';
-// import Box from '@mui/material/Box';
+import { useState, Fragment } from 'react';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-// import CardHeader from '@mui/material/CardHeader';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
-// import SvgIcon from '@mui/material/SvgIcon';
-// import Table from '@mui/material/Table';
-// import TableBody from '@mui/material/TableBody';
-// import TableCell from '@mui/material/TableCell';
-// import TableHead from '@mui/material/TableHead';
-// import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import sendHttpRequest from 'src/utils/send-http-request';
 import confetti from 'canvas-confetti';
-
-// import { Scrollbar } from 'src/components/scrollbar';
+import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { useRouter } from 'next/navigation';
+import { paths } from 'src/paths';
 
 export const AccountSecuritySettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -31,6 +26,41 @@ export const AccountSecuritySettings = () => {
   const mockPassword = '123456789#';
   const [password, setPassword] = useState(mockPassword);
   const [changed, setChanged] = useState(false);
+  const router = useRouter();
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleConfirmClose = () => {
+    setOpen(false);
+
+    setLoading(true);
+    sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'DELETE').then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+        setSeverity('success');
+        setMessage('Successfully delete account');
+        setOpen(true);
+        router.push(paths.index);
+      } else if (response.status === 401) {
+        router.push('/401');
+      } else {
+        setSeverity('error');
+        setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
+        setOpen(true);
+      }
+    });
+    setLoading(false);
+  };
 
   const handleChange = (event) => {
     setPassword(event.target.value);
@@ -51,10 +81,11 @@ export const AccountSecuritySettings = () => {
   };
 
   const passwordData = { password: password };
+  const [errorMessage, setErrorMessage] = useState({ error: false, message: '' });
 
   function handleClick() {
     setLoading(true);
-    sendHttpRequest('http://localhost:8000/userprofile/editprofile', 'PATCH', passwordData).then(
+    sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', passwordData).then(
       (response) => {
         if (response.status === 200 || response.status === 201) {
           confetti({
@@ -66,6 +97,7 @@ export const AccountSecuritySettings = () => {
           setMessage('User data updated successfully');
           setOpen(true);
         } else if (response.status === 400) {
+          setErrorMessage({ error: true, message: response.data.password });
           setSeverity('warning');
           setMessage('Please fill in all the required fields');
           setOpen(true);
@@ -103,23 +135,30 @@ export const AccountSecuritySettings = () => {
                 direction="row"
                 spacing={3}
               >
-                <TextField
-                  id="password"
-                  name="password"
-                  disabled={!isEditing}
-                  label="Password"
-                  type="password"
-                  value={password}
-                  onChange={handleChange}
-                  sx={{
-                    flexGrow: 1,
-                    ...(!isEditing && {
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderStyle: 'dotted',
-                      },
-                    }),
-                  }}
-                />
+                <FormControl fullWidth>
+                  <TextField
+                    id="password"
+                    name="password"
+                    disabled={!isEditing}
+                    label="Password"
+                    type="password"
+                    value={password}
+                    error={errorMessage.error}
+                    onChange={handleChange}
+                    sx={{
+                      flexGrow: 1,
+                      ...(!isEditing && {
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderStyle: 'dotted',
+                        },
+                      }),
+                    }}
+                  />
+                  {errorMessage.error && (
+                    <FormHelperText error>{errorMessage.message}</FormHelperText>
+                  )}
+                </FormControl>
+
                 {isEditing ? (
                   <Button
                     color="inherit"
@@ -143,191 +182,59 @@ export const AccountSecuritySettings = () => {
         </CardContent>
       </Card>
       {/* <Card>
-        <CardHeader title="Multi Factor Authentication" />
-        <CardContent sx={{ pt: 0 }}>
+        <CardContent>
           <Grid
             container
-            spacing={4}
+            spacing={3}
           >
             <Grid
               xs={12}
-              sm={6}
+              md={8}
             >
-              <Card
-                sx={{ height: '100%' }}
-                variant="outlined"
+              <Stack
+                alignItems="flex-start"
+                spacing={3}
               >
-                <CardContent>
-                  <Box
-                    sx={{
-                      display: 'block',
-                      position: 'relative',
-                    }}
+                <Typography variant="subtitle1">
+                  Delete your account and all of your source data. This is irreversible.
+                </Typography>
+                <Fragment>
+                  <Button
+                    variant="outlined"
+                    onClick={handleClickOpen}
                   >
-                    <Box
-                      sx={{
-                        '&::before': {
-                          backgroundColor: 'error.main',
-                          borderRadius: '50%',
-                          content: '""',
-                          display: 'block',
-                          height: 8,
-                          left: 4,
-                          position: 'absolute',
-                          top: 7,
-                          width: 8,
-                          zIndex: 1,
-                        },
-                      }}
-                    >
-                      <Typography
-                        color="error"
-                        sx={{ pl: 3 }}
-                        variant="body2"
+                    Delete account
+                  </Button>
+                  <Dialog
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                  >
+                    <DialogTitle id="alert-dialog-title">
+                      {"Use Google's location service?"}
+                    </DialogTitle>
+                    <DialogContent>
+                      <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to delete your account? This action is irreversible.
+                      </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleClose}>Cancel</Button>
+                      <Button
+                        onClick={handleConfirmClose}
+                        autoFocus
                       >
-                        Off
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Typography
-                    sx={{ mt: 1 }}
-                    variant="subtitle2"
-                  >
-                    Authenticator App
-                  </Typography>
-                  <Typography
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                    variant="body2"
-                  >
-                    Use an authenticator app to generate one time security codes.
-                  </Typography>
-                  <Box sx={{ mt: 4 }}>
-                    <Button
-                      endIcon={
-                        <SvgIcon>
-                          <ArrowRightIcon />
-                        </SvgIcon>
-                      }
-                      variant="outlined"
-                    >
-                      Set Up
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid
-              sm={6}
-              xs={12}
-            >
-              <Card
-                sx={{ height: '100%' }}
-                variant="outlined"
-              >
-                <CardContent>
-                  <Box sx={{ position: 'relative' }}>
-                    <Box
-                      sx={{
-                        '&::before': {
-                          backgroundColor: 'error.main',
-                          borderRadius: '50%',
-                          content: '""',
-                          display: 'block',
-                          height: 8,
-                          left: 4,
-                          position: 'absolute',
-                          top: 7,
-                          width: 8,
-                          zIndex: 1,
-                        },
-                      }}
-                    >
-                      <Typography
-                        color="error"
-                        sx={{ pl: 3 }}
-                        variant="body2"
-                      >
-                        Off
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Typography
-                    sx={{ mt: 1 }}
-                    variant="subtitle2"
-                  >
-                    Text Message
-                  </Typography>
-                  <Typography
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                    variant="body2"
-                  >
-                    Use your mobile phone to receive security codes via SMS.
-                  </Typography>
-                  <Box sx={{ mt: 4 }}>
-                    <Button
-                      endIcon={
-                        <SvgIcon>
-                          <ArrowRightIcon />
-                        </SvgIcon>
-                      }
-                      variant="outlined"
-                    >
-                      Set Up
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
+                        Confirm Delete
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                </Fragment>
+              </Stack>
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
-      <Card>
-        <CardHeader
-          title="Login history"
-          subheader="Your recent login activity"
-        />
-        <Scrollbar>
-          <Table sx={{ minWidth: 500 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Login type</TableCell>
-                <TableCell>IP Address</TableCell>
-                <TableCell>Client</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loginEvents.map((event) => {
-                const createdAt = format(event.createdAt, 'HH:mm a MM/dd/yyyy');
-
-                return (
-                  <TableRow
-                    key={event.id}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell>
-                      <Typography variant="subtitle2">{event.type}</Typography>
-                      <Typography
-                        variant="body2"
-                        color="body2"
-                      >
-                        on {createdAt}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{event.ip}</TableCell>
-                    <TableCell>{event.userAgent}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Scrollbar>
       </Card> */}
     </Stack>
   );
 };
-
-// AccountSecuritySettings.propTypes = {
-//   loginEvents: PropTypes.array.isRequired,
-// };

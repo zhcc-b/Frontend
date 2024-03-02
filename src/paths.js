@@ -1,6 +1,5 @@
 export const paths = {
   index: '/',
-  account: '/account',
   roomDetails: '/room/:roomId',
   dashboard: {
     index: '/dashboard',
@@ -9,6 +8,7 @@ export const paths = {
       roomList: '/dashboard/room/my-room-list',
       roomCreate: '/dashboard/room/create',
     },
+    account: '/dashboard/account',
     chat: '/dashboard/chat',
   },
   login: '/login',

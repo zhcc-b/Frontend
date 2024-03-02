@@ -1,8 +1,4 @@
 import PropTypes from 'prop-types';
-// import Camera01Icon from '@untitled-ui/icons-react/build/esm/Camera01';
-// import User01Icon from '@untitled-ui/icons-react/build/esm/User01';
-// import { alpha } from '@mui/system/colorManipulator';
-// import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -10,51 +6,55 @@ import CardContent from '@mui/material/CardContent';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
-// import SvgIcon from '@mui/material/SvgIcon';
-// import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
-// import { DatePicker } from '@mui/x-date-pickers';
 import { useCallback, useEffect, useState } from 'react';
-import useUserInput from 'src/hooks/use-user-input';
 import sendHttpRequest from 'src/utils/send-http-request';
 import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
 import { fileToBase64 } from 'src/utils/file-to-base64';
-// import { FileDropzone } from 'src/components/file-dropzone';
 import confetti from 'canvas-confetti';
 import { AvatarDropzone } from 'src/components/avatar-dropzone';
+import Avatar from '@mui/material/Avatar';
+
+import { useRouter } from 'next/navigation';
 
 export const AccountGeneralSettings = (props) => {
-  const { init_avatar, userData } = props;
+  const { userData } = props;
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
-  const [avatar, setAvatar] = useState(init_avatar);
-  console.log(userData);
+  const router = useRouter();
+
   const [values, setValues] = useState({
     avatar_data: null,
     email: '',
     age: '',
-    phone: '',
-    name: '',
-    sports: [],
+    phone_no: '',
+    username: '',
+    sports_data: [],
     gender: '',
     description: '',
   });
 
   useEffect(() => {
+    const sports_name = [];
+    if (userData.sports_data) {
+      for (let i = 0; i < userData.sports_data.length; i++) {
+        sports_name.push(userData.sports_data[i]['name']);
+      }
+    }
     setValues({
       avatar_data: userData.avatar_data,
       email: userData.email,
       age: userData.age,
-      phone: userData.phone,
-      name: userData.name,
-      sports: userData.sports_you_can_play ? userData.sports_you_can_play.split(', ') : [],
-      gender: userData.gender,
-      description: userData.description,
+      phone_no: userData.phone_no,
+      username: userData.username,
+      sports_data: sports_name,
+      gender: userData.gender ? userData.gender : 'Prefer not to say',
+      description: userData.description ? userData.description : '',
     });
   }, [userData]);
 
@@ -69,14 +69,14 @@ export const AccountGeneralSettings = (props) => {
     avatar_data: { error: false, message: '' },
     email: { error: false, message: '' },
     age: { error: false, message: '' },
-    phone: { error: false, message: '' },
-    name: { error: false, message: '' },
-    sports: { error: false, message: '' },
+    phone_no: { error: false, message: '' },
+    username: { error: false, message: '' },
+    sports_data: { error: false, message: '' },
     // birthday: { error: false, message: '' },
     gender: { error: false, message: '' },
     description: { error: false, message: '' },
   });
-  const isSportSelected = (sport) => values.sports.includes(sport);
+  const isSportSelected = (sport) => values.sports_data.includes(sport);
   const sportsOptions = [
     'Soccer',
     'Football',
@@ -85,6 +85,7 @@ export const AccountGeneralSettings = (props) => {
     'Tennis',
     'Volleyball',
     'Badminton',
+    'Skiing',
     'Swimming',
     'Running',
   ];
@@ -93,25 +94,24 @@ export const AccountGeneralSettings = (props) => {
   );
 
   function validateProfile() {
-    const isNameEmpty = values.name === '';
+    const isNameEmpty = values.username === '';
     const isEmailEmpty = values.email === '';
-    const isPhoneEmpty = values.phone === '';
+    const isPhoneEmpty = values.phone_no === '';
     const isAgeEmpty = values.age === '';
     // const isBirthdayEmpty = values.birthday === null;
     const isGenderEmpty = values.gender === null;
-    const isAvatarEmpty = values.avatar_data === '';
+    const isAvatarEmpty = values.avatar_data === null;
 
-    // const isInvaildPhone = !/^\d{10}$/.test(values.phone);
+    // const isInvaildphone_no = !/^\d{10}$/.test(values.phone_no);
     const isInvaildAge =
       !/^\d+$/.test(values.age) || parseInt(values.age) < 0 || parseInt(values.age) > 200;
     const isUnknownGender = !['Prefer not to say', 'Male', 'Female', 'Other'].includes(
       values.gender
     );
-    const isUnknownSport = !values.sports.every((sport) => sportsOptions.includes(sport));
-    const isDescriptionTooLong = values.description.length > 300;
+    const isDescriptionTooLong = values.description && values.description.length > 300;
     // const isNotBirthdayObject = !values.birthday instanceof Date;
     // const isInvaildBirthday = values.birthday > today;
-    if (values.avatar_data !== null && values.avatar_data.startsWith('http')) {
+    if (values.avatar_data && values.avatar_data.startsWith('http')) {
       delete values.avatar_data;
     }
 
@@ -121,7 +121,7 @@ export const AccountGeneralSettings = (props) => {
         error: isAvatarEmpty,
         message: isAvatarEmpty ? 'Avatar image is required' : '',
       },
-      name: {
+      username: {
         error: isNameEmpty,
         message: isNameEmpty ? 'Name is required' : '',
       },
@@ -133,17 +133,9 @@ export const AccountGeneralSettings = (props) => {
         error: isAgeEmpty || isInvaildAge,
         message: isAgeEmpty ? 'Age is required' : isInvaildAge ? 'Invaild age.' : '',
       },
-      // phone: {
-      //   error: isPhoneEmpty || isInvaildPhone,
-      //   message: isPhoneEmpty
-      //     ? 'Phone number is required'
-      //     : isInvaildPhone
-      //     ? 'Invaild phone number'
-      //     : '',
-      // },
-      sports: {
-        error: isUnknownSport,
-        message: isUnknownSport ? 'Unknown sport type' : '',
+      phone_no: {
+        error: isPhoneEmpty,
+        message: isPhoneEmpty ? 'phone_no number is required' : '',
       },
       // birthday: {
       //   error: isBirthdayEmpty || isNotBirthdayObject || isInvaildBirthday,
@@ -175,11 +167,11 @@ export const AccountGeneralSettings = (props) => {
       !isPhoneEmpty &&
       !isAgeEmpty &&
       !isGenderEmpty &&
-      // !isInvaildPhone &&
+      // !isInvaildphone_no &&
       !isUnknownGender &&
       !isInvaildAge &&
-      !isDescriptionTooLong
-      // !isAvatarEmpty
+      !isDescriptionTooLong &&
+      !isAvatarEmpty
     );
   }
 
@@ -187,10 +179,10 @@ export const AccountGeneralSettings = (props) => {
     setLoading(true);
     if (validateProfile()) {
       const copyData = { ...values };
-      const sportString = copyData.sports.join(', ');
-      delete copyData.sports;
-      copyData.sports_you_can_play = sportString;
-      sendHttpRequest('http://localhost:8000/userprofile/editprofile/', 'PATCH', copyData).then(
+      // const sportString = JSON.stringify(values.sports_data);
+      copyData.sports_data =
+        '[' + values.sports_data.map((item) => '"' + item + '"').join(', ') + ']';
+      sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', copyData).then(
         (response) => {
           if (response.status === 200 || response.status === 201) {
             confetti({
@@ -217,57 +209,26 @@ export const AccountGeneralSettings = (props) => {
     }
     setLoading(false);
   }
-  function handleDeleteClick() {
-    const isConfirmed = window.confirm(
-      'Are you sure you want to delete your account? This action cannot be undone.'
-    );
-    if (isConfirmed) {
-      setLoading(true);
-      sendHttpRequest('http://localhost:8000/userprofile/editprofile/', 'DELETE').then(
-        (response) => {
-          if (response.status === 200 || response.status === 201) {
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-            });
-            setSeverity('success');
-            setMessage('Successfully delete account');
-            setOpen(true);
-          } else if (response.status === 401) {
-            router.push('/401');
-          } else {
-            setSeverity('error');
-            setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
-            setOpen(true);
-          }
-        }
-      );
-      setLoading(false);
-    }
-  }
 
   const onSportsChange = (sport) => {
-    if (values.sports.includes(sport)) {
-      values.sports.splice(values.sports.indexOf(sport), 1);
+    if (values.sports_data.includes(sport)) {
+      values.sports_data.splice(values.sports_data.indexOf(sport), 1);
     } else {
-      values.sports.push(sport);
+      values.sports_data.push(sport);
     }
     handleClick();
   };
 
-  const handleCoverDrop = useCallback(
+  const handleAvatarDrop = useCallback(
     async ([file]) => {
       const data = await fileToBase64(file);
-      setAvatar(data);
-      values.avatar_data = data; // directly assign the data to formData.attachment
+      setValues({ ...values, avatar_data: data }); // directly assign the data to values.avatar
     },
     [values]
   );
 
-  const handleCoverRemove = useCallback(() => {
-    setAvatar(null);
-    values.avatar_data = null;
+  const handleAvatarRemove = useCallback(() => {
+    setValues({ ...values, avatar_data: null });
   }, [values]);
 
   return (
@@ -292,66 +253,71 @@ export const AccountGeneralSettings = (props) => {
               md={8}
             >
               <Stack spacing={3}>
-                <Stack
-                  spacing={3}
-                  direction={'row'}
-                  alignItems={'flex-start'}
-                >
-                  <Stack>
-                    {avatar ? (
-                      <Box
-                        sx={{
-                          backgroundImage: `url(${avatar})`,
-                          backgroundPosition: 'center',
-                          alignItems: 'center',
-                          backgroundSize: 'avatar',
-                          borderRadius: '50%',
-                          height: 300,
-                          width: 300,
-                          mt: 3,
-                        }}
-                      />
-                    ) : (
-                      <Box
-                        sx={{
-                          alignItems: 'center',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          border: 1,
-                          borderRadius: '50%',
-                          borderStyle: 'dashed',
-                          borderColor: 'grey.500',
-                          height: 300,
-                          width: 300,
-                          mt: 3,
-                        }}
-                      >
-                        <Typography
-                          align="center"
-                          color="text.secondary"
-                          variant="h6"
+                <FormControl fullWidth>
+                  <Stack
+                    spacing={3}
+                    direction={'row'}
+                    alignItems={'flex-start'}
+                  >
+                    <Stack>
+                      {values.avatar_data ? (
+                        <Box
+                          sx={{
+                            backgroundImage: `url(${values.avatar_data})`,
+                            backgroundPosition: 'center',
+                            alignItems: 'center',
+                            backgroundSize: 'avatar',
+                            borderRadius: '50%',
+                            height: 300,
+                            width: 300,
+                            mt: 3,
+                          }}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            alignItems: 'center',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            border: 1,
+                            borderRadius: '50%',
+                            borderStyle: 'dashed',
+                            borderColor: 'grey.500',
+                            height: 300,
+                            width: 300,
+                            mt: 3,
+                          }}
                         >
-                          Avatar Preview
-                        </Typography>
-                      </Box>
-                    )}
-                    <Button
-                      color="inherit"
-                      disabled={!avatar}
-                      onClick={handleCoverRemove}
-                    >
-                      Remove
-                    </Button>
-                  </Stack>
+                          <Typography
+                            align="center"
+                            color="text.secondary"
+                            variant="h6"
+                          >
+                            Avatar Preview
+                          </Typography>
+                        </Box>
+                      )}
+                      <Button
+                        color="inherit"
+                        disabled={!values.avatar_data}
+                        onClick={handleAvatarRemove}
+                      >
+                        Remove
+                      </Button>
+                    </Stack>
 
-                  <AvatarDropzone
-                    accept={{ 'image/*': [] }}
-                    maxFiles={1}
-                    onDrop={handleCoverDrop}
-                    caption="(SVG, JPG, PNG, or gif maximum 900x400)"
-                  />
-                </Stack>
+                    <AvatarDropzone
+                      accept={{ 'image/*': [] }}
+                      maxFiles={1}
+                      onDrop={handleAvatarDrop}
+                      caption="(SVG, JPG, PNG, or gif maximum 900x400)"
+                    />
+                  </Stack>
+                  {profileError.avatar_data.error && (
+                    <FormHelperText error>{profileError.avatar_data.message}</FormHelperText>
+                  )}
+                </FormControl>
 
                 <Stack
                   alignItems="center"
@@ -360,12 +326,12 @@ export const AccountGeneralSettings = (props) => {
                 >
                   <FormControl fullWidth>
                     <TextField
-                      id={'name'}
-                      name={'name'}
-                      value={values.name}
+                      id={'username'}
+                      name={'username'}
+                      value={values.username}
                       onChange={handleChange}
-                      label="Name"
-                      error={profileError.name.error}
+                      label="Username"
+                      error={profileError.username.error}
                       required
                       sx={{
                         flexGrow: 1,
@@ -374,8 +340,8 @@ export const AccountGeneralSettings = (props) => {
                         },
                       }}
                     />
-                    {profileError.name.error && (
-                      <FormHelperText error>{profileError.name.message}</FormHelperText>
+                    {profileError.username.error && (
+                      <FormHelperText error>{profileError.username.message}</FormHelperText>
                     )}
                   </FormControl>
                 </Stack>
@@ -412,10 +378,10 @@ export const AccountGeneralSettings = (props) => {
                 >
                   <FormControl fullWidth>
                     <TextField
-                      id={'phone'}
-                      name={'phone'}
-                      error={profileError.phone.error}
-                      value={values.phone}
+                      id={'phone_no'}
+                      name={'phone_no'}
+                      error={profileError.phone_no.error}
+                      value={values.phone_no}
                       onChange={handleChange}
                       label="Phone Number"
                       required
@@ -428,8 +394,8 @@ export const AccountGeneralSettings = (props) => {
                         },
                       }}
                     />
-                    {profileError.phone.error && (
-                      <FormHelperText error>{profileError.phone.message}</FormHelperText>
+                    {profileError.phone_no.error && (
+                      <FormHelperText error>{profileError.phone_no.message}</FormHelperText>
                     )}
                   </FormControl>
                 </Stack>
@@ -650,41 +616,6 @@ export const AccountGeneralSettings = (props) => {
           </Grid>
         </CardContent>
       </Card> */}
-      <Card>
-        <CardContent>
-          <Grid
-            container
-            spacing={3}
-          >
-            <Grid
-              xs={12}
-              md={4}
-            >
-              <Typography variant="h6">Delete Account</Typography>
-            </Grid>
-            <Grid
-              xs={12}
-              md={8}
-            >
-              <Stack
-                alignItems="flex-start"
-                spacing={3}
-              >
-                <Typography variant="subtitle1">
-                  Delete your account and all of your source data. This is irreversible.
-                </Typography>
-                <Button
-                  color="error"
-                  variant="outlined"
-                  onClick={handleDeleteClick}
-                >
-                  Delete account
-                </Button>
-              </Stack>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
     </Stack>
   );
 };

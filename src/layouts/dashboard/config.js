@@ -26,7 +26,7 @@ export const useSections = () => {
           },
           {
             title: tokens.nav.account,
-            path: paths.account,
+            path: paths.dashboard.account,
             icon: (
               <SvgIcon fontSize="small">
                 <HomeSmileIcon />
