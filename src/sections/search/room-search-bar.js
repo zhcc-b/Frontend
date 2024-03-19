@@ -13,7 +13,7 @@ import sendHttpRequest from "../../utils/send-http-request";
 
 const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
 
-export const SearchBar = () => {
+export const SearchBar = (props) => {
   const [formData, setFormValue, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput({
     keywords: '',
     sports: null,
@@ -25,7 +25,9 @@ export const SearchBar = () => {
 
   function handleClick() {
     const params = new URLSearchParams(formData).toString();
-    sendHttpRequest( `http://localhost:3000/search?${params}`, 'GET').then(r => {})
+    sendHttpRequest( `http://localhost:3000/search?${params}`, 'GET').then(response => {
+      props.onResponse(response);
+    })
   }
 
   return (

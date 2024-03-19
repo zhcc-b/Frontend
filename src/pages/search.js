@@ -13,6 +13,10 @@ import { SearchBar } from 'src/sections/search/room-search-bar';
 
 
 const Page = () => {
+  const onResponse = (response) => {
+    // handle the response here
+  };
+
   return (
     <>
       <Seo title="Search" />
@@ -40,7 +44,7 @@ const Page = () => {
             >
               Learn from the top-tier creatives and leading experts in AI
             </Typography>
-            <SearchBar />
+            <SearchBar onResponse={onResponse} />
           </Container>
         </Box>
         <Box sx={{ py: '64px' }}>
