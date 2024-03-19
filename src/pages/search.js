@@ -10,16 +10,53 @@ import Typography from '@mui/material/Typography';
 import { Seo } from 'src/components/seo';
 import { RoomCard } from 'src/sections/rooms/room-card';
 import { SearchBar } from 'src/sections/search/room-search-bar';
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
+import { useState } from "react";
 
 
 const Page = () => {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [severity, setSeverity] = useState('success');
+
   const onResponse = (response) => {
-    // handle the response here
+    if (response.status) {
+
+    } else {
+      setSeverity('error');
+      setMessage('An unexpected error occurred: ' + response.data.detail);
+      setOpen(true);
+    }
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
   };
 
   return (
     <>
       <Seo title="Search" />
+
+      <Snackbar
+        open={open}
+        autoHideDuration={5000}
+        onClose={handleClose}
+        anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{width: '100%'}}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+
       <Box
         component="main"
         sx={{ flexGrow: 1 }}
@@ -36,13 +73,13 @@ const Page = () => {
               color="inherit"
               variant="h5"
             >
-              Find unparalleled knowledge
+              Find Your Perfect Sport Partners
             </Typography>
             <Typography
               color="inherit"
               sx={{ mt: 1, mb: 6 }}
             >
-              Learn from the top-tier creatives and leading experts in AI
+              Connect with people of all skill levels and age groups to enhance your sporting experience
             </Typography>
             <SearchBar onResponse={onResponse} />
           </Container>
@@ -57,33 +94,13 @@ const Page = () => {
               }}
             >
               <Grid xs={12}>
-                <Typography variant="h6">Welcome back, Anika</Typography>
-                <Typography
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                  variant="body2"
-                >
-                  Nice progress so far, keep it up!
-                </Typography>
-              </Grid>
-              <Grid
-                xs={12}
-                md={9}
-              >
-              </Grid>
-              <Grid
-                xs={12}
-                md={3}
-              >
-              </Grid>
-              <Grid xs={12}>
                 <Stack
                   alignItems="flex-start"
                   direction="row"
                   justifyContent="space-between"
                   spacing={3}
                 >
-                  <Typography variant="h6">My Courses</Typography>
+                  <Typography variant="h6">Matching Rooms</Typography>
                   <Button
                     color="inherit"
                     endIcon={
