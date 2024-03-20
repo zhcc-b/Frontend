@@ -24,8 +24,11 @@ export const SearchBar = (props) => {
   });
 
   function handleClick() {
-    const params = new URLSearchParams(formData).toString();
-    sendHttpRequest( `http://localhost:3000/search?${params}`, 'GET').then(response => {
+    const cleanedFormData = Object.fromEntries(
+      Object.entries(formData).filter(([key, value]) => value !== null && value !== '')
+    );
+    const params = new URLSearchParams(cleanedFormData).toString();
+    sendHttpRequest( `http://localhost:8000/search/events/?${params}`, 'GET').then(response => {
       props.onResponse(response);
     })
   }
