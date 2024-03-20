@@ -50,7 +50,7 @@ export const RoomCard = (props) => {
         component={RouterLink}
         href={`${paths.roomDetails.replace(':roomId', roomId)}`}
         image={cover}
-        sx={{height: 200, position: 'relative'}} // Set position to relative
+        sx={{height: 150, position: 'relative'}} // Set position to relative
       />
       <CardContent>
         <Box sx={{mb: 2}}>

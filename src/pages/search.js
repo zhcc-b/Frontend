@@ -87,7 +87,14 @@ const Page = () => {
             py: '60px',
           }}
         >
-          <Container maxWidth="xl">
+          <Container
+            maxWidth={'xl'}
+            sx={{
+              "&.MuiContainer-maxWidthXl": {
+                maxWidth: "110em",
+              },
+            }}
+          >
             <Typography
               color="inherit"
               variant="h5"
@@ -104,7 +111,14 @@ const Page = () => {
           </Container>
         </Box>
         <Box sx={{ py: '64px' }}>
-          <Container maxWidth={'xl'}>
+          <Container
+            maxWidth={'xl'}
+            sx={{
+              "&.MuiContainer-maxWidthXl": {
+                maxWidth: "110em",
+              },
+            }}
+          >
             <Grid
               container
               spacing={{
@@ -142,7 +156,7 @@ const Page = () => {
                   <Grid
                     key={room.id}
                     xs={12}
-                    md={6}
+                    md={3}
                   >
                     <RoomCard
                       roomId={room.id ? room.id.toString() : ''}
@@ -166,7 +180,7 @@ const Page = () => {
                     <Grid
                       key={room.id}
                       xs={12}
-                      md={4}
+                      md={3}
                     >
                       <RoomCard
                         roomId={room.id ? room.id.toString() : ''}
@@ -188,61 +202,6 @@ const Page = () => {
               )}
             </Grid>
           </Container>
-
-          {/*<Grid*/}
-          {/*  container*/}
-          {/*  spacing={4}*/}
-          {/*>*/}
-          {/*  {searchResults.length > 0 && searchResults.results.length > 0? (*/}
-          {/*    searchResults.results.map((room) => (*/}
-          {/*      <Grid*/}
-          {/*        key={room.id}*/}
-          {/*        xs={12}*/}
-          {/*        md={6}*/}
-          {/*      >*/}
-          {/*        <RoomCard*/}
-          {/*          roomId={room.id ? room.id.toString() : ''}*/}
-          {/*          authorAvatar={room.owner.avatar ? room.owner.avatar.toString() : ''}*/}
-          {/*          authorName={room.owner.username ? room.owner.username.toString() : ''}*/}
-          {/*          category={room.sport.name ? room.sport.name.toString() : ''}*/}
-          {/*          cover={room.attachment ? room.attachment.toString() : ''}*/}
-          {/*          publishedAt={room.created_at ? room.created_at.toString() : ''}*/}
-          {/*          shortDescription={room.description ? room.description.toString() : ''}*/}
-          {/*          title={room.title ? room.title.toString() : ''}*/}
-          {/*          currentPlayer={room.players.length ? room.players.length.toString() : '0'}*/}
-          {/*          maxPlayer={room.max_players ? room.max_players.toString() : ''}*/}
-          {/*          startTime={room.start_time ? room.start_time.toString() : ''}*/}
-          {/*          endTime={room.end_time ? room.end_time.toString() : ''}*/}
-          {/*        />                </Grid>*/}
-          {/*    ))*/}
-          {/*  ) : (*/}
-          {/*    recommandedRooms.results ? (*/}
-          {/*      recommandedRooms.results.map((room) => (*/}
-          {/*        <Grid*/}
-          {/*          key={room.id}*/}
-          {/*          xs={12}*/}
-          {/*          md={4}*/}
-          {/*        >*/}
-          {/*          <RoomCard*/}
-          {/*            roomId={room.id ? room.id.toString() : ''}*/}
-          {/*            authorAvatar={room.owner.avatar ? room.owner.avatar.toString() : ''}*/}
-          {/*            authorName={room.owner.username ? room.owner.username.toString() : ''}*/}
-          {/*            category={room.sport.name ? room.sport.name.toString() : ''}*/}
-          {/*            cover={room.attachment ? room.attachment.toString() : ''}*/}
-          {/*            publishedAt={room.created_at ? room.created_at.toString() : ''}*/}
-          {/*            shortDescription={room.description ? room.description.toString() : ''}*/}
-          {/*            title={room.title ? room.title.toString() : ''}*/}
-          {/*            currentPlayer={room.players.length ? room.players.length.toString() : '0'}*/}
-          {/*            maxPlayer={room.max_players ? room.max_players.toString() : ''}*/}
-          {/*            startTime={room.start_time ? room.start_time.toString() : ''}*/}
-          {/*            endTime={room.end_time ? room.end_time.toString() : ''}*/}
-          {/*          />*/}
-          {/*        </Grid>*/}
-          {/*      ))*/}
-          {/*    ) : null*/}
-          {/*  )}*/}
-          {/*</Grid>*/}
-
         </Box>
       </Box>
     </>
