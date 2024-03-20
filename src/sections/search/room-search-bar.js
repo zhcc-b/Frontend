@@ -28,6 +28,11 @@ export const SearchBar = (props) => {
       Object.entries(formData).filter(([key, value]) => value !== null && value !== '')
     );
     const params = new URLSearchParams(cleanedFormData).toString();
+
+    if (!params) {
+      return;
+    }
+
     sendHttpRequest( `http://localhost:8000/search/events/?${params}`, 'GET').then(response => {
       props.onResponse(response);
     })
