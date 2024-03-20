@@ -12,7 +12,8 @@ import { RoomCard } from 'src/sections/rooms/room-card';
 import { SearchBar } from 'src/sections/search/room-search-bar';
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import sendHttpRequest from "../utils/send-http-request";
 
 
 const Page = () => {
@@ -20,12 +21,30 @@ const Page = () => {
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('success');
 
+  const [recommandedRooms, setRecommandedRooms] = useState([])
+  const [searchResults, setSearchResults] = useState([])
+
+  useEffect(() => {
+    sendHttpRequest('http://localhost:8000/events/list/', 'GET').then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        setRecommandedRooms(response.data)
+        console.log(response.data)
+      } else {
+        setSeverity('error');
+        setMessage('An unexpected error occurred: ' + response.data);
+        setOpen(true);
+      }
+    });
+  }, []);
+
   const onResponse = (response) => {
-    if (response.status) {
+    if (response.status === 200 || response.status === 201) {
+
+      console.log('response', response.data)
 
     } else {
       setSeverity('error');
-      setMessage('An unexpected error occurred: ' + response.data.detail);
+      setMessage('An unexpected error occurred: ' + response.data);
       setOpen(true);
     }
   };
@@ -100,7 +119,7 @@ const Page = () => {
                   justifyContent="space-between"
                   spacing={3}
                 >
-                  <Typography variant="h6">Matching Rooms</Typography>
+                  <Typography variant="h6">Matching Room Recommendations</Typography>
                   <Button
                     color="inherit"
                     endIcon={
@@ -113,17 +132,117 @@ const Page = () => {
                   </Button>
                 </Stack>
               </Grid>
-              {/*{courses.map((course) => (*/}
-              {/*  <Grid*/}
-              {/*    key={course.id}*/}
-              {/*    xs={12}*/}
-              {/*    md={4}*/}
-              {/*  >*/}
-              {/*    <RoomCard room={course} />*/}
-              {/*  </Grid>*/}
-              {/*))}*/}
+            </Grid>
+            <Grid
+              container
+              spacing={4}
+            >
+              {searchResults.length > 0 && searchResults.results.length > 0? (
+                searchResults.results.map((room) => (
+                  <Grid
+                    key={room.id}
+                    xs={12}
+                    md={6}
+                  >
+                    <RoomCard
+                      roomId={room.id ? room.id.toString() : ''}
+                      authorAvatar={room.owner.avatar ? room.owner.avatar.toString() : ''}
+                      authorName={room.owner.username ? room.owner.username.toString() : ''}
+                      category={room.sport.name ? room.sport.name.toString() : ''}
+                      cover={room.attachment ? room.attachment.toString() : ''}
+                      publishedAt={room.created_at ? room.created_at.toString() : ''}
+                      shortDescription={room.description ? room.description.toString() : ''}
+                      title={room.title ? room.title.toString() : ''}
+                      currentPlayer={room.players.length ? room.players.length.toString() : '0'}
+                      maxPlayer={room.max_players ? room.max_players.toString() : ''}
+                      startTime={room.start_time ? room.start_time.toString() : ''}
+                      endTime={room.end_time ? room.end_time.toString() : ''}
+                    />
+                  </Grid>
+                ))
+              ) : (
+                recommandedRooms.results ? (
+                  recommandedRooms.results.map((room) => (
+                    <Grid
+                      key={room.id}
+                      xs={12}
+                      md={4}
+                    >
+                      <RoomCard
+                        roomId={room.id ? room.id.toString() : ''}
+                        authorAvatar={room.owner.avatar ? room.owner.avatar.toString() : ''}
+                        authorName={room.owner.username ? room.owner.username.toString() : ''}
+                        category={room.sport.name ? room.sport.name.toString() : ''}
+                        cover={room.attachment ? room.attachment.toString() : ''}
+                        publishedAt={room.created_at ? room.created_at.toString() : ''}
+                        shortDescription={room.description ? room.description.toString() : ''}
+                        title={room.title ? room.title.toString() : ''}
+                        currentPlayer={room.players.length ? room.players.length.toString() : '0'}
+                        maxPlayer={room.max_players ? room.max_players.toString() : ''}
+                        startTime={room.start_time ? room.start_time.toString() : ''}
+                        endTime={room.end_time ? room.end_time.toString() : ''}
+                      />
+                    </Grid>
+                  ))
+                ) : null
+              )}
             </Grid>
           </Container>
+
+          {/*<Grid*/}
+          {/*  container*/}
+          {/*  spacing={4}*/}
+          {/*>*/}
+          {/*  {searchResults.length > 0 && searchResults.results.length > 0? (*/}
+          {/*    searchResults.results.map((room) => (*/}
+          {/*      <Grid*/}
+          {/*        key={room.id}*/}
+          {/*        xs={12}*/}
+          {/*        md={6}*/}
+          {/*      >*/}
+          {/*        <RoomCard*/}
+          {/*          roomId={room.id ? room.id.toString() : ''}*/}
+          {/*          authorAvatar={room.owner.avatar ? room.owner.avatar.toString() : ''}*/}
+          {/*          authorName={room.owner.username ? room.owner.username.toString() : ''}*/}
+          {/*          category={room.sport.name ? room.sport.name.toString() : ''}*/}
+          {/*          cover={room.attachment ? room.attachment.toString() : ''}*/}
+          {/*          publishedAt={room.created_at ? room.created_at.toString() : ''}*/}
+          {/*          shortDescription={room.description ? room.description.toString() : ''}*/}
+          {/*          title={room.title ? room.title.toString() : ''}*/}
+          {/*          currentPlayer={room.players.length ? room.players.length.toString() : '0'}*/}
+          {/*          maxPlayer={room.max_players ? room.max_players.toString() : ''}*/}
+          {/*          startTime={room.start_time ? room.start_time.toString() : ''}*/}
+          {/*          endTime={room.end_time ? room.end_time.toString() : ''}*/}
+          {/*        />                </Grid>*/}
+          {/*    ))*/}
+          {/*  ) : (*/}
+          {/*    recommandedRooms.results ? (*/}
+          {/*      recommandedRooms.results.map((room) => (*/}
+          {/*        <Grid*/}
+          {/*          key={room.id}*/}
+          {/*          xs={12}*/}
+          {/*          md={4}*/}
+          {/*        >*/}
+          {/*          <RoomCard*/}
+          {/*            roomId={room.id ? room.id.toString() : ''}*/}
+          {/*            authorAvatar={room.owner.avatar ? room.owner.avatar.toString() : ''}*/}
+          {/*            authorName={room.owner.username ? room.owner.username.toString() : ''}*/}
+          {/*            category={room.sport.name ? room.sport.name.toString() : ''}*/}
+          {/*            cover={room.attachment ? room.attachment.toString() : ''}*/}
+          {/*            publishedAt={room.created_at ? room.created_at.toString() : ''}*/}
+          {/*            shortDescription={room.description ? room.description.toString() : ''}*/}
+          {/*            title={room.title ? room.title.toString() : ''}*/}
+          {/*            currentPlayer={room.players.length ? room.players.length.toString() : '0'}*/}
+          {/*            maxPlayer={room.max_players ? room.max_players.toString() : ''}*/}
+          {/*            startTime={room.start_time ? room.start_time.toString() : ''}*/}
+          {/*            endTime={room.end_time ? room.end_time.toString() : ''}*/}
+          {/*          />*/}
+          {/*        </Grid>*/}
+          {/*      ))*/}
+          {/*    ) : null*/}
+          {/*  )}*/}
+          {/*</Grid>*/}
+
         </Box>
       </Box>
     </>
