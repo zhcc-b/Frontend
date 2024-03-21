@@ -18,6 +18,8 @@ const Page = () => {
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('success');
 
+  const [text, setText] = useState('Matching Room Recommendations')
+
   const [recommendedRooms, setRecommendedRooms] = useState([])
   const [searchResults, setSearchResults] = useState([])
 
@@ -44,6 +46,7 @@ const Page = () => {
       setSearchResults(response.data)
       setPageCount(Math.ceil(response.data.count / itemPerPage))
       setNextPage(response.data.next)
+      setText('Search Results')
     } else {
       setSeverity('error');
       setMessage('An unexpected error occurred: ' + response.data);
@@ -144,7 +147,7 @@ const Page = () => {
               variant="h6"
               mb={3}
             >
-              Matching Room Recommendations
+              {text}
             </Typography>
 
             <Grid
