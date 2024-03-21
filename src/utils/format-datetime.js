@@ -2,7 +2,7 @@ export function formatDateTime(start_time, end_time) {
   // Helper functions to format date and time
   function formatDate(date) {
     return new Date(date).toLocaleString('default', {
-      year: 'numeric',
+      // year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
