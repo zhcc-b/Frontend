@@ -27,6 +27,14 @@ export const SearchBar = (props) => {
     const cleanedFormData = Object.fromEntries(
       Object.entries(formData).filter(([key, value]) => value !== null && value !== '')
     );
+
+    if (cleanedFormData.start_time) {
+      cleanedFormData.start_time = cleanedFormData.start_time.toISOString();
+    }
+    if (cleanedFormData.end_time) {
+      cleanedFormData.end_time = cleanedFormData.end_time.toISOString();
+    }
+
     const params = new URLSearchParams(cleanedFormData).toString();
 
     if (!params) {
