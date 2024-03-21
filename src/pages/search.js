@@ -1,10 +1,6 @@
-import ArrowRightIcon from '@untitled-ui/icons-react/build/esm/ArrowRight';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
-import Stack from '@mui/material/Stack';
-import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
 
 import { Seo } from 'src/components/seo';
@@ -14,6 +10,7 @@ import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { useEffect, useState } from "react";
 import sendHttpRequest from "../utils/send-http-request";
+import Pagination from '@mui/material/Pagination';
 
 
 const Page = () => {
@@ -21,14 +18,19 @@ const Page = () => {
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('success');
 
-  const [recommandedRooms, setRecommandedRooms] = useState([])
+  const [recommendedRooms, setRecommendedRooms] = useState([])
   const [searchResults, setSearchResults] = useState([])
+
+  const [pageCount, setPageCount] = useState(0)
+  const [nextPage, setNextPage] = useState('')
+  const itemPerPage = 20
 
   useEffect(() => {
     sendHttpRequest('http://localhost:8000/events/list/', 'GET').then((response) => {
       if (response.status === 200 || response.status === 201) {
-        setRecommandedRooms(response.data)
-        console.log(response.data)
+        setRecommendedRooms(response.data)
+        setPageCount(Math.ceil(response.data.count / itemPerPage))
+        setNextPage(response.data.next)
       } else {
         setSeverity('error');
         setMessage('An unexpected error occurred: ' + response.data);
@@ -39,9 +41,9 @@ const Page = () => {
 
   const onResponse = (response) => {
     if (response.status === 200 || response.status === 201) {
-
-      console.log('response', response.data)
-
+      setSearchResults(response.data)
+      setPageCount(Math.ceil(response.data.count / itemPerPage))
+      setNextPage(response.data.next)
     } else {
       setSeverity('error');
       setMessage('An unexpected error occurred: ' + response.data);
@@ -54,6 +56,25 @@ const Page = () => {
       return;
     }
     setOpen(false);
+  };
+
+  const handlePageChange = (event, value) => {
+    console.log(nextPage)
+    console.log(value)
+
+    let url = new URL(nextPage);
+    let params = new URLSearchParams(url.search);
+    params.set('page', value);
+    url.search = params.toString();
+    sendHttpRequest(url.toString(), 'GET').then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        setRecommendedRooms(response.data)
+      } else {
+        setSeverity('error');
+        setMessage('An unexpected error occurred: ' + response.data);
+        setOpen(true);
+      }
+    });
   };
 
   return (
@@ -89,11 +110,11 @@ const Page = () => {
         >
           <Container
             maxWidth={'xl'}
-            sx={{
-              "&.MuiContainer-maxWidthXl": {
-                maxWidth: "110em",
-              },
-            }}
+            // sx={{
+            //   "&.MuiContainer-maxWidthXl": {
+            //     maxWidth: "110em",
+            //   },
+            // }}
           >
             <Typography
               color="inherit"
@@ -113,50 +134,29 @@ const Page = () => {
         <Box sx={{ py: '64px' }}>
           <Container
             maxWidth={'xl'}
-            sx={{
-              "&.MuiContainer-maxWidthXl": {
-                maxWidth: "110em",
-              },
-            }}
+            // sx={{
+            //   "&.MuiContainer-maxWidthXl": {
+            //     maxWidth: "110em",
+            //   },
+            // }}
           >
-            <Grid
-              container
-              spacing={{
-                xs: 3,
-                lg: 4,
-              }}
+            <Typography
+              variant="h6"
+              mb={3}
             >
-              <Grid xs={12}>
-                <Stack
-                  alignItems="flex-start"
-                  direction="row"
-                  justifyContent="space-between"
-                  spacing={3}
-                >
-                  <Typography variant="h6">Matching Room Recommendations</Typography>
-                  <Button
-                    color="inherit"
-                    endIcon={
-                      <SvgIcon>
-                        <ArrowRightIcon />
-                      </SvgIcon>
-                    }
-                  >
-                    See all
-                  </Button>
-                </Stack>
-              </Grid>
-            </Grid>
+              Matching Room Recommendations
+            </Typography>
+
             <Grid
               container
               spacing={4}
             >
-              {searchResults.length > 0 && searchResults.results.length > 0? (
+              {searchResults.results && searchResults.results.length > 0? (
                 searchResults.results.map((room) => (
                   <Grid
                     key={room.id}
                     xs={12}
-                    md={3}
+                    md={4}
                   >
                     <RoomCard
                       roomId={room.id ? room.id.toString() : ''}
@@ -175,12 +175,12 @@ const Page = () => {
                   </Grid>
                 ))
               ) : (
-                recommandedRooms.results ? (
-                  recommandedRooms.results.map((room) => (
+                recommendedRooms.results ? (
+                  recommendedRooms.results.map((room) => (
                     <Grid
                       key={room.id}
                       xs={12}
-                      md={3}
+                      md={4}
                     >
                       <RoomCard
                         roomId={room.id ? room.id.toString() : ''}
@@ -202,6 +202,17 @@ const Page = () => {
               )}
             </Grid>
           </Container>
+        </Box>
+        <Box
+          display="flex"
+           justifyContent="center"
+           mb={6}
+        >
+          <Pagination
+            count={pageCount}
+            size="large"
+            onChange={handlePageChange}
+          />
         </Box>
       </Box>
     </>
