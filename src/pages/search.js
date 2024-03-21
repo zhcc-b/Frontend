@@ -62,6 +62,10 @@ const Page = () => {
   };
 
   const handlePageChange = (event, value) => {
+    if (nextPage === null) {
+      return;
+    }
+
     let url = new URL(nextPage);
     let params = new URLSearchParams(url.search);
     params.set('page', value);
