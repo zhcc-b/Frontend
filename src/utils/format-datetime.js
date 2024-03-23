@@ -2,7 +2,7 @@ export function formatDateTime(start_time, end_time) {
   // Helper functions to format date and time
   function formatDate(date) {
     return new Date(date).toLocaleString('default', {
-      year: 'numeric',
+      // year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
@@ -32,6 +32,7 @@ export function formatDateTime(start_time, end_time) {
     }
   } else {
     // Only start_time is provided, format as "Feb 14, 2024 • 12:00 PM"
-    return `${startDate} • ${startTime}`;
+    // return `${startDate} • ${startTime}`;
+    return `${startDate}`;
   }
 }

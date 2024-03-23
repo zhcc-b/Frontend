@@ -16,4 +16,5 @@ export const paths = {
   notAuthorized: '/401',
   notFound: '/404',
   serverError: '/500',
+  pricing: '/pricing',
 };

@@ -50,7 +50,7 @@ export const RoomCard = (props) => {
         component={RouterLink}
         href={`${paths.roomDetails.replace(':roomId', roomId)}`}
         image={cover}
-        sx={{height: 200, position: 'relative'}} // Set position to relative
+        sx={{height: 150, position: 'relative'}} // Set position to relative
       />
       <CardContent>
         <Box sx={{mb: 2}}>
@@ -68,12 +68,6 @@ export const RoomCard = (props) => {
             {title}
           </Typography>
         </Link>
-        {/*<Typography*/}
-        {/*  variant="subtitle1"*/}
-        {/*  sx={{mt: 1}}*/}
-        {/*>*/}
-        {/*  Hosted by: {authorName}*/}
-        {/*</Typography>*/}
         <Typography
           color="text.secondary"
           sx={{
@@ -93,7 +87,7 @@ export const RoomCard = (props) => {
           direction="row"
           flexWrap="wrap"
           spacing={2}
-          sx={{mt: 2}}
+          sx={{mt: 2, justifyContent: 'space-between'}} // Add justifyContent: 'space-between'
         >
           <Stack
             alignItems="center"
@@ -101,8 +95,10 @@ export const RoomCard = (props) => {
             spacing={1}
           >
             <Calendar/>
-            <Typography variant="subtitle2">
-              {formatDateTime(startTime, endTime)}
+            <Typography
+              variant="subtitle2"
+            >
+              {formatDateTime(startTime)}
             </Typography>
           </Stack>
 
@@ -114,13 +110,17 @@ export const RoomCard = (props) => {
             <UsersCheck/>
             <Typography
               align="right"
-              sx={{flexGrow: 1}}
+              sx={{
+                display: '-webkit-box', // Necessary for line clamping
+                WebkitBoxOrient: 'vertical', // Necessary for line clamping
+                WebkitLineClamp: 1, // Limit text to 1 line
+                overflow: 'hidden', // Hide the rest of the text
+              }}
               variant="subtitle2"
             >
               {currentPlayer}/{maxPlayer}
             </Typography>
           </Stack>
-
         </Stack>
       </CardContent>
     </Card>
@@ -133,7 +133,7 @@ RoomCard.propTypes = {
   authorName: PropTypes.string.isRequired,
   category: PropTypes.string.isRequired,
   cover: PropTypes.string.isRequired,
-  publishedAt: PropTypes.number.isRequired,
+  publishedAt: PropTypes.string.isRequired,
   shortDescription: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   currentPlayer: PropTypes.string.isRequired,
