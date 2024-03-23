@@ -11,7 +11,6 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import Autocomplete from '@mui/material/Autocomplete';
 
 import { Logo } from 'src/components/logo';
 import { LogoText } from 'src/components/logo-text';
@@ -21,6 +20,8 @@ import { useWindowScroll } from 'src/hooks/use-window-scroll';
 
 import { paths } from 'src/paths';
 import { TopNavItem } from './top-nav-item';
+import { useRouter } from 'next/navigation';
+import { AccountButton } from '../dashboard/account-button';
 
 const items = [
   {
@@ -45,18 +46,15 @@ export const TopNav = (props) => {
   const [elevate, setElevate] = useState(false);
   const offset = 64;
   const delay = 100;
-  const sportsOptions = [
-    'Soccer',
-    'Football',
-    'Basketball',
-    'Baseball',
-    'Tennis',
-    'Volleyball',
-    'Badminton',
-    'Skiing',
-    'Swimming',
-    'Running',
-  ];
+  const [keyword, setKeyword] = useState('');
+  const router = useRouter();
+  const isSearch = pathname === '/search';
+  const token = localStorage.getItem('JWT');
+  const isLogin = token !== null && token !== undefined;
+
+  const handleChange = (event) => {
+    setKeyword(event.target.value);
+  };
 
   const handleWindowScroll = useCallback(() => {
     if (window.scrollY > offset) {
@@ -103,7 +101,8 @@ export const TopNav = (props) => {
       >
         <Stack
           direction="row"
-          spacing={2}
+          justifyContent="space-between"
+          spacing={6}
           sx={{ height: TOP_NAV_HEIGHT }}
         >
           <Stack
@@ -165,88 +164,100 @@ export const TopNav = (props) => {
                     p: 0,
                   }}
                 >
-                  <Autocomplete
-                    disablePortal
-                    id="sports"
-                    options={sportsOptions}
-                    sx={{ width: 300 }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        InputProps={{
-                          ...params.InputProps,
-                          startAdornment: (
-                            <>
-                              <SearchIcon style={{ marginRight: 8, color: 'gray' }} />
-                              {params.InputProps.startAdornment}
-                            </>
-                          ),
-                        }}
-                        placeholder="Search sports..."
-                      />
-                    )}
-                  />
+                  {!isSearch && (
+                    <TextField
+                      variant="outlined"
+                      id={'keyword'}
+                      name={'keyword'}
+                      value={keyword}
+                      onChange={handleChange}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          router.push(`/search?keyword=${keyword}`);
+                        }
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <>
+                            <SearchIcon style={{ marginRight: 8, color: 'gray' }} />
+                          </>
+                        ),
+                      }}
+                      placeholder="Search sports..."
+                    />
+                  )}
                 </Stack>
               </Box>
             </Stack>
           )}
-          <Stack
-            alignItems="center"
-            direction="row"
-            justifyContent="flex-end"
-            spacing={2}
-            sx={{ flexGrow: 1 }}
-          >
-            {login.map((item) => {
-              const checkPath = !!(item.path && pathname);
-              const partialMatch = checkPath ? pathname.includes(item.path) : false;
-              const exactMatch = checkPath ? pathname === item.path : false;
-              const active = item.popover ? partialMatch : exactMatch;
-
-              return (
-                <TopNavItem
-                  active={active}
-                  external={item.external}
-                  key={item.title}
-                  path={item.path}
-                  popover={item.popover}
-                  title={item.title}
-                />
-              );
-            })}
-            <Button
-              component={RouterLink}
-              href={paths.register}
-              sx={(theme) =>
-                theme.palette.mode === 'dark'
-                  ? {
-                      backgroundColor: 'neutral.50',
-                      color: 'neutral.900',
-                      '&:hover': {
-                        backgroundColor: 'neutral.200',
-                      },
-                    }
-                  : {
-                      backgroundColor: 'neutral.900',
-                      color: 'neutral.50',
-                      '&:hover': {
-                        backgroundColor: 'neutral.700',
-                      },
-                    }
-              }
-              variant="contained"
+          {!isLogin ? (
+            <Stack
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-end"
+              spacing={2}
+              sx={{ flexGrow: 1 }}
             >
-              Sing up
-            </Button>
-            {!mdUp && (
-              <IconButton onClick={onMobileNavOpen}>
-                <SvgIcon fontSize="small">
-                  <Menu01Icon />
-                </SvgIcon>
-              </IconButton>
-            )}
-          </Stack>
+              {login.map((item) => {
+                const checkPath = !!(item.path && pathname);
+                const partialMatch = checkPath ? pathname.includes(item.path) : false;
+                const exactMatch = checkPath ? pathname === item.path : false;
+                const active = item.popover ? partialMatch : exactMatch;
+
+                return (
+                  <TopNavItem
+                    active={active}
+                    external={item.external}
+                    key={item.title}
+                    path={item.path}
+                    popover={item.popover}
+                    title={item.title}
+                  />
+                );
+              })}
+              <Button
+                component={RouterLink}
+                href={paths.register}
+                sx={(theme) =>
+                  theme.palette.mode === 'dark'
+                    ? {
+                        backgroundColor: 'neutral.50',
+                        color: 'neutral.900',
+                        '&:hover': {
+                          backgroundColor: 'neutral.200',
+                        },
+                      }
+                    : {
+                        backgroundColor: 'neutral.900',
+                        color: 'neutral.50',
+                        '&:hover': {
+                          backgroundColor: 'neutral.700',
+                        },
+                      }
+                }
+                variant="contained"
+              >
+                Sing up
+              </Button>
+              {!mdUp && (
+                <IconButton onClick={onMobileNavOpen}>
+                  <SvgIcon fontSize="small">
+                    <Menu01Icon />
+                  </SvgIcon>
+                </IconButton>
+              )}
+            </Stack>
+          ) : (
+            <Stack
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-end"
+              spacing={2}
+              sx={{ flexGrow: 1 }}
+            >
+              <AccountButton />
+            </Stack>
+          )}
         </Stack>
       </Container>
     </Box>
