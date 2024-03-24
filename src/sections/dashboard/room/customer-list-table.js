@@ -54,7 +54,8 @@ export const CustomerListTable = (props) => {
           </TableHead>
           <TableBody>
             {eventToShow.map((event) => (
-              <TableRow hover key={event.roomId}>
+              <TableRow hover 
+              key={event.roomId}>
                 <TableCell key={`title-${event.roomId}`}>{event.title}</TableCell>
                 <TableCell key={`category-${event.roomId}`}>{event.category}</TableCell>
                 <TableCell key={`currentPlayer-${event.roomId}`}>{event.currentPlayer}</TableCell>
