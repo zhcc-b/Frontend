@@ -14,27 +14,27 @@ const Page = () => {
   const [eventData, setEvents] = useState([]);
   const router = useRouter();
 
-  useEffect(() => {
-    if (router.isReady === false) {
-      return;
-    }
-
-    fetch(`http://localhost:8000/events/list/`)
-      .then((response) => {
-        if (response.status === 200 || response.status === 201) {
-          return response.json();
-        } else if (response.status === 401 || response.status === 403) {
-          router.push('/401');
-        } else if (response.status === 404) {
-          router.push('/404');
-        } else {
-          router.push('/500');
-        }
-      })
-      .then((data) => {
-        setEvents(data);
-      });
-  }, [router]);
+  // useEffect(() => {
+  //   if (router.isReady === false) {
+  //     return;
+  //   }
+  //
+  //   fetch(`http://localhost:8000/events/list/`)
+  //     .then((response) => {
+  //       if (response.status === 200 || response.status === 201) {
+  //         return response.json();
+  //       } else if (response.status === 401 || response.status === 403) {
+  //         router.push('/401');
+  //       } else if (response.status === 404) {
+  //         router.push('/404');
+  //       } else {
+  //         router.push('/500');
+  //       }
+  //     })
+  //     .then((data) => {
+  //       setEvents(data);
+  //     });
+  // }, [router]);
 
   const visibleEvents = eventData
     ? eventData.filter((event) => event.visibility === 'Public').slice(0, 10)

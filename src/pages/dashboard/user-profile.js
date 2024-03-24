@@ -9,9 +9,8 @@ import Typography from '@mui/material/Typography';
 
 import { Seo } from 'src/components/seo';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard';
-import { AccountGeneralSettings } from 'src/sections/dashboard/account/account-general-settings';
-import { AccountNotificationsSettings } from 'src/sections/dashboard/account/account-notifications-settings';
-import { AccountSecuritySettings } from 'src/sections/dashboard/account/account-security-settings';
+import { ProfileGeneral } from 'src/sections/dashboard/profile/profile-general';
+import { ProfileRoomList } from 'src/sections/dashboard/profile/profile-room';
 import { useRouter } from 'next/navigation';
 import sendHttpRequest from 'src/utils/send-http-request';
 import useUserInput from 'src/hooks/use-user-input';
@@ -19,8 +18,7 @@ import { jwtDecode } from 'jwt-decode';
 
 const tabs = [
   { label: 'General', value: 'general' },
-  { label: 'Notifications', value: 'notifications' },
-  { label: 'Security', value: 'security' },
+  { label: 'RoomList', value: 'roomlist' },
 ];
 
 const Page = () => {
@@ -81,7 +79,7 @@ const Page = () => {
 
   return (
     <>
-      <Seo title="Dashboard: Account" />
+      <Seo title="Dashboard: Profile" />
       <Box
         component="main"
         sx={{
@@ -94,7 +92,7 @@ const Page = () => {
             spacing={3}
             sx={{ mb: 3 }}
           >
-            <Typography variant="h4">Account</Typography>
+            <Typography variant="h4">Profile</Typography>
             <div>
               <Tabs
                 indicatorColor="primary"
@@ -115,15 +113,8 @@ const Page = () => {
               <Divider />
             </div>
           </Stack>
-          {currentTab === 'general' && <AccountGeneralSettings userData={userData || null} />}
-          {currentTab === 'notifications' && (
-            <AccountNotificationsSettings
-              email_product={userData.email_product || false}
-              email_security={userData.email_security || false}
-              phone_security={userData.phone_security || false}
-            />
-          )}
-          {currentTab === 'security' && <AccountSecuritySettings />}
+          {currentTab === 'general' && <ProfileGeneral userData={userData || null} />}
+          {currentTab === 'security' && <ProfileRoomList />}
         </Container>
       </Box>
     </>

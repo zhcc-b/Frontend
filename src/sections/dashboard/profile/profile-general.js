@@ -20,7 +20,7 @@ import Avatar from '@mui/material/Avatar';
 
 import { useRouter } from 'next/navigation';
 
-export const AccountGeneralSettings = (props) => {
+export const ProfileGeneral = (props) => {
   const { userData } = props;
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -72,6 +72,7 @@ export const AccountGeneralSettings = (props) => {
     phone_no: { error: false, message: '' },
     username: { error: false, message: '' },
     sports_data: { error: false, message: '' },
+    // birthday: { error: false, message: '' },
     gender: { error: false, message: '' },
     description: { error: false, message: '' },
   });
@@ -619,6 +620,6 @@ export const AccountGeneralSettings = (props) => {
   );
 };
 
-AccountGeneralSettings.propTypes = {
+ProfileGeneral.propTypes = {
   email: PropTypes.string.isRequired,
 };
