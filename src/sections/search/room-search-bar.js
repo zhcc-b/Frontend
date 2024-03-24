@@ -6,14 +6,18 @@ import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import TextField from '@mui/material/TextField';
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { Autocomplete, FormControl, FormHelperText, InputLabel, Select } from "@mui/material";
+import { Autocomplete, FormControl, InputLabel, Select } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import useUserInput from "src/hooks/use-user-input";
-import sendHttpRequest from "../../utils/send-http-request";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
 
-export const SearchBar = (props) => {
+export const SearchBar = ({defaultQuery}) => {
+
+  const router = useRouter();
+
   const [formData, setFormValue, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput({
     keywords: '',
     sports: null,
@@ -22,6 +26,17 @@ export const SearchBar = (props) => {
     start_time: null,
     end_time: null
   });
+
+  useEffect(() => {
+    setFormValue({
+      keywords: defaultQuery.keywords || '',
+      sports: defaultQuery.sports || null,
+      levels: defaultQuery.levels || '',
+      age_groups: defaultQuery.age_groups || '',
+      start_time: defaultQuery.start_time ? new Date(defaultQuery.start_time) : null,
+      end_time: defaultQuery.end_time ? new Date(defaultQuery.end_time) : null
+    });
+  }, [defaultQuery, setFormValue]);
 
   function handleClick() {
     const cleanedFormData = Object.fromEntries(
@@ -36,14 +51,9 @@ export const SearchBar = (props) => {
     }
 
     const params = new URLSearchParams(cleanedFormData).toString();
-
-    if (!params) {
-      return;
+    if (params) {
+      router.push(`/search?${params}`);
     }
-
-    sendHttpRequest( `http://localhost:8000/search/events/?${params}`, 'GET').then(response => {
-      props.onResponse(response);
-    })
   }
 
   return (
@@ -91,7 +101,6 @@ export const SearchBar = (props) => {
             name={'sports'}
             value={formData.sports}
             options={sport_type}
-            // isOptionEqualToValue={(option, value) => option === value || value === ""}
             onChange={(event, value) => {
               handleAutocompleteChange('sports', value);
             }}
@@ -100,8 +109,6 @@ export const SearchBar = (props) => {
                 {...params}
                 id={'sport-type-select-option'}
                 label="Sport"
-                // error={formError.sport_data.error}
-                // helperText={formError.sport_data.message}
                 variant={'outlined'}
               />
             }
@@ -139,7 +146,6 @@ export const SearchBar = (props) => {
               label=" Skill Level "
               name={'levels'}
               value={formData.levels}
-              // error={formError.level.error}
               onChange={handleInputChange}
             >
               <MenuItem value={'B'}>Beginner</MenuItem>
@@ -147,11 +153,6 @@ export const SearchBar = (props) => {
               <MenuItem value={'A'}>Advanced</MenuItem>
               <MenuItem value={'P'}>Professional</MenuItem>
             </Select>
-            {/*{formError.level.error && (*/}
-            {/*  <FormHelperText error>*/}
-            {/*    {formError.level.message}*/}
-            {/*  </FormHelperText>*/}
-            {/*)}*/}
           </FormControl>
         </Box>
         <Box sx={{ flexGrow: 1 }}>
@@ -165,7 +166,6 @@ export const SearchBar = (props) => {
               label=" Age Group "
               name={'age_groups'}
               value={formData.age_groups}
-              // error={formError.age_group.error}
               onChange={handleInputChange}
             >
               <MenuItem value={'C'}>Children</MenuItem>
@@ -173,11 +173,6 @@ export const SearchBar = (props) => {
               <MenuItem value={'A'}>Adults</MenuItem>
               <MenuItem value={'S'}>Seniors</MenuItem>
             </Select>
-            {/*{formError.age_group.error && (*/}
-            {/*  <FormHelperText error>*/}
-            {/*    {formError.age_group.message}*/}
-            {/*  </FormHelperText>*/}
-            {/*)}*/}
           </FormControl>
         </Box>
       </Stack>

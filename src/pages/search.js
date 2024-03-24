@@ -8,9 +8,11 @@ import { RoomCard } from 'src/sections/rooms/room-card';
 import { SearchBar } from 'src/sections/search/room-search-bar';
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import sendHttpRequest from "../utils/send-http-request";
 import Pagination from '@mui/material/Pagination';
+import { Layout as MarketingLayout } from "../layouts/marketing";
+import { useSearchParams } from 'next/navigation'
 
 
 const Page = () => {
@@ -27,19 +29,43 @@ const Page = () => {
   const [nextPage, setNextPage] = useState('')
   const itemPerPage = 20
 
+  const searchParams = useSearchParams()
+  const defaultQuery = useMemo(() => ({
+    keywords: searchParams.get('keywords') || '',
+    sports: searchParams.get('sports'),
+    levels: searchParams.get('levels') || '',
+    age_groups: searchParams.get('age_groups') || '',
+    start_time: searchParams.get('start_time'),
+    end_time: searchParams.get('end_time')
+  }), [searchParams]);
+
   useEffect(() => {
-    sendHttpRequest('http://localhost:8000/events/list/', 'GET').then((response) => {
-      if (response.status === 200 || response.status === 201) {
-        setRecommendedRooms(response.data)
-        setPageCount(Math.ceil(response.data.count / itemPerPage))
-        setNextPage(response.data.next)
-      } else {
-        setSeverity('error');
-        setMessage('An unexpected error occurred: ' + response.data);
-        setOpen(true);
-      }
-    });
-  }, []);
+    const isDefaultQueryEmpty = Object.values(defaultQuery).every(value => value === '' || value === null);
+    if (!isDefaultQueryEmpty) {
+      const cleanedFormData = Object.fromEntries(
+        Object.entries(defaultQuery).filter(([key, value]) => value !== null && value !== '')
+      );
+      const params = new URLSearchParams(cleanedFormData).toString();
+
+      sendHttpRequest(`http://localhost:8000/search/events/?${params}`, 'GET').then((response) => {
+        onResponse(response)
+      });
+    }
+
+    else {
+      sendHttpRequest('http://localhost:8000/events/list/', 'GET').then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          setRecommendedRooms(response.data)
+          setPageCount(Math.ceil(response.data.count / itemPerPage))
+          setNextPage(response.data.next)
+        } else {
+          setSeverity('error');
+          setMessage('An unexpected error occurred: ' + response.data);
+          setOpen(true);
+        }
+      });
+    }
+  }, [defaultQuery]);
 
   const onResponse = (response) => {
     if (response.status === 200 || response.status === 201) {
@@ -123,6 +149,7 @@ const Page = () => {
             <Typography
               color="inherit"
               variant="h5"
+              sx={{mt : 8}}
             >
               Find Your Perfect Sport Partners
             </Typography>
@@ -132,7 +159,7 @@ const Page = () => {
             >
               Connect with people of all skill levels and age groups to enhance your sporting experience
             </Typography>
-            <SearchBar onResponse={onResponse} />
+            <SearchBar defaultQuery={defaultQuery} />
           </Container>
         </Box>
         <Box sx={{ py: '64px' }}>
@@ -222,5 +249,7 @@ const Page = () => {
     </>
   );
 };
+
+Page.getLayout = (page) => <MarketingLayout>{page}</MarketingLayout>;
 
 export default Page;
