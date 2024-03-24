@@ -45,8 +45,6 @@ export function useUserInput(initialValues) {
     });
   };
 
-  console.log(values);
-
   return [values, setValues, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange];
 }
 

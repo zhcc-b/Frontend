@@ -10,10 +10,12 @@ import { Autocomplete, FormControl, InputLabel, Select } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import useUserInput from "src/hooks/use-user-input";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const sport_type = ['Badminton', 'Basketball', 'Football', 'Tennis', 'Volleyball'];
 
-export const SearchBar = () => {
+export const SearchBar = ({defaultQuery}) => {
+
   const router = useRouter();
 
   const [formData, setFormValue, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput({
@@ -25,9 +27,20 @@ export const SearchBar = () => {
     end_time: null
   });
 
+  useEffect(() => {
+    setFormValue({
+      keywords: defaultQuery.keywords || '',
+      sports: defaultQuery.sports || null,
+      levels: defaultQuery.levels || '',
+      age_groups: defaultQuery.age_groups || '',
+      start_time: defaultQuery.start_time ? new Date(defaultQuery.start_time) : null,
+      end_time: defaultQuery.end_time ? new Date(defaultQuery.end_time) : null
+    });
+  }, [defaultQuery, setFormValue]);
+
   function handleClick() {
     const cleanedFormData = Object.fromEntries(
-      Object.entries(formData).filter(([value]) => value !== null && value !== '')
+      Object.entries(formData).filter(([key, value]) => value !== null && value !== '')
     );
 
     if (cleanedFormData.start_time) {
@@ -39,7 +52,7 @@ export const SearchBar = () => {
 
     const params = new URLSearchParams(cleanedFormData).toString();
     if (params) {
-      router.push(`/search?query=${params}`);
+      router.push(`/search?${params}`);
     }
   }
 
