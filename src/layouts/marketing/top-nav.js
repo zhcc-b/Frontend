@@ -22,18 +22,6 @@ import { useWindowScroll } from 'src/hooks/use-window-scroll';
 import { paths } from 'src/paths';
 import { TopNavItem } from './top-nav-item';
 
-const items = [
-  {
-    title: 'Search events',
-    path: paths.dashboard.room.roomCreate,
-  },
-  {
-    title: 'Docs',
-    path: paths.docs,
-    external: true,
-  },
-];
-
 const login = [{ title: 'Log in', path: paths.login }];
 
 const TOP_NAV_HEIGHT = 64;
@@ -87,7 +75,7 @@ export const TopNav = (props) => {
         maxWidth="lg"
         sx={{
           backdropFilter: 'blur(6px)',
-          backgroundColor: 'transparent',
+          backgroundColor: (theme) => theme.palette.background.default, // change this line
           borderRadius: 2.5,
           boxShadow: 'none',
           transition: (theme) =>
