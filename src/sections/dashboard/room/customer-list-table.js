@@ -17,14 +17,10 @@ export const CustomerListTable = (props) => {
     onRowsPerPageChange,
     page = 0,
     rowsPerPage = 5,
-    events =[],
+    events = [],
   } = props;
-console.log(events)
-  // Process events into eventToShow
+
   const eventToShow = [];
-  // const sport123 = {name:"I'm name"};
-  // const contend = {"id":1,"sport":sport123,"title": "I'm title" ,"players":["1","2","3"],"max_players":5,"start_time":"I'mstart time","end_time":"I'm endtime"}
-  // const events = [contend, contend, contend];
   for (let i = 0; i < events.length; i++) {
     eventToShow.push({
       roomId: events[i].id,
@@ -36,9 +32,8 @@ console.log(events)
       endTime: events[i].end_time,
     });
   }
-  console.log(eventToShow)
+
   const handlePromotionClick = (roomId) => {
-    // Navigate to the URL with the Room ID
     window.location.href = `http://localhost:3000/pricing?roomId=${roomId}`;
   };
 
@@ -48,8 +43,8 @@ console.log(events)
         <Table sx={{ minWidth: 700 }}>
           <TableHead>
             <TableRow>
-              <TableCell>Title</TableCell> {/* Swapped with Category */}
-              <TableCell>Category</TableCell> {/* Swapped with Title */}
+              <TableCell>Title</TableCell>
+              <TableCell>Category</TableCell>
               <TableCell>Current Players</TableCell>
               <TableCell>Max Players</TableCell>
               <TableCell>Start Time</TableCell>
@@ -59,14 +54,14 @@ console.log(events)
           </TableHead>
           <TableBody>
             {eventToShow.map((event) => (
-              <TableRow hover key={event.roomId}>
-                <TableCell>{event.title}</TableCell> 
-                <TableCell>{event.category}</TableCell> 
-                <TableCell>{event.currentPlayer}</TableCell>
-                <TableCell>{event.maxPlayer}</TableCell>
-                <TableCell>{event.startTime}</TableCell>
-                <TableCell>{event.endTime}</TableCell>
-                <TableCell>
+              <TableRow hover>
+                <TableCell key={`title-${event.roomId}`}>{event.title}</TableCell>
+                <TableCell key={`category-${event.roomId}`}>{event.category}</TableCell>
+                <TableCell key={`currentPlayer-${event.roomId}`}>{event.currentPlayer}</TableCell>
+                <TableCell key={`maxPlayer-${event.roomId}`}>{event.maxPlayer}</TableCell>
+                <TableCell key={`startTime-${event.roomId}`}>{event.startTime}</TableCell>
+                <TableCell key={`endTime-${event.roomId}`}>{event.endTime}</TableCell>
+                <TableCell key={`promotion-${event.roomId}`}>
                   <Button 
                     color="primary" 
                     onClick={() => handlePromotionClick(event.roomId)}
@@ -93,5 +88,5 @@ console.log(events)
 };
 
 CustomerListTable.propTypes = {
-  // ... other prop types ...
+  events: PropTypes.array,
 };
