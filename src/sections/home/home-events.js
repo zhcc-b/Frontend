@@ -6,6 +6,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/navigation';
 import { RoomCard } from '../rooms/room-card';
+import { Button } from '@mui/material';
 
 const QuotesIcon = () => (
   <svg
@@ -37,9 +38,15 @@ const QuotesIcon = () => (
 
 export const HomeEvents = (props) => {
   const router = useRouter();
-
   const { events } = props;
   const eventToShow = [];
+  function handleOnClick() {
+    if (router.isReady === false) {
+      return;
+    } else {
+      router.push('/dashboard/room/my-room-list');
+    }
+  }
 
   for (let i = 0; i < events.length; i++) {
     eventToShow.push({
@@ -55,6 +62,7 @@ export const HomeEvents = (props) => {
       maxPlayer: events[i].max_players,
       startTime: events[i].start_time,
       endTime: events[i].end_time,
+      attachment: events[i].attachment,
     });
   }
 
@@ -89,36 +97,41 @@ export const HomeEvents = (props) => {
               Join the events now!
             </Typography>
           </Stack>
-          <Grid
-            container
-            spacing={3}
-          >
-            {eventToShow.map((event, index) => (
-              <Grid
-                key={index}
-                xs={12}
-                md={6}
-                lg={4}
-              >
-                <Card sx={{ height: '100%' }}>
-                  <RoomCard
-                    roomId={event.roomId.toString()}
-                    authorAvatar={event.authorAvatar}
-                    authorName={event.authorName}
-                    category={event.category}
-                    cover={null}
-                    publishedAt={event.publishedAt.toString()}
-                    shortDescription={event.shortDescription}
-                    title={event.title}
-                    currentPlayer={event.currentPlayer.toString()}
-                    maxPlayer={event.maxPlayer.toString()}
-                    startTime={event.startTime.toString()}
-                    endTime={event.endTime.toString()}
-                  />
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          <Stack spacing={2}>
+            <Grid
+              container
+              spacing={3}
+            >
+              {eventToShow.map((event, index) => (
+                <Grid
+                  key={index}
+                  xs={12}
+                  md={6}
+                  lg={4}
+                >
+                  <Card sx={{ height: '100%' }}>
+                    <RoomCard
+                      roomId={event.roomId.toString()}
+                      authorAvatar={event.authorAvatar}
+                      authorName={event.authorName}
+                      category={event.category}
+                      publishedAt={event.publishedAt.toString()}
+                      shortDescription={event.shortDescription}
+                      title={event.title}
+                      currentPlayer={event.currentPlayer.toString()}
+                      maxPlayer={event.maxPlayer.toString()}
+                      startTime={event.startTime.toString()}
+                      endTime={event.endTime.toString()}
+                      cover={event.attachment}
+                    />
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Stack>
+          <Stack>
+            <Button onClick={handleOnClick}>More events</Button>
+          </Stack>
         </Stack>
       </Container>
     </Box>

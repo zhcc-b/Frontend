@@ -8,14 +8,9 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import sendHttpRequest from 'src/utils/send-http-request';
 import confetti from 'canvas-confetti';
-import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import { FormControl, FormHelperText } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { paths } from 'src/paths';
+import PropTypes from 'prop-types';
 
 export const AccountSecuritySettings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -27,40 +22,6 @@ export const AccountSecuritySettings = () => {
   const [password, setPassword] = useState(mockPassword);
   const [changed, setChanged] = useState(false);
   const router = useRouter();
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleConfirmClose = () => {
-    setOpen(false);
-
-    setLoading(true);
-    sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'DELETE').then((response) => {
-      if (response.status === 200 || response.status === 201) {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-        setSeverity('success');
-        setMessage('Successfully delete account');
-        setOpen(true);
-        router.push(paths.index);
-      } else if (response.status === 401) {
-        router.push('/401');
-      } else {
-        setSeverity('error');
-        setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
-        setOpen(true);
-      }
-    });
-    setLoading(false);
-  };
 
   const handleChange = (event) => {
     setPassword(event.target.value);
@@ -181,60 +142,10 @@ export const AccountSecuritySettings = () => {
           </Grid>
         </CardContent>
       </Card>
-      {/* <Card>
-        <CardContent>
-          <Grid
-            container
-            spacing={3}
-          >
-            <Grid
-              xs={12}
-              md={8}
-            >
-              <Stack
-                alignItems="flex-start"
-                spacing={3}
-              >
-                <Typography variant="subtitle1">
-                  Delete your account and all of your source data. This is irreversible.
-                </Typography>
-                <Fragment>
-                  <Button
-                    variant="outlined"
-                    onClick={handleClickOpen}
-                  >
-                    Delete account
-                  </Button>
-                  <Dialog
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                  >
-                    <DialogTitle id="alert-dialog-title">
-                      {"Use Google's location service?"}
-                    </DialogTitle>
-                    <DialogContent>
-                      <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to delete your account? This action is irreversible.
-                      </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleClose}>Cancel</Button>
-                      <Button
-                        onClick={handleConfirmClose}
-                        autoFocus
-                      >
-                        Confirm Delete
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                </Fragment>
-              </Stack>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card> */}
     </Stack>
   );
+};
+
+AccountSecuritySettings.propTypes = {
+  password: PropTypes.string.isRequired,
 };

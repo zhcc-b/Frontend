@@ -7,10 +7,13 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { usePopover } from 'src/hooks/use-popover';
 import { notifications as initialNotifications } from './notifications';
+import { useEffect } from 'react';
 import { NotificationsPopover } from './notifications-popover';
+import { useRouter } from 'next/navigation';
+import sendHttpRequest from 'src/utils/send-http-request';
 
-const useNotifications = () => {
-  const [notifications, setNotifications] = useState(initialNotifications);
+const useNotifications = (props) => {
+  const [notifications, setNotifications] = useState(props);
   const unread = useMemo(() => {
     return notifications.reduce((acc, notification) => acc + (notification.read ? 0 : 1), 0);
   }, [notifications]);
@@ -39,8 +42,32 @@ const useNotifications = () => {
 };
 
 export const NotificationsButton = () => {
+  const [initNotifications, setInit] = useState([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.isReady === false) {
+      return;
+    }
+    sendHttpRequest(`http://localhost:8000/notifications/list/`, 'GET')
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          return response.data;
+        } else if (response.status === 401 || response.status === 403) {
+          router.push('/401');
+        } else if (response.status === 404) {
+          router.push('/404');
+        } else {
+          router.push('/500');
+        }
+      })
+      .then((data) => {
+        setInit(data);
+      });
+  }, [router]);
   const popover = usePopover();
-  const { handleRemoveOne, handleMarkAllAsRead, notifications, unread } = useNotifications();
+  const { handleRemoveOne, handleMarkAllAsRead, notifications, unread } =
+    useNotifications(initNotifications);
 
   return (
     <>

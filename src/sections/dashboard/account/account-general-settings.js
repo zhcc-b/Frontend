@@ -72,7 +72,6 @@ export const AccountGeneralSettings = (props) => {
     phone_no: { error: false, message: '' },
     username: { error: false, message: '' },
     sports_data: { error: false, message: '' },
-    // birthday: { error: false, message: '' },
     gender: { error: false, message: '' },
     description: { error: false, message: '' },
   });
@@ -96,21 +95,18 @@ export const AccountGeneralSettings = (props) => {
   function validateProfile() {
     const isNameEmpty = values.username === '';
     const isEmailEmpty = values.email === '';
-    const isPhoneEmpty = values.phone_no === '';
-    const isAgeEmpty = values.age === '';
-    // const isBirthdayEmpty = values.birthday === null;
+    const isPhoneEmpty = values.phone_no === null;
+    const isAgeEmpty = values.age === null;
     const isGenderEmpty = values.gender === null;
     const isAvatarEmpty = values.avatar_data === null;
 
-    // const isInvaildphone_no = !/^\d{10}$/.test(values.phone_no);
+    const isInvaildPhone = !/^\d{10}$/.test(values.phone_no);
     const isInvaildAge =
       !/^\d+$/.test(values.age) || parseInt(values.age) < 0 || parseInt(values.age) > 200;
     const isUnknownGender = !['Prefer not to say', 'Male', 'Female', 'Other'].includes(
       values.gender
     );
     const isDescriptionTooLong = values.description && values.description.length > 300;
-    // const isNotBirthdayObject = !values.birthday instanceof Date;
-    // const isInvaildBirthday = values.birthday > today;
     if (values.avatar_data && values.avatar_data.startsWith('http')) {
       delete values.avatar_data;
     }
@@ -134,19 +130,13 @@ export const AccountGeneralSettings = (props) => {
         message: isAgeEmpty ? 'Age is required' : isInvaildAge ? 'Invaild age.' : '',
       },
       phone_no: {
-        error: isPhoneEmpty,
-        message: isPhoneEmpty ? 'phone_no number is required' : '',
+        error: isPhoneEmpty || isInvaildPhone,
+        message: isPhoneEmpty
+          ? 'phone number is required'
+          : isInvaildPhone
+          ? 'Invalid phone number. Please enter a 10-digits phone number'
+          : '',
       },
-      // birthday: {
-      //   error: isBirthdayEmpty || isNotBirthdayObject || isInvaildBirthday,
-      //   message: isBirthdayEmpty
-      //     ? 'Birthday is required'
-      //     : isNotBirthdayObject
-      //     ? 'Invalid birthday data'
-      //     : isInvaildBirthday
-      //     ? 'Birthday must before today'
-      //     : '',
-      // },
       gender: {
         error: isGenderEmpty || isUnknownGender,
         message: isGenderEmpty
@@ -167,7 +157,7 @@ export const AccountGeneralSettings = (props) => {
       !isPhoneEmpty &&
       !isAgeEmpty &&
       !isGenderEmpty &&
-      // !isInvaildphone_no &&
+      !isInvaildPhone &&
       !isUnknownGender &&
       !isInvaildAge &&
       !isDescriptionTooLong &&
@@ -179,7 +169,6 @@ export const AccountGeneralSettings = (props) => {
     setLoading(true);
     if (validateProfile()) {
       const copyData = { ...values };
-      // const sportString = JSON.stringify(values.sports_data);
       copyData.sports_data =
         '[' + values.sports_data.map((item) => '"' + item + '"').join(', ') + ']';
       sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', copyData).then(
@@ -260,44 +249,14 @@ export const AccountGeneralSettings = (props) => {
                     alignItems={'flex-start'}
                   >
                     <Stack>
-                      {values.avatar_data ? (
-                        <Box
-                          sx={{
-                            backgroundImage: `url(${values.avatar_data})`,
-                            backgroundPosition: 'center',
-                            alignItems: 'center',
-                            backgroundSize: 'avatar',
-                            borderRadius: '50%',
-                            height: 300,
-                            width: 300,
-                            mt: 3,
-                          }}
-                        />
-                      ) : (
-                        <Box
-                          sx={{
-                            alignItems: 'center',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            border: 1,
-                            borderRadius: '50%',
-                            borderStyle: 'dashed',
-                            borderColor: 'grey.500',
-                            height: 300,
-                            width: 300,
-                            mt: 3,
-                          }}
-                        >
-                          <Typography
-                            align="center"
-                            color="text.secondary"
-                            variant="h6"
-                          >
-                            Avatar Preview
-                          </Typography>
-                        </Box>
-                      )}
+                      <Avatar
+                        sx={{
+                          height: 300,
+                          width: 300,
+                        }}
+                        src={values.avatar_data}
+                      ></Avatar>
+
                       <Button
                         color="inherit"
                         disabled={!values.avatar_data}
@@ -431,49 +390,29 @@ export const AccountGeneralSettings = (props) => {
                   direction="row"
                   spacing={2}
                 >
-                  <TextField
-                    id={'age'}
-                    name={'age'}
-                    value={values.age}
-                    onChange={handleChange}
-                    error={profileError.age.error}
-                    required
-                    type="number"
-                    label="Age"
-                    sx={{ flexGrow: 1 }}
-                  />
+                  <FormControl fullWidth>
+                    <TextField
+                      id={'age'}
+                      name={'age'}
+                      error={profileError.age.error}
+                      value={values.age}
+                      onChange={handleChange}
+                      label="Age"
+                      required
+                      type="number"
+                      inputProps={{ maxLength: 2 }}
+                      sx={{
+                        flexGrow: 1,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderStyle: 'dashed',
+                        },
+                      }}
+                    />
+                    {profileError.age.error && (
+                      <FormHelperText error>{profileError.age.message}</FormHelperText>
+                    )}
+                  </FormControl>
                 </Stack>
-                {/* <Stack
-                  alignItems="center"
-                  direction="row"
-                  spacing={2}
-                >
-                  <DatePicker
-                    label="Birthday"
-                    disabled={!isEditBirth}
-                    onChange={handleChange}
-                    value={values.birthday}
-                    maxDate={today}
-                    required
-                  />
-                  {isEditBirth ? (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleBirthSaveClick}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleBirthEditClick}
-                    >
-                      Edit
-                    </Button>
-                  )}
-                </Stack> */}
                 <Stack
                   alignItems="center"
                   direction="row"
@@ -621,5 +560,6 @@ export const AccountGeneralSettings = (props) => {
 };
 
 AccountGeneralSettings.propTypes = {
+  username: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
 };

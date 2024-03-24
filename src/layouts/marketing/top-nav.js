@@ -125,10 +125,19 @@ export const TopNav = (props) => {
                   justifyItems: 'flex-start',
                   display: 'inline-flex',
                   height: 30,
-                  width: 200,
+                  width: 30,
                 }}
               >
                 <Logo />
+              </Box>
+              <Box
+                sx={{
+                  justifyItems: 'flex-start',
+                  display: 'inline-flex',
+                  height: 30,
+                  width: 200,
+                }}
+              >
                 <LogoText />
               </Box>
             </Stack>
