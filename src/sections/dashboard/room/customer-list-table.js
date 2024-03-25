@@ -3,6 +3,11 @@ import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
+import SvgIcon from '@mui/material/SvgIcon';
+import Edit02Icon from '@untitled-ui/icons-react/build/esm/Edit02';
+import ArrowRightIcon from '@untitled-ui/icons-react/build/esm/ArrowRight';
+import IconButton from '@mui/material/IconButton';
+import { RouterLink } from 'src/components/router-link';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -50,6 +55,7 @@ export const CustomerListTable = (props) => {
               <TableCell>Start Time</TableCell>
               <TableCell>End Time</TableCell>
               <TableCell>Promotion</TableCell>
+              <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -70,6 +76,24 @@ export const CustomerListTable = (props) => {
                     Promotion
                   </Button>
                 </TableCell>
+                <TableCell align="right">
+                    <IconButton
+                      component={RouterLink}
+                      href={`http://localhost:3000/dashboard/room/edit/${event.roomId}`}
+                    >
+                      <SvgIcon>
+                        <Edit02Icon />
+                      </SvgIcon>
+                    </IconButton>
+                    <IconButton
+                      component={RouterLink}
+                      href={`http://localhost:3000/room/${event.roomId}`}
+                    >
+                      <SvgIcon>
+                        <ArrowRightIcon />
+                      </SvgIcon>
+                    </IconButton>
+                  </TableCell>
               </TableRow>
             ))}
           </TableBody>
