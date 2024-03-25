@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { TextField, Button } from '@mui/material';
+import {Button, TextField} from '@mui/material';
 
-import { Seo } from 'src/components/seo';
-import { usePageView } from 'src/hooks/use-page-view';
-import { Layout as MarketingLayout } from 'src/layouts/marketing';
-import { PricingPlanIcon } from 'src/sections/pricing/pricing-plan-icon';
+import {Seo} from 'src/components/seo';
+import {usePageView} from 'src/hooks/use-page-view';
+import {Layout as MarketingLayout} from 'src/layouts/marketing';
+import {PricingPlanIcon} from 'src/sections/pricing/pricing-plan-icon';
 import sendHttpRequest from 'src/utils/send-http-request';
 
 
@@ -88,7 +88,8 @@ const Page = () => {
   return (
     <>
       <Seo title="Pricing" />
-      <Box component="main" sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Box component="main"
+           sx={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
         <Box
           sx={{
             flexGrow: 1,
@@ -107,10 +108,17 @@ const Page = () => {
               }}
             >
               <Typography variant="h3">Start today. Boost up your Event!</Typography>
-              <Typography color="text.secondary" sx={{ my: 2 }} variant="body1"></Typography>
+              <Typography color="text.secondary"
+                          sx={{my: 2}}
+                          variant="body1"></Typography>
             </Box>
-            <Grid container spacing={4} justifyContent="center"> {/* Center the grid */}
-              <Grid item xs={12} sm={8} md={6}>
+            <Grid container
+                  spacing={4}
+                  justifyContent="center"> {/* Center the grid */}
+              <Grid item
+                    xs={12}
+                    sm={8}
+                    md={6}>
                 <Box
                   sx={{
                     height: '100%',
@@ -122,7 +130,8 @@ const Page = () => {
                     borderRadius: 2,
                   }}
                 >
-                  <Typography variant="h5" gutterBottom>
+                  <Typography variant="h5"
+                              gutterBottom>
                     Premium for room {eventId} {/* Dynamically showing roomid */}
                   </Typography>
                   <PricingPlanIcon name="Premium" />
@@ -139,11 +148,14 @@ const Page = () => {
                       onChange={(e) => setBoostAmount(e.target.value)}
                       inputProps={{ min: 1 }}
                     />
-                    <Button variant="contained" color="primary" onClick={handlePayment}>
+                    <Button variant="contained"
+                            color="primary"
+                            onClick={handlePayment}>
                       Start Boost Now
                     </Button>
                     {errorMessage && (
-                      <Typography color="error" variant="body2">
+                      <Typography color="error"
+                                  variant="body2">
                         {errorMessage}
                       </Typography>
                     )}
@@ -152,7 +164,10 @@ const Page = () => {
               </Grid>
             </Grid>
             <Box sx={{ mt: 4 }}>
-              <Typography align="center" color="text.secondary" component="p" variant="caption">
+              <Typography align="center"
+                          color="text.secondary"
+                          component="p"
+                          variant="caption">
                 Looking for partners with our platform.
               </Typography>
             </Box>
