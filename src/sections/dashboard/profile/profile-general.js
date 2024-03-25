@@ -10,24 +10,19 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
-import { useCallback, useEffect, useState } from 'react';
-import sendHttpRequest from 'src/utils/send-http-request';
-import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
-import { fileToBase64 } from 'src/utils/file-to-base64';
-import confetti from 'canvas-confetti';
-import { AvatarDropzone } from 'src/components/avatar-dropzone';
-import Avatar from '@mui/material/Avatar';
-
 import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { FormControl, FormHelperText, InputLabel, Select } from '@mui/material';
+import Avatar from '@mui/material/Avatar';
+import {paths} from "../../../paths";
+import {useSearchParams} from 'src/hooks/use-search-params';
 
 export const ProfileGeneral = (props) => {
-  const { userData } = props;
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [severity, setSeverity] = useState('success');
-  const [message, setMessage] = useState('');
   const router = useRouter();
-
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo');
+  const [loading, setLoading] = useState(false);
+  const { userData } = props;
   const [values, setValues] = useState({
     avatar_data: null,
     email: '',
@@ -72,7 +67,6 @@ export const ProfileGeneral = (props) => {
     phone_no: { error: false, message: '' },
     username: { error: false, message: '' },
     sports_data: { error: false, message: '' },
-    // birthday: { error: false, message: '' },
     gender: { error: false, message: '' },
     description: { error: false, message: '' },
   });
@@ -93,145 +87,30 @@ export const ProfileGeneral = (props) => {
     sportsOptions.slice(rowIndex * 5, (rowIndex + 1) * 5)
   );
 
-  function validateProfile() {
-    const isNameEmpty = values.username === '';
-    const isEmailEmpty = values.email === '';
-    const isPhoneEmpty = values.phone_no === '';
-    const isAgeEmpty = values.age === '';
-    // const isBirthdayEmpty = values.birthday === null;
-    const isGenderEmpty = values.gender === null;
-    const isAvatarEmpty = values.avatar_data === null;
-
-    // const isInvaildphone_no = !/^\d{10}$/.test(values.phone_no);
-    const isInvaildAge =
-      !/^\d+$/.test(values.age) || parseInt(values.age) < 0 || parseInt(values.age) > 200;
-    const isUnknownGender = !['Prefer not to say', 'Male', 'Female', 'Other'].includes(
-      values.gender
-    );
-    const isDescriptionTooLong = values.description && values.description.length > 300;
-    // const isNotBirthdayObject = !values.birthday instanceof Date;
-    // const isInvaildBirthday = values.birthday > today;
-    if (values.avatar_data && values.avatar_data.startsWith('http')) {
-      delete values.avatar_data;
-    }
-
-    setProfileError({
-      ...profileError,
-      avatar_data: {
-        error: isAvatarEmpty,
-        message: isAvatarEmpty ? 'Avatar image is required' : '',
-      },
-      username: {
-        error: isNameEmpty,
-        message: isNameEmpty ? 'Name is required' : '',
-      },
-      email: {
-        error: isEmailEmpty,
-        message: isEmailEmpty ? 'Email is required' : '',
-      },
-      age: {
-        error: isAgeEmpty || isInvaildAge,
-        message: isAgeEmpty ? 'Age is required' : isInvaildAge ? 'Invaild age.' : '',
-      },
-      phone_no: {
-        error: isPhoneEmpty,
-        message: isPhoneEmpty ? 'phone_no number is required' : '',
-      },
-      // birthday: {
-      //   error: isBirthdayEmpty || isNotBirthdayObject || isInvaildBirthday,
-      //   message: isBirthdayEmpty
-      //     ? 'Birthday is required'
-      //     : isNotBirthdayObject
-      //     ? 'Invalid birthday data'
-      //     : isInvaildBirthday
-      //     ? 'Birthday must before today'
-      //     : '',
-      // },
-      gender: {
-        error: isGenderEmpty || isUnknownGender,
-        message: isGenderEmpty
-          ? 'Gender is required'
-          : isUnknownGender
-          ? 'Unknown gender type'
-          : '',
-      },
-      description: {
-        error: isDescriptionTooLong,
-        message: isDescriptionTooLong ? 'Description should be under 300 charactors' : '',
-      },
-    });
-
-    return (
-      !isNameEmpty &&
-      !isEmailEmpty &&
-      !isPhoneEmpty &&
-      !isAgeEmpty &&
-      !isGenderEmpty &&
-      // !isInvaildphone_no &&
-      !isUnknownGender &&
-      !isInvaildAge &&
-      !isDescriptionTooLong &&
-      !isAvatarEmpty
-    );
-  }
-
   function handleClick() {
     setLoading(true);
-    if (validateProfile()) {
-      const copyData = { ...values };
-      // const sportString = JSON.stringify(values.sports_data);
-      copyData.sports_data =
-        '[' + values.sports_data.map((item) => '"' + item + '"').join(', ') + ']';
-      sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', copyData).then(
-        (response) => {
-          if (response.status === 200 || response.status === 201) {
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-            });
-            setSeverity('success');
-            setMessage('User profile update successfully');
-            setOpen(true);
-          } else if (response.status === 400) {
-            setSeverity('warning');
-            setMessage('Please fill in all the required fields in proper format');
-            setOpen(true);
-          } else if (response.status === 401) {
-            router.push('/401');
-          } else {
-            setSeverity('error');
-            setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
-            setOpen(true);
-          }
-        }
-      );
-    }
+    router.push(returnTo || paths.dashboard.account);
     setLoading(false);
   }
 
-  const onSportsChange = (sport) => {
-    if (values.sports_data.includes(sport)) {
-      values.sports_data.splice(values.sports_data.indexOf(sport), 1);
-    } else {
-      values.sports_data.push(sport);
-    }
-    handleClick();
-  };
-
-  const handleAvatarDrop = useCallback(
-    async ([file]) => {
-      const data = await fileToBase64(file);
-      setValues({ ...values, avatar_data: data }); // directly assign the data to values.avatar
-    },
-    [values]
-  );
-
-  const handleAvatarRemove = useCallback(() => {
-    setValues({ ...values, avatar_data: null });
-  }, [values]);
-
   return (
+    <>
+      <Box
+        style={{ backgroundImage: "url('/assets/cover/minimal-1-4x3-large.png')" }}
+        sx={{
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          borderRadius: 1,
+          height: 348,
+          position: 'relative',
+          '&:hover': {
+            '& button': {
+              visibility: 'visible',
+            },
+          },
+        }}
+      />
     <Stack
       spacing={4}
       {...props}
@@ -246,7 +125,7 @@ export const ProfileGeneral = (props) => {
               xs={12}
               md={4}
             >
-              <Typography variant="h6">Basic details</Typography>
+              <Typography variant="h6">Personal Information</Typography>
             </Grid>
             <Grid
               xs={12}
@@ -260,59 +139,16 @@ export const ProfileGeneral = (props) => {
                     alignItems={'flex-start'}
                   >
                     <Stack>
-                      {values.avatar_data ? (
-                        <Box
-                          sx={{
-                            backgroundImage: `url(${values.avatar_data})`,
-                            backgroundPosition: 'center',
-                            alignItems: 'center',
-                            backgroundSize: 'avatar',
-                            borderRadius: '50%',
-                            height: 300,
-                            width: 300,
-                            mt: 3,
-                          }}
-                        />
-                      ) : (
-                        <Box
-                          sx={{
-                            alignItems: 'center',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            border: 1,
-                            borderRadius: '50%',
-                            borderStyle: 'dashed',
-                            borderColor: 'grey.500',
-                            height: 300,
-                            width: 300,
-                            mt: 3,
-                          }}
-                        >
-                          <Typography
-                            align="center"
-                            color="text.secondary"
-                            variant="h6"
-                          >
-                            Avatar Preview
-                          </Typography>
-                        </Box>
-                      )}
-                      <Button
-                        color="inherit"
-                        disabled={!values.avatar_data}
-                        onClick={handleAvatarRemove}
-                      >
-                        Remove
-                      </Button>
+                      <Avatar
+                        sx={{
+                          height: 300,
+                          width: 300,
+                        }}
+                        src={values.avatar_data}
+                      ></Avatar>
+
                     </Stack>
 
-                    <AvatarDropzone
-                      accept={{ 'image/*': [] }}
-                      maxFiles={1}
-                      onDrop={handleAvatarDrop}
-                      caption="(SVG, JPG, PNG, or gif maximum 900x400)"
-                    />
                   </Stack>
                   {profileError.avatar_data.error && (
                     <FormHelperText error>{profileError.avatar_data.message}</FormHelperText>
@@ -329,10 +165,10 @@ export const ProfileGeneral = (props) => {
                       id={'username'}
                       name={'username'}
                       value={values.username}
-                      onChange={handleChange}
                       label="Username"
-                      error={profileError.username.error}
-                      required
+                      InputProps={{
+                        readOnly: true,
+                      }}
                       sx={{
                         flexGrow: 1,
                         '& .MuiOutlinedInput-notchedOutline': {
@@ -340,9 +176,6 @@ export const ProfileGeneral = (props) => {
                         },
                       }}
                     />
-                    {profileError.username.error && (
-                      <FormHelperText error>{profileError.username.message}</FormHelperText>
-                    )}
                   </FormControl>
                 </Stack>
                 <Stack
@@ -355,9 +188,10 @@ export const ProfileGeneral = (props) => {
                       id={'email'}
                       name={'email'}
                       value={values.email}
-                      onChange={handleChange}
                       label="Email Address"
-                      error={profileError.email.error}
+                      InputProps={{
+                        readOnly: true,
+                      }}
                       required
                       sx={{
                         flexGrow: 1,
@@ -366,9 +200,6 @@ export const ProfileGeneral = (props) => {
                         },
                       }}
                     />
-                    {profileError.email.error && (
-                      <FormHelperText error>{profileError.email.message}</FormHelperText>
-                    )}
                   </FormControl>
                 </Stack>
                 <Stack
@@ -380,11 +211,11 @@ export const ProfileGeneral = (props) => {
                     <TextField
                       id={'phone_no'}
                       name={'phone_no'}
-                      error={profileError.phone_no.error}
                       value={values.phone_no}
-                      onChange={handleChange}
                       label="Phone Number"
-                      required
+                      InputProps={{
+                        readOnly: true,
+                      }}
                       type="number"
                       inputProps={{ maxLength: 10 }}
                       sx={{
@@ -394,9 +225,6 @@ export const ProfileGeneral = (props) => {
                         },
                       }}
                     />
-                    {profileError.phone_no.error && (
-                      <FormHelperText error>{profileError.phone_no.message}</FormHelperText>
-                    )}
                   </FormControl>
                 </Stack>
                 <Stack
@@ -405,25 +233,17 @@ export const ProfileGeneral = (props) => {
                   spacing={2}
                 >
                   <FormControl fullWidth>
-                    <InputLabel id="gender-label">Gender</InputLabel>
-                    <Select
-                      labelId="gender-label"
+                    <TextField
                       id={'gender'}
                       name={'gender'}
                       error={profileError.gender.error}
                       value={values.gender}
-                      onChange={handleChange}
                       label="Gender"
-                      required
+                      InputProps={{
+                        readOnly: true,
+                      }}
                     >
-                      <MenuItem value={'Male'}>Male</MenuItem>
-                      <MenuItem value={'Female'}>Female</MenuItem>
-                      <MenuItem value={'Other'}>Other</MenuItem>
-                      <MenuItem value={'Prefer not to say'}>Prefer not to say</MenuItem>
-                    </Select>
-                    {profileError.gender.error && (
-                      <FormHelperText error>{profileError.gender.message}</FormHelperText>
-                    )}
+                    </TextField>
                   </FormControl>
                 </Stack>
                 <Stack
@@ -431,49 +251,26 @@ export const ProfileGeneral = (props) => {
                   direction="row"
                   spacing={2}
                 >
-                  <TextField
-                    id={'age'}
-                    name={'age'}
-                    value={values.age}
-                    onChange={handleChange}
-                    error={profileError.age.error}
-                    required
-                    type="number"
-                    label="Age"
-                    sx={{ flexGrow: 1 }}
-                  />
+                  <FormControl fullWidth>
+                    <TextField
+                      id={'age'}
+                      name={'age'}
+                      value={values.age}
+                      label="Age"
+                      type="number"
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      inputProps={{ maxLength: 2 }}
+                      sx={{
+                        flexGrow: 1,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderStyle: 'dashed',
+                        },
+                      }}
+                    />
+                  </FormControl>
                 </Stack>
-                {/* <Stack
-                  alignItems="center"
-                  direction="row"
-                  spacing={2}
-                >
-                  <DatePicker
-                    label="Birthday"
-                    disabled={!isEditBirth}
-                    onChange={handleChange}
-                    value={values.birthday}
-                    maxDate={today}
-                    required
-                  />
-                  {isEditBirth ? (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleBirthSaveClick}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <Button
-                      color="inherit"
-                      size="small"
-                      onClick={handleBirthEditClick}
-                    >
-                      Edit
-                    </Button>
-                  )}
-                </Stack> */}
                 <Stack
                   alignItems="center"
                   direction="row"
@@ -483,12 +280,13 @@ export const ProfileGeneral = (props) => {
                     <TextField
                       id={'description'}
                       name={'description'}
-                      error={profileError.description.error}
                       value={values.description}
-                      onChange={handleChange}
                       inputProps={{ maxLength: 300 }}
                       label="Description"
                       multiline
+                      InputProps={{
+                        readOnly: true,
+                      }}
                       rows={3}
                       sx={{
                         flexGrow: 1,
@@ -497,9 +295,6 @@ export const ProfileGeneral = (props) => {
                         },
                       }}
                     />
-                    {profileError.description.error && (
-                      <FormHelperText error>{profileError.description.message}</FormHelperText>
-                    )}
                   </FormControl>
                 </Stack>
                 <Stack
@@ -507,13 +302,6 @@ export const ProfileGeneral = (props) => {
                   direction="row"
                   justifyContent="flex-end"
                 >
-                  <Button
-                    color="inherit"
-                    size="small"
-                    onClick={handleClick}
-                  >
-                    Save
-                  </Button>
                 </Stack>
               </Stack>
             </Grid>
@@ -556,7 +344,6 @@ export const ProfileGeneral = (props) => {
                           key={sport}
                           label={sport}
                           color={isSportSelected(sport) ? 'primary' : 'default'}
-                          onClick={() => onSportsChange(sport)}
                         />
                       ))}
                     </Stack>
@@ -567,59 +354,12 @@ export const ProfileGeneral = (props) => {
           </Grid>
         </CardContent>
       </Card>
-      {/* <Card>
-        <CardContent>
-          <Grid
-            container
-            spacing={3}
-          >
-            <Grid
-              xs={12}
-              md={4}
-            >
-              <Typography variant="h6">Public profile</Typography>
-            </Grid>
-            <Grid
-              xs={12}
-              sm={12}
-              md={8}
-            >
-              <Stack
-                divider={<Divider />}
-                spacing={3}
-              >
-                <Stack
-                  alignItems="flex-start"
-                  direction="row"
-                  justifyContent="space-between"
-                  spacing={3}
-                >
-                  <Stack spacing={1}>
-                    <Typography variant="subtitle1">Make Contact Info Public</Typography>
-                    <Typography
-                      color="text.secondary"
-                      variant="body2"
-                    >
-                      Means that anyone viewing your profile will be able to see your contacts
-                      details.
-                    </Typography>
-                  </Stack>
-                  <Switch
-                    id={'publicProfile'}
-                    name={'publicProfile'}
-                    value={values.publicProfile}
-                    onChange={handleClick}
-                  />
-                </Stack>
-              </Stack>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card> */}
     </Stack>
+    </>
   );
 };
 
 ProfileGeneral.propTypes = {
+  username: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
 };
