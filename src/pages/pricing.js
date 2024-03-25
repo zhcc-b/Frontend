@@ -138,7 +138,8 @@ const Page = () => {
                   <Typography variant="body2">
                     To familiarize yourself with our web.
                   </Typography>
-                  <Stack spacing={2} sx={{ mt: 2 }}>
+                  <Stack spacing={2}
+                         sx={{mt: 2}}>
                     <TextField
                       label="Boost Amount"
                       type="number"
