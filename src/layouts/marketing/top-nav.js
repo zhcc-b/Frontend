@@ -22,6 +22,7 @@ import { paths } from 'src/paths';
 import { TopNavItem } from './top-nav-item';
 import { useRouter } from 'next/navigation';
 import { AccountButton } from '../dashboard/account-button';
+import { NotificationsButton } from '../dashboard/notifications-button';
 
 const login = [{ title: 'Log in', path: paths.login }];
 
@@ -243,6 +244,7 @@ export const TopNav = (props) => {
               spacing={2}
               sx={{ flexGrow: 1 }}
             >
+              <NotificationsButton />
               <AccountButton />
             </Stack>
           )}

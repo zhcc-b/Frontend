@@ -95,14 +95,11 @@ export const AccountGeneralSettings = (props) => {
   function validateProfile() {
     const isNameEmpty = values.username === '';
     const isEmailEmpty = values.email === '';
-    const isPhoneEmpty = values.phone_no === null;
-    const isAgeEmpty = values.age === null;
-    const isGenderEmpty = values.gender === null;
-    const isAvatarEmpty = values.avatar_data === null;
 
-    const isInvaildPhone = !/^\d{10}$/.test(values.phone_no);
+    const isInvaildPhone = !values.phone_no === '' && !/^\d{10}$/.test(values.phone_no);
     const isInvaildAge =
-      !/^\d+$/.test(values.age) || parseInt(values.age) < 0 || parseInt(values.age) > 200;
+      !values.age === '' &&
+      (!/^\d+$/.test(values.age) || parseInt(values.age) < 0 || parseInt(values.age) > 200);
     const isUnknownGender = !['Prefer not to say', 'Male', 'Female', 'Other'].includes(
       values.gender
     );
@@ -113,10 +110,6 @@ export const AccountGeneralSettings = (props) => {
 
     setProfileError({
       ...profileError,
-      avatar_data: {
-        error: isAvatarEmpty,
-        message: isAvatarEmpty ? 'Avatar image is required' : '',
-      },
       username: {
         error: isNameEmpty,
         message: isNameEmpty ? 'Name is required' : '',
@@ -126,24 +119,18 @@ export const AccountGeneralSettings = (props) => {
         message: isEmailEmpty ? 'Email is required' : '',
       },
       age: {
-        error: isAgeEmpty || isInvaildAge,
-        message: isAgeEmpty ? 'Age is required' : isInvaildAge ? 'Invaild age.' : '',
+        error: isInvaildAge,
+        message: isInvaildAge ? 'Invaild age.' : '',
       },
       phone_no: {
-        error: isPhoneEmpty || isInvaildPhone,
-        message: isPhoneEmpty
-          ? 'phone number is required'
-          : isInvaildPhone
+        error: isInvaildPhone,
+        message: isInvaildPhone
           ? 'Invalid phone number. Please enter a 10-digits phone number'
           : '',
       },
       gender: {
-        error: isGenderEmpty || isUnknownGender,
-        message: isGenderEmpty
-          ? 'Gender is required'
-          : isUnknownGender
-          ? 'Unknown gender type'
-          : '',
+        error: isUnknownGender,
+        message: isUnknownGender ? 'Unknown gender type' : '',
       },
       description: {
         error: isDescriptionTooLong,
@@ -154,14 +141,10 @@ export const AccountGeneralSettings = (props) => {
     return (
       !isNameEmpty &&
       !isEmailEmpty &&
-      !isPhoneEmpty &&
-      !isAgeEmpty &&
-      !isGenderEmpty &&
       !isInvaildPhone &&
       !isUnknownGender &&
       !isInvaildAge &&
-      !isDescriptionTooLong &&
-      !isAvatarEmpty
+      !isDescriptionTooLong
     );
   }
 

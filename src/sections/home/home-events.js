@@ -44,7 +44,7 @@ export const HomeEvents = (props) => {
     if (router.isReady === false) {
       return;
     } else {
-      router.push('/dashboard/room/my-room-list');
+      router.push('/search');
     }
   }
 

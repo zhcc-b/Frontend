@@ -17,182 +17,144 @@ import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { Scrollbar } from 'src/components/scrollbar';
-
-const renderContent = (notification) => {
-  switch (notification.type) {
-    case 'job_add': {
-      const createdAt = format(notification.createdAt, 'MMM dd, h:mm a');
-
-      return (
-        <>
-          <ListItemAvatar sx={{ mt: 0.5 }}>
-            <Avatar src={notification.avatar}>
-              <SvgIcon>
-                <User01Icon />
-              </SvgIcon>
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            primary={
-              <Box
-                sx={{
-                  alignItems: 'center',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <Typography
-                  sx={{ mr: 0.5 }}
-                  variant="subtitle2"
-                >
-                  {notification.author}
-                </Typography>
-                <Typography
-                  sx={{ mr: 0.5 }}
-                  variant="body2"
-                >
-                  added a new job
-                </Typography>
-                <Link
-                  href="#"
-                  underline="always"
-                  variant="body2"
-                >
-                  {notification.job}
-                </Link>
-              </Box>
-            }
-            secondary={
-              <Typography
-                color="text.secondary"
-                variant="caption"
-              >
-                {createdAt}
-              </Typography>
-            }
-            sx={{ my: 0 }}
-          />
-        </>
-      );
-    }
-    case 'new_feature': {
-      const createdAt = format(notification.createdAt, 'MMM dd, h:mm a');
-
-      return (
-        <>
-          <ListItemAvatar sx={{ mt: 0.5 }}>
-            <Avatar>
-              <SvgIcon>
-                <MessageChatSquareIcon />
-              </SvgIcon>
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            primary={
-              <Box
-                sx={{
-                  alignItems: 'center',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  sx={{ mr: 0.5 }}
-                >
-                  New feature!
-                </Typography>
-                <Typography variant="body2">{notification.description}</Typography>
-              </Box>
-            }
-            secondary={
-              <Typography
-                color="text.secondary"
-                variant="caption"
-              >
-                {createdAt}
-              </Typography>
-            }
-            sx={{ my: 0 }}
-          />
-        </>
-      );
-    }
-    case 'company_created': {
-      const createdAt = format(notification.createdAt, 'MMM dd, h:mm a');
-
-      return (
-        <>
-          <ListItemAvatar sx={{ mt: 0.5 }}>
-            <Avatar src={notification.avatar}>
-              <SvgIcon>
-                <User01Icon />
-              </SvgIcon>
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            primary={
-              <Box
-                sx={{
-                  alignItems: 'center',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  m: 0,
-                }}
-              >
-                <Typography
-                  sx={{ mr: 0.5 }}
-                  variant="subtitle2"
-                >
-                  {notification.author}
-                </Typography>
-                <Typography
-                  sx={{ mr: 0.5 }}
-                  variant="body2"
-                >
-                  created
-                </Typography>
-                <Link
-                  href="#"
-                  underline="always"
-                  variant="body2"
-                >
-                  {notification.company}
-                </Link>
-              </Box>
-            }
-            secondary={
-              <Typography
-                color="text.secondary"
-                variant="caption"
-              >
-                {createdAt}
-              </Typography>
-            }
-            sx={{ my: 0 }}
-          />
-        </>
-      );
-    }
-    default:
-      return null;
-  }
-};
+import { useState } from 'react';
+import sendHttpRequest from 'src/utils/send-http-request';
+import { Button } from '@mui/material';
+import { formatDateTime } from 'src/utils/format-datetime';
 
 export const NotificationsPopover = (props) => {
-  const {
-    anchorEl,
-    notifications,
-    onClose,
-    onMarkAllAsRead,
-    onRemoveOne,
-    open = false,
-    ...other
-  } = props;
+  const { anchorEl, onClose, open = false, ...other } = props;
+  const [notifications, setNotifications] = useState([]);
+  const [nextPage, setNext] = useState(null);
+  const [previousPage, setPrevious] = useState(null);
+  let pageNum = 1;
 
-  const isEmpty = notifications.length === 0;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.isReady === false) {
+      return;
+    }
+    sendHttpRequest('http://localhost:8000/notifications/list/?page=1', 'GET')
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          return response.data;
+        } else if (response.status === 401 || response.status === 403) {
+          router.push('/401');
+        } else if (response.status === 404) {
+          router.push('/404');
+        } else {
+          router.push('/500');
+        }
+      })
+      .then((data) => {
+        setNotifications(data['results']);
+        setNext(data['next']);
+        setPrevious(data['previous']);
+      });
+  }, [router]);
+
+  const handleNextClick = () => {
+    pageNum += 1;
+    if (router.isReady === false) {
+      return;
+    }
+    sendHttpRequest(nextPage, 'GET')
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          return response.data;
+        } else if (response.status === 401 || response.status === 403) {
+          router.push('/401');
+        } else if (response.status === 404) {
+          router.push('/404');
+        } else {
+          router.push('/500');
+        }
+      })
+      .then((data) => {
+        setNotifications(data['results']);
+        setNext(data['next']);
+        setPrevious(data['previous']);
+      });
+  };
+  const handlePreviousClick = () => {
+    pageNum -= 1;
+    if (router.isReady === false) {
+      return;
+    }
+    sendHttpRequest(previousPage, 'GET')
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          return response.data;
+        } else if (response.status === 401 || response.status === 403) {
+          router.push('/401');
+        } else if (response.status === 404) {
+          router.push('/404');
+        } else {
+          router.push('/500');
+        }
+      })
+      .then((data) => {
+        setNotifications(data['results']);
+        setNext(data['next']);
+        setPrevious(data['previous']);
+      });
+  };
+  const handleDeleteNotification = (notificationId) => {
+    if (router.isReady === false) {
+      return;
+    }
+    sendHttpRequest(`http://localhost:8000/notifications/delete/`, 'DELETE', {
+      id: notificationId,
+    }).then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        return response.data;
+      } else if (response.status === 401 || response.status === 403) {
+        router.push('/401');
+      } else if (response.status === 404) {
+        router.push('/404');
+      } else {
+        router.push('/500');
+      }
+    });
+  };
+
+  const handleReadNotification = (notification) => {
+    if (!notification.read) {
+      if (router.isReady === false) {
+        return;
+      }
+      sendHttpRequest('http://localhost:8000/notifications/read/', 'PATCH', {
+        id: notification.id,
+      }).then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          return response.data;
+        } else if (response.status === 401 || response.status === 403) {
+          router.push('/401');
+        } else if (response.status === 404) {
+          router.push('/404');
+        } else {
+          router.push('/500');
+        }
+      });
+    }
+  };
+  // const tempNotifications = [
+  //   {
+  //     id: 2,
+  //     event_id: 1,
+  //     event_title: '23',
+  //     description:
+  //       'The following detail has been changed - start_time: 2023-01-01 00:00:00+00:00, title: 23',
+  //     created_at: '2024-02-27T01:28:40.340365Z',
+  //     read: true,
+  //   },
+  // ];
+  const isEmpty = pageNum === 1 && notifications.length === 0;
 
   return (
     <Popover
@@ -223,24 +185,13 @@ export const NotificationsPopover = (props) => {
         >
           Notifications
         </Typography>
-        <Tooltip title="Mark all as read">
-          <IconButton
-            onClick={onMarkAllAsRead}
-            size="small"
-            color="inherit"
-          >
-            <SvgIcon>
-              <Mail04Icon />
-            </SvgIcon>
-          </IconButton>
-        </Tooltip>
       </Stack>
       {isEmpty ? (
         <Box sx={{ p: 2 }}>
           <Typography variant="subtitle2">There are no notifications</Typography>
         </Box>
       ) : (
-        <Scrollbar sx={{ maxHeight: 400 }}>
+        <Scrollbar>
           <List disablePadding>
             {notifications.map((notification) => (
               <ListItem
@@ -259,7 +210,7 @@ export const NotificationsPopover = (props) => {
                   <Tooltip title="Remove">
                     <IconButton
                       edge="end"
-                      onClick={() => onRemoveOne?.(notification.id)}
+                      onClick={() => handleDeleteNotification(notification.id)}
                       size="small"
                     >
                       <SvgIcon>
@@ -268,11 +219,65 @@ export const NotificationsPopover = (props) => {
                     </IconButton>
                   </Tooltip>
                 }
+                onClick={() => handleReadNotification(notification)}
+                alignItems="flex-start"
               >
-                {renderContent(notification)}
+                <ListItemText
+                  primary={
+                    <Box
+                      sx={{
+                        alignItems: 'center',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <Link
+                        href={`http://localhost:3000/room/${notification.event_id}`}
+                        underline="always"
+                        variant="body1"
+                      >
+                        {notification.event_title}
+                      </Link>
+                      <Typography
+                        variant="body2"
+                        width="100%"
+                      >
+                        {notification.description}
+                      </Typography>
+                    </Box>
+                  }
+                  secondary={
+                    <Typography
+                      color="text.secondary"
+                      variant="caption"
+                    >
+                      {formatDateTime(notification.created_at)}
+                    </Typography>
+                  }
+                  sx={{ my: 0 }}
+                />
               </ListItem>
             ))}
           </List>
+          <Stack
+            direction="row"
+            width="100%"
+          >
+            <Button
+              onClick={handlePreviousClick}
+              disabled={previousPage === null}
+              sx={{ width: '50%', borderRadius: '0' }}
+            >
+              {'<'}
+            </Button>
+            <Button
+              onClick={handleNextClick}
+              disabled={nextPage === null}
+              sx={{ width: '50%', borderRadius: '0' }}
+            >
+              {'>'}
+            </Button>
+          </Stack>
         </Scrollbar>
       )}
     </Popover>
