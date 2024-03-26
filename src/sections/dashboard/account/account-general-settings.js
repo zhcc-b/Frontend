@@ -326,7 +326,6 @@ export const AccountGeneralSettings = (props) => {
                       value={values.phone_no}
                       onChange={handleChange}
                       label="Phone Number"
-                      required
                       type="number"
                       inputProps={{ maxLength: 10 }}
                       sx={{
@@ -381,7 +380,6 @@ export const AccountGeneralSettings = (props) => {
                       value={values.age}
                       onChange={handleChange}
                       label="Age"
-                      required
                       type="number"
                       inputProps={{ maxLength: 2 }}
                       sx={{
