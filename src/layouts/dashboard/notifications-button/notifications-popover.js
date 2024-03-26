@@ -29,6 +29,7 @@ import { formatDateTime } from 'src/utils/format-datetime';
 export const NotificationsPopover = (props) => {
   const { anchorEl, onClose, open = false, ...other } = props;
   const [notifications, setNotifications] = useState([]);
+  const [currentPage, setCurrent] = useState(null);
   const [nextPage, setNext] = useState(null);
   const [previousPage, setPrevious] = useState(null);
   let pageNum = 1;
@@ -53,6 +54,7 @@ export const NotificationsPopover = (props) => {
       })
       .then((data) => {
         setNotifications(data['results']);
+        setCurrent('http://localhost:8000/notifications/list/?page=1');
         setNext(data['next']);
         setPrevious(data['previous']);
       });
@@ -76,6 +78,7 @@ export const NotificationsPopover = (props) => {
         }
       })
       .then((data) => {
+        setCurrent(nextPage);
         setNotifications(data['results']);
         setNext(data['next']);
         setPrevious(data['previous']);
@@ -99,6 +102,7 @@ export const NotificationsPopover = (props) => {
         }
       })
       .then((data) => {
+        setCurrent(previousPage);
         setNotifications(data['results']);
         setNext(data['next']);
         setPrevious(data['previous']);
@@ -121,6 +125,23 @@ export const NotificationsPopover = (props) => {
         router.push('/500');
       }
     });
+    sendHttpRequest(currentPage, 'GET')
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          return response.data;
+        } else if (response.status === 401 || response.status === 403) {
+          router.push('/401');
+        } else if (response.status === 404) {
+          router.push('/404');
+        } else {
+          router.push('/500');
+        }
+      })
+      .then((data) => {
+        setNotifications(data['results']);
+        setNext(data['next']);
+        setPrevious(data['previous']);
+      });
   };
 
   const handleReadNotification = (notification) => {
@@ -191,7 +212,7 @@ export const NotificationsPopover = (props) => {
           <Typography variant="subtitle2">There are no notifications</Typography>
         </Box>
       ) : (
-        <Scrollbar>
+        <Scrollbar sx={{ maxHeight: 400 }}>
           <List disablePadding>
             {notifications.map((notification) => (
               <ListItem
@@ -206,19 +227,19 @@ export const NotificationsPopover = (props) => {
                     top: '24%',
                   },
                 }}
-                secondaryAction={
-                  <Tooltip title="Remove">
-                    <IconButton
-                      edge="end"
-                      onClick={() => handleDeleteNotification(notification.id)}
-                      size="small"
-                    >
-                      <SvgIcon>
-                        <XIcon />
-                      </SvgIcon>
-                    </IconButton>
-                  </Tooltip>
-                }
+                // secondaryAction={
+                //   <Tooltip title="Remove">
+                //     <IconButton
+                //       edge="end"
+                //       onClick={() => handleDeleteNotification(notification.id)}
+                //       size="small"
+                //     >
+                //       <SvgIcon>
+                //         <XIcon />
+                //       </SvgIcon>
+                //     </IconButton>
+                //   </Tooltip>
+                // }
                 onClick={() => handleReadNotification(notification)}
                 alignItems="flex-start"
               >
