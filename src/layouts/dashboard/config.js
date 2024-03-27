@@ -16,15 +16,6 @@ export const useSections = () => {
       {
         items: [
           {
-            title: tokens.nav.overview,
-            path: paths.dashboard.index,
-            icon: (
-              <SvgIcon fontSize="small">
-                <HomeSmileIcon />
-              </SvgIcon>
-            ),
-          },
-          {
             title: tokens.nav.account,
             path: paths.dashboard.account,
             icon: (

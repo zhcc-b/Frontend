@@ -15,29 +15,8 @@ const sections = [
     title: 'Legal',
     items: [
       {
-        title: 'Terms & Conditions',
-        path: '#',
-      },
-      {
-        title: 'License',
-        path: '#',
-      },
-      {
         title: 'Contact',
-        path: '#',
-      },
-    ],
-  },
-  {
-    title: 'Social',
-    items: [
-      {
-        title: 'Instagram',
-        path: '#',
-      },
-      {
-        title: 'LinkedIn',
-        path: '#',
+        path: 'https://github.com/Big-Cow-King/PlayPal-Frontend',
       },
     ],
   },

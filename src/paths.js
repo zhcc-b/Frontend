@@ -2,11 +2,12 @@ export const paths = {
   index: '/',
   roomDetails: '/room/:roomId',
   dashboard: {
-    index: '/dashboard',
+    index: '/dashboard/account',
     room: {
       index: '/dashboard/room',
       roomList: '/dashboard/room/my-room-list',
       roomCreate: '/dashboard/room/create',
+      roomEdit: '/dashboard/room/edit',
     },
     account: '/dashboard/account',
     chat: '/dashboard/chat',
