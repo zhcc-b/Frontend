@@ -11,7 +11,6 @@ import { AccountButton } from '../account-button';
 import { ContactsButton } from '../contacts-button';
 // import { LanguageSwitch } from '../language-switch';
 import { NotificationsButton } from '../notifications-button';
-import { SearchButton } from '../search-button';
 
 const TOP_NAV_HEIGHT = 64;
 const SIDE_NAV_WIDTH = 280;
@@ -60,7 +59,6 @@ export const TopNav = (props) => {
               </SvgIcon>
             </IconButton>
           )}
-          <SearchButton />
         </Stack>
         <Stack
           alignItems="center"

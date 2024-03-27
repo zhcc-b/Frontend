@@ -11,6 +11,7 @@ export const paths = {
     account: '/dashboard/account',
     chat: '/dashboard/chat',
   },
+  userProfile: '/user-profile/:userId',
   login: '/login',
   register: '/register',
   notAuthorized: '/401',
