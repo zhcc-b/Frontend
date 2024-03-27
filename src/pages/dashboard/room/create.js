@@ -48,7 +48,7 @@ const Page = () => {
     end_time: null,
     level: '',
     age_group: '',
-    sport_data: '',
+    sport_data: null,
     max_players: '',
     visibility: 'Public',
     content: '',
@@ -93,7 +93,7 @@ const Page = () => {
 
     const isUnknownSport = !sport_type.includes(formData.sport_data);
 
-    const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) < 0;
+    const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) <= 0;
 
     const isUnknownVisibility = !['Public', 'Private'].includes(formData.visibility);
 
@@ -466,7 +466,6 @@ const Page = () => {
                             name={'sport_data'}
                             value={formData.sport_data}
                             options={sport_type}
-                            isOptionEqualToValue={(option, value) => option === value || value === ""}
                             onChange={(event, value) => {
                               handleAutocompleteChange('sport_data', value);
                             }}
