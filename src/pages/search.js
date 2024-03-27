@@ -182,7 +182,7 @@ const Page = () => {
               container
               spacing={4}
             >
-              {searchResults.results && searchResults.results.length > 0? (
+              {searchResults.results && searchResults.results.length >= 0? (
                 searchResults.results.map((room) => (
                   <Grid
                     key={room.id}
