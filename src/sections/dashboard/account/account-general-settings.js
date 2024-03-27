@@ -97,8 +97,9 @@ export const AccountGeneralSettings = (props) => {
     const isEmailEmpty = values.email === '';
     const isInvaildPhone = !values.phone_no === '' && !/^\d{10}$/.test(values.phone_no);
     const isInvaildAge =
-      !values.age === '' &&
-      (!/^\d+$/.test(values.age) || parseInt(values.age) < 0 || parseInt(values.age) > 200);
+      !(values.age === '' || /^\d+$/.test(values.age)) ||
+      parseInt(values.age) < 0 ||
+      parseInt(values.age) > 200;
     const isUnknownGender = !['Prefer not to say', 'Male', 'Female', 'Other'].includes(
       values.gender
     );
