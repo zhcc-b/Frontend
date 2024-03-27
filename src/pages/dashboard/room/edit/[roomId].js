@@ -63,6 +63,8 @@ const Page = () => {
   const today = new Date().setHours(0, 0, 0, 0);
   const [formData, setFormData, handleInputChange, handleDateChange, handleEditorChange, handleAutocompleteChange] = useUserInput(initialRoomInfo);
 
+  const [current_player, setCurrentPlayer] = useState(0);
+
   useEffect(() => {
     if (router.isReady === false) {
       return;
@@ -72,7 +74,6 @@ const Page = () => {
       `http://localhost:8000/events/${roomId}/`,
       'GET'
     ).then(response => {
-
       if (response.status === 200 || response.status === 201) {
         const originalData = {
           id: response.data.id,
@@ -89,6 +90,7 @@ const Page = () => {
           attachment_data: response.data.attachment,
           visibility: response.data.visibility,
         }
+        setCurrentPlayer(response.data.players.length);
         setAttachment(response.data.attachment);
         setFormData(originalData);
         setEditorContent(response.data.content);
@@ -140,13 +142,15 @@ const Page = () => {
 
     const isUnknownSport = !sport_type.includes(formData.sport_data);
 
-    const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) < 0;
+    const isMaxPlayerNotPositiveInt = !/^\d+$/.test(formData.max_players) || parseInt(formData.max_players) <= 0;
 
     const isUnknownVisibility = !['Public', 'Private'].includes(formData.visibility);
 
     const isNotStartTimeObject = !formData.start_time instanceof Date;
     const isUnknownEndTimeObject = !formData.end_time instanceof Date;
     const isStartTimeAfterEndTime = formData.start_time > formData.end_time;
+
+    const isPlayerExceed = parseInt(formData.max_players) < current_player;
 
     if (formData.hasOwnProperty('attachment_data') && formData.attachment_data !== null && formData.attachment_data.startsWith('http')) {
       delete formData.attachment_data;
@@ -176,11 +180,11 @@ const Page = () => {
       },
       sport_data: {
         error: isSportEmpty || isUnknownSport,
-        message: isSportEmpty ? 'Sport type is required' : isUnknownSport ? 'Invalid sport type' : ''
+        message: isSportEmpty ? 'Sp ort type is required' : isUnknownSport ? 'Invalid sport type' : ''
       },
       max_players: {
-        error: isMaxPlayerEmpty || isMaxPlayerNotPositiveInt,
-        message: isMaxPlayerEmpty ? 'Max Players is required' : isMaxPlayerNotPositiveInt ? 'Positive integers only' : ''
+        error: isMaxPlayerEmpty || isMaxPlayerNotPositiveInt || isPlayerExceed,
+        message: isMaxPlayerEmpty ? 'Max Players is required' : isMaxPlayerNotPositiveInt ? 'Positive integers only' : isPlayerExceed ? `Max players cannot be less than current players. Current players: ${current_player}` : ''
       },
       visibility: {
         error: isVisibilityEmpty || isUnknownVisibility,
@@ -204,7 +208,7 @@ const Page = () => {
       }
     });
 
-    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSport && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty && !isUnknownVisibility && !isVisibilityEmpty;
+    return !isTitleEmpty && !isDescriptionEmpty && !isLocationEmpty && !isStartTimeEmpty && !isEndTimeEmpty && !isSportEmpty && !isMaxPlayerEmpty && !isContentEmpty && !isUnknownLevel && !isUnknownAgeGroup && !isUnknownSport && !isMaxPlayerNotPositiveInt && !isNotStartTimeObject && !isUnknownEndTimeObject && !isStartTimeAfterEndTime && !isAgeGroupEmpty && !isLevelEmpty && !isUnknownVisibility && !isVisibilityEmpty && !isPlayerExceed;
   }
 
   function handleClick() {
