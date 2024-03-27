@@ -164,6 +164,7 @@ export const TopNav = (props) => {
               alignItems="center"
               direction="row"
               justifyContent="flex-end"
+              spacing={1.5}
               sx={{ flex: 1 }}
             >
               {login.map((item) => {
@@ -220,6 +221,7 @@ export const TopNav = (props) => {
               alignItems="center"
               direction="row"
               justifyContent="flex-end"
+              spacing={1.5}
               sx={{ flex: 1 }}
             >
               <NotificationsButton />
