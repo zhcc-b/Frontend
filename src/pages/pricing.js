@@ -24,11 +24,11 @@ const Page = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    const roomid = queryParams.get('roomid');
+    const roomId = queryParams.get('roomId');
     const token = queryParams.get('token');
 
-    if (roomid) {
-      setEventId(roomid);
+    if (roomId) {
+      setEventId(roomId);
     }
 
     if (token) {
@@ -46,7 +46,7 @@ const Page = () => {
       event_id: eventId,
       amount: boostAmount,
       return_url: 'http://localhost:3000/pricing?state=success',
-      cancel_url: `http://localhost:3000/pricing?roomid=${eventId}&state=cancel`,
+      cancel_url: `http://localhost:3000/pricing?roomId=${eventId}&state=cancel`,
     };
 
     const { status, data: responseData } = await sendHttpRequest(
@@ -132,7 +132,7 @@ const Page = () => {
                 >
                   <Typography variant="h5"
                               gutterBottom>
-                    Premium for room {eventId} {/* Dynamically showing roomid */}
+                    Premium for room {eventId} {/* Dynamically showing roomId */}
                   </Typography>
                   <PricingPlanIcon name="Premium" />
                   <Typography variant="body2">
