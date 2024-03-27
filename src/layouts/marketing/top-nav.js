@@ -162,7 +162,7 @@ export const TopNav = (props) => {
                       onChange={handleChange}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                          router.push(`/search?keyword=${keyword}`);
+                          router.push(`/search?keywords=${keyword}`);
                         }
                       }}
                       InputProps={{
@@ -172,7 +172,7 @@ export const TopNav = (props) => {
                           </>
                         ),
                       }}
-                      placeholder="Search sports..."
+                      placeholder="Title, description or content..."
                     />
                   )}
                 </Stack>
