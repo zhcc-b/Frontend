@@ -73,6 +73,11 @@ export const SearchBar = ({defaultQuery}) => {
             name="keywords"
             placeholder="Title, description or content"
             onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleClick();
+              }
+            }}
           />
         </Box>
         <Button
