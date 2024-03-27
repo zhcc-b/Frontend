@@ -91,13 +91,11 @@ export const TopNav = (props) => {
         <Stack
           direction="row"
           justifyContent="space-between"
-          spacing={6}
           sx={{ height: TOP_NAV_HEIGHT }}
         >
           <Stack
             alignItems="center"
             direction="row"
-            spacing={1}
             sx={{ flexGrow: 1 }}
           >
             <Stack
@@ -134,49 +132,31 @@ export const TopNav = (props) => {
             <Stack
               alignItems="center"
               direction="row"
-              spacing={2}
+              sx={{ flexGrow: 1 }}
             >
-              <Box
-                component="nav"
-                sx={{ height: '100%' }}
-              >
-                <Stack
-                  component="ul"
-                  alignItems="center"
-                  justifyContent="center"
-                  direction="row"
-                  spacing={1}
-                  sx={{
-                    height: '100%',
-                    listStyle: 'none',
-                    m: 0,
-                    p: 0,
+              {!isSearch && (
+                <TextField
+                  variant="outlined"
+                  id={'keyword'}
+                  name={'keyword'}
+                  value={keyword}
+                  fullWidth
+                  onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      router.push(`/search?keywords=${keyword}`);
+                    }
                   }}
-                >
-                  {!isSearch && (
-                    <TextField
-                      variant="outlined"
-                      id={'keyword'}
-                      name={'keyword'}
-                      value={keyword}
-                      onChange={handleChange}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          router.push(`/search?keywords=${keyword}`);
-                        }
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <>
-                            <SearchIcon style={{ marginRight: 8, color: 'gray' }} />
-                          </>
-                        ),
-                      }}
-                      placeholder="Title, description or content..."
-                    />
-                  )}
-                </Stack>
-              </Box>
+                  InputProps={{
+                    startAdornment: (
+                      <>
+                        <SearchIcon style={{ marginRight: 8, color: 'gray' }} />
+                      </>
+                    ),
+                  }}
+                  placeholder="Title, description or content..."
+                />
+              )}
             </Stack>
           )}
           {!isLogin ? (
@@ -184,7 +164,6 @@ export const TopNav = (props) => {
               alignItems="center"
               direction="row"
               justifyContent="flex-end"
-              spacing={2}
               sx={{ flexGrow: 1 }}
             >
               {login.map((item) => {
@@ -241,7 +220,6 @@ export const TopNav = (props) => {
               alignItems="center"
               direction="row"
               justifyContent="flex-end"
-              spacing={2}
               sx={{ flexGrow: 1 }}
             >
               <NotificationsButton />
