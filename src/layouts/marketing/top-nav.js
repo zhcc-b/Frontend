@@ -96,7 +96,7 @@ export const TopNav = (props) => {
           <Stack
             alignItems="center"
             direction="row"
-            sx={{ flexGrow: 1 }}
+            sx={{ flex: 1 }}
           >
             <Stack
               alignItems="center"
@@ -132,7 +132,7 @@ export const TopNav = (props) => {
             <Stack
               alignItems="center"
               direction="row"
-              sx={{ flexGrow: 1 }}
+              sx={{ flex: 1 }}
             >
               {!isSearch && (
                 <TextField
@@ -164,7 +164,7 @@ export const TopNav = (props) => {
               alignItems="center"
               direction="row"
               justifyContent="flex-end"
-              sx={{ flexGrow: 1 }}
+              sx={{ flex: 1 }}
             >
               {login.map((item) => {
                 const checkPath = !!(item.path && pathname);
@@ -220,7 +220,7 @@ export const TopNav = (props) => {
               alignItems="center"
               direction="row"
               justifyContent="flex-end"
-              sx={{ flexGrow: 1 }}
+              sx={{ flex: 1 }}
             >
               <NotificationsButton />
               <AccountButton />
