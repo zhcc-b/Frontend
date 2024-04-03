@@ -37,10 +37,7 @@ import { formatDateTime } from "src/utils/format-datetime";
 
 const tabs = [
   { label: 'Overview', value: 'overview' },
-  // { label: 'Reviews', value: 'reviews' },
-  // { label: 'Activity', value: 'activity' },
   { label: 'Members', value: 'members' },
-  // { label: 'Assets', value: 'assets' },
 ];
 
 const Page = () => {
