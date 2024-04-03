@@ -5,7 +5,5 @@ export const tokens = {
     room: 'Room',
     roomList: 'Room List',
     roomCreate: 'Room Create',
-    calendar: 'Calendar',
-    chat: 'Chat',
   },
 };

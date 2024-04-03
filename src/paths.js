@@ -10,7 +10,6 @@ export const paths = {
       roomEdit: '/dashboard/room/edit',
     },
     account: '/dashboard/account',
-    chat: '/dashboard/chat',
   },
   userProfile: '/user-profile/:userId',
   login: '/login',

@@ -1,10 +1,8 @@
 import { useMemo } from 'react';
-// import { useTranslation } from 'react-i18next';
 import SvgIcon from '@mui/material/SvgIcon';
 
 import HomeSmileIcon from 'src/icons/untitled-ui/duocolor/home-smile';
 import LayoutAlt02Icon from 'src/icons/untitled-ui/duocolor/layout-alt-02';
-import MessageChatSquareIcon from '@untitled-ui/icons-react/build/esm/MessageChatSquare';
 import { tokens } from 'src/locales/tokens';
 import { paths } from 'src/paths';
 
@@ -42,15 +40,6 @@ export const useSections = () => {
                 path: paths.dashboard.room.roomCreate,
               },
             ],
-          },
-          {
-            title: tokens.nav.chat,
-            path: paths.dashboard.chat,
-            icon: (
-              <SvgIcon fontSize="small">
-                <MessageChatSquareIcon />
-              </SvgIcon>
-            ),
           },
         ],
       },
