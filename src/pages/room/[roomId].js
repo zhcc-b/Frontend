@@ -220,10 +220,25 @@ const Page = () => {
                     direction="row"
                     spacing={2}
                   >
-                    {room ? <Avatar src={room.owner.avatar}/> : null}
+                    {room ?
+                      <Link
+                        color="text.primary"
+                        component={RouterLink}
+                        href={`/user-profile/${room.owner.id}`}
+                        underline="always" // Change this line
+                      >
+                        <Avatar src={room.owner.avatar}/>
+                      </Link> : null}
                     {room ? <div>
                       <Typography variant="subtitle2">
-                        By {room.owner.username}
+                        <Link
+                          color="text.primary"
+                          component={RouterLink}
+                          href={`/user-profile/${room.owner.id}`}
+                          underline="hover"
+                        >
+                          By {room.owner.username}
+                        </Link>
                       </Typography>
                       <Typography
                         color="text.secondary"
@@ -284,31 +299,11 @@ const Page = () => {
                   >
                     <Link01/>
                   </IconButton>
-                  {/*<Button*/}
-                  {/*  startIcon={*/}
-                  {/*    <SvgIcon>*/}
-                  {/*      <Link01/>*/}
-                  {/*    </SvgIcon>*/}
-                  {/*  }*/}
-                  {/*  variant='text'*/}
-                  {/*>*/}
-                  {/*  Copy Link*/}
-                  {/*</Button>*/}
                 </Box>
                 <Divider/>
                 <CardContent>
                   {room ? currentTab === 'overview' && <RoomOverview room={room}/> : null}
-                  {/*{currentTab === 'reviews' && (*/}
-                  {/*  <CompanyReviews*/}
-                  {/*    reviews={company.reviews || []}*/}
-                  {/*    averageRating={company.averageRating}*/}
-                  {/*  />*/}
-                  {/*)}*/}
-                  {/*{currentTab === 'activity' && (*/}
-                  {/*  <CompanyActivity activities={company.activities || []} />*/}
-                  {/*)}*/}
                   {room ? currentTab === 'members' && <RoomMembers members={room.players}/> : null}
-                  {/*{currentTab === 'assets' && <CompanyAssets assets={company.assets || []} />}*/}
                 </CardContent>
               </Card>
             </Grid>
