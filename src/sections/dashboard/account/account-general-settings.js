@@ -95,7 +95,7 @@ export const AccountGeneralSettings = (props) => {
   function validateProfile() {
     const isNameEmpty = values.username === '';
     const isEmailEmpty = values.email === '';
-    const isInvaildPhone = !values.phone_no === '' && !/^\d{10}$/.test(values.phone_no);
+    const isInvaildPhone = !(values.phone_no === '' || /^\d{10}$/.test(values.phone_no));
     const isInvaildAge =
       !(values.age === '' || /^\d+$/.test(values.age)) ||
       parseInt(values.age) < 0 ||
@@ -188,7 +188,33 @@ export const AccountGeneralSettings = (props) => {
     } else {
       values.sports_data.push(sport);
     }
-    handleClick();
+    const sportData = {};
+    sportData.sports_data =
+      '[' + values.sports_data.map((item) => '"' + item + '"').join(', ') + ']';
+    sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', sportData).then(
+      (response) => {
+        if (response.status === 200 || response.status === 201) {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+          setSeverity('success');
+          setMessage('User profile update successfully');
+          setOpen(true);
+        } else if (response.status === 400) {
+          setSeverity('warning');
+          setMessage('Please fill in all the required fields in proper format');
+          setOpen(true);
+        } else if (response.status === 401) {
+          router.push('/401');
+        } else {
+          setSeverity('error');
+          setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
+          setOpen(true);
+        }
+      }
+    );
   };
 
   const handleAvatarDrop = useCallback(
@@ -326,7 +352,6 @@ export const AccountGeneralSettings = (props) => {
                       value={values.phone_no}
                       onChange={handleChange}
                       label="Phone Number"
-                      type="number"
                       inputProps={{ maxLength: 10 }}
                       sx={{
                         flexGrow: 1,
