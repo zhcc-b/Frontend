@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { blue, green, indigo, purple } from 'src/theme/colors';
+import { blue, green, indigo, purple, yellow } from 'src/theme/colors';
 
 export const OptionsColorPreset = (props) => {
   const { onChange, value } = props;
@@ -28,6 +28,11 @@ export const OptionsColorPreset = (props) => {
       label: 'Purple',
       value: 'purple',
       color: purple.main,
+    },
+    {
+      label: 'Yellow',
+      value: 'yellow',
+      color: yellow.main,
     },
   ];
 
