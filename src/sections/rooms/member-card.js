@@ -4,6 +4,8 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Chip from "@mui/material/Chip";
+import Link from '@mui/material/Link';
+import { RouterLink } from "../../components/router-link";
 
 export const MemberCard = (props) => {
   const { member } = props;
@@ -26,13 +28,16 @@ export const MemberCard = (props) => {
       >
         <Avatar src={member.avatar}></Avatar>
         <div>
-          <Typography variant="subtitle2">{member.username}</Typography>
-          {/*<Typography*/}
-          {/*  color="text.secondary"*/}
-          {/*  variant="body2"*/}
-          {/*>*/}
-          {/*  {member.description}*/}
-          {/*</Typography>*/}
+          <Typography variant="subtitle2">
+            <Link
+              color="text.primary"
+              component={RouterLink}
+              href={`/user-profile/${member.id}`}
+              underline="always"
+            >
+              {member.username}
+            </Link>
+          </Typography>
         </div>
       </Stack>
       {member.sports_you_can_play.length > 0 ? (

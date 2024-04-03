@@ -9,7 +9,8 @@ import Typography from '@mui/material/Typography';
 import { PropertyList } from 'src/components/property-list';
 import { PropertyListItem } from 'src/components/property-list-item';
 import {formatDateTime} from "src/utils/format-datetime";
-// import { getInitials } from 'src/utils/get-initials';
+import { RouterLink } from "../../components/router-link";
+import Link from '@mui/material/Link';
 
 const ageGroupMapping = {
   C: 'Children',
@@ -105,13 +106,16 @@ export const RoomSummary = (props) => {
             >
               <Avatar src={admin.avatar}></Avatar>
               <div>
-                <Typography variant="subtitle2">{admin.username}</Typography>
-                {/*<Typography*/}
-                {/*  color="text.secondary"*/}
-                {/*  variant="body2"*/}
-                {/*>*/}
-                {/*  {admin.description}*/}
-                {/*</Typography>*/}
+                <Typography variant="subtitle2">
+                  <Link
+                    color="text.primary"
+                    component={RouterLink}
+                    href={`/user-profile/${admin.id}`}
+                    underline="always" // Change this line
+                  >
+                    {admin.username}
+                  </Link>
+                </Typography>
               </div>
             </Stack>
           ))}
