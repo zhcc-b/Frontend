@@ -79,7 +79,6 @@ const Page = () => {
             <Typography variant="h4">Account</Typography>
 
             <AccountGeneralSettings userData={userData || null} />
-            <AccountSecuritySettings />
           </Stack>
         </Container>
       </Box>
