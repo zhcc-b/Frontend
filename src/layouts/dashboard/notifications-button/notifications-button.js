@@ -45,85 +45,13 @@ export const NotificationsButton = () => {
     if (router.isReady === false) {
       return;
     }
-    sendHttpRequest('http://localhost:8000/notifications/list/?page=1', 'GET')
-      .then((response) => {
-        if (response.status === 200 || response.status === 201) {
-          return response.data;
-        } else if (response.status === 401 || response.status === 403) {
-          router.push('/401');
-        } else if (response.status === 404) {
-          router.push('/404');
-        } else {
-          router.push('/500');
-        }
-      })
-      .then((data) => {
-        setUnread(data['unread']);
-        setNotifications(data['results']);
-        setCurrent('http://localhost:8000/notifications/list/?page=1');
-        setNext(data['next']);
-        setPrevious(data['previous']);
-      });
-  }, [router]);
-
-  const popover = usePopover();
-  const handleNextClick = () => {
-    pageNum += 1;
-    if (router.isReady === false) {
-      return;
-    }
-    sendHttpRequest(nextPage, 'GET')
-      .then((response) => {
-        if (response.status === 200 || response.status === 201) {
-          return response.data;
-        } else if (response.status === 401 || response.status === 403) {
-          router.push('/401');
-        } else if (response.status === 404) {
-          router.push('/404');
-        } else {
-          router.push('/500');
-        }
-      })
-      .then((data) => {
-        setCurrent(nextPage);
-        setNotifications(data['results']);
-        setNext(data['next']);
-        setPrevious(data['previous']);
-      });
-  };
-  const handlePreviousClick = () => {
-    pageNum -= 1;
-    if (router.isReady === false) {
-      return;
-    }
-    sendHttpRequest(previousPage, 'GET')
-      .then((response) => {
-        if (response.status === 200 || response.status === 201) {
-          return response.data;
-        } else if (response.status === 401 || response.status === 403) {
-          router.push('/401');
-        } else if (response.status === 404) {
-          router.push('/404');
-        } else {
-          router.push('/500');
-        }
-      })
-      .then((data) => {
-        setCurrent(previousPage);
-        setNotifications(data['results']);
-        setNext(data['next']);
-        setPrevious(data['previous']);
-      });
-  };
-  const handleDeleteNotification = (notificationId) => {
-    if (router.isReady === false) {
-      return;
-    }
-    sendHttpRequest(`http://localhost:8000/notifications/delete/`, 'DELETE', {
-      id: notificationId,
-    }).then((response) => {
+    sendHttpRequest('http://localhost:8000/notifications/list/?page=1', 'GET').then((response) => {
       if (response.status === 200 || response.status === 201) {
-        return response.data;
+        setUnread(response.data['unread']);
+        setNotifications(response.data['results']);
+        setCurrent('http://localhost:8000/notifications/list/?page=1');
+        setNext(response.data['next']);
+        setPrevious(response.data['previous']);
       } else if (response.status === 401 || response.status === 403) {
         router.push('/401');
       } else if (response.status === 404) {
@@ -132,23 +60,48 @@ export const NotificationsButton = () => {
         router.push('/500');
       }
     });
-    sendHttpRequest(currentPage, 'GET')
-      .then((response) => {
-        if (response.status === 200 || response.status === 201) {
-          return response.data;
-        } else if (response.status === 401 || response.status === 403) {
-          router.push('/401');
-        } else if (response.status === 404) {
-          router.push('/404');
-        } else {
-          router.push('/500');
-        }
-      })
-      .then((data) => {
-        setNotifications(data['results']);
-        setNext(data['next']);
-        setPrevious(data['previous']);
-      });
+  }, [router]);
+
+  const popover = usePopover();
+  const handleNextClick = () => {
+    pageNum += 1;
+    if (router.isReady === false) {
+      return;
+    }
+    sendHttpRequest(nextPage, 'GET').then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        setCurrent(nextPage);
+        setNotifications(response.data['results']);
+        setNext(response.data['next']);
+        setPrevious(response.data['previous']);
+      } else if (response.status === 401 || response.status === 403) {
+        router.push('/401');
+      } else if (response.status === 404) {
+        router.push('/404');
+      } else {
+        router.push('/500');
+      }
+    });
+  };
+  const handlePreviousClick = () => {
+    pageNum -= 1;
+    if (router.isReady === false) {
+      return;
+    }
+    sendHttpRequest(previousPage, 'GET').then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        setCurrent(previousPage);
+        setNotifications(response.data['results']);
+        setNext(response.data['next']);
+        setPrevious(response.data['previous']);
+      } else if (response.status === 401 || response.status === 403) {
+        router.push('/401');
+      } else if (response.status === 404) {
+        router.push('/404');
+      } else {
+        router.push('/500');
+      }
+    });
   };
 
   const handleReadNotification = (notification) => {
@@ -160,7 +113,18 @@ export const NotificationsButton = () => {
         id: notification.id,
       }).then((response) => {
         if (response.status === 200 || response.status === 201) {
-          return response.data;
+          sendHttpRequest(currentPage, 'GET').then((response) => {
+            if (response.status === 200 || response.status === 201) {
+              setUnread(response.data['unread']);
+              setNotifications(response.data['results']);
+            } else if (response.status === 401 || response.status === 403) {
+              router.push('/401');
+            } else if (response.status === 404) {
+              router.push('/404');
+            } else {
+              router.push('/500');
+            }
+          });
         } else if (response.status === 401 || response.status === 403) {
           router.push('/401');
         } else if (response.status === 404) {
@@ -169,25 +133,6 @@ export const NotificationsButton = () => {
           router.push('/500');
         }
       });
-      sendHttpRequest('http://localhost:8000/notifications/list/?page=1', 'GET')
-        .then((response) => {
-          if (response.status === 200 || response.status === 201) {
-            return response.data;
-          } else if (response.status === 401 || response.status === 403) {
-            router.push('/401');
-          } else if (response.status === 404) {
-            router.push('/404');
-          } else {
-            router.push('/500');
-          }
-        })
-        .then((data) => {
-          setUnread(data['unread']);
-          setNotifications(data['results']);
-          setCurrent('http://localhost:8000/notifications/list/?page=1');
-          setNext(data['next']);
-          setPrevious(data['previous']);
-        });
     }
   };
   const isEmpty = pageNum === 1 && notifications.length === 0;
@@ -297,7 +242,7 @@ export const NotificationsButton = () => {
                           variant="body2"
                           width="100%"
                         >
-                          {notification.description}
+                          The event details have been edited.
                         </Typography>
                       </Box>
                     }

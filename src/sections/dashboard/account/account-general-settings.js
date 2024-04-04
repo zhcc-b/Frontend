@@ -26,7 +26,63 @@ export const AccountGeneralSettings = (props) => {
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('');
+
+  const mockPassword = '123456789#';
+  const [password, setPassword] = useState(mockPassword);
+  const passwordData = { password: password, sports_data: '' };
+  const [errorMessage, setErrorMessage] = useState({ error: false, message: '' });
+  const [changed, setChanged] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+    setChanged(true);
+  };
+  function handlePasswordClick() {
+    setLoading(true);
+    passwordData.sports_data =
+      '[' + values.sports_data.map((item) => '"' + item + '"').join(', ') + ']';
+    sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', passwordData).then(
+      (response) => {
+        if (response.status === 200 || response.status === 201) {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+          setSeverity('success');
+          setMessage('User data updated successfully');
+          setOpen(true);
+        } else if (response.status === 400) {
+          setErrorMessage({ error: true, message: response.data.password });
+          setSeverity('warning');
+          setMessage('Please fill in all the required fields');
+          setOpen(true);
+        } else {
+          setSeverity('error');
+          setMessage('An unexpected error occurred: ' + response.data);
+          setOpen(true);
+        }
+      }
+    );
+
+    setLoading(false);
+  }
+  const handleEditClick = () => {
+    // Enable editing
+    setIsEditing(true);
+    setPassword('');
+  };
+  const handleSaveClick = () => {
+    // Enable editing
+    setIsEditing(false);
+    if (changed) {
+      setChanged(false);
+      handlePasswordClick();
+      setPassword(mockPassword);
+    }
+  };
 
   const [values, setValues] = useState({
     avatar_data: null,
@@ -182,39 +238,47 @@ export const AccountGeneralSettings = (props) => {
     setLoading(false);
   }
 
+  function handleSportClick() {
+    setLoading(true);
+    if (validateProfile()) {
+      const sports_string =
+        '[' + values.sports_data.map((item) => '"' + item + '"').join(', ') + ']';
+      const copyData = { sports_data: sports_string };
+      sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', copyData).then(
+        (response) => {
+          if (response.status === 200 || response.status === 201) {
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+            });
+            setSeverity('success');
+            setMessage('User profile update successfully');
+            setOpen(true);
+          } else if (response.status === 400) {
+            setSeverity('warning');
+            setMessage('Please fill in all the required fields in proper format');
+            setOpen(true);
+          } else if (response.status === 401) {
+            router.push('/401');
+          } else {
+            setSeverity('error');
+            setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
+            setOpen(true);
+          }
+        }
+      );
+    }
+    setLoading(false);
+  }
+
   const onSportsChange = (sport) => {
     if (values.sports_data.includes(sport)) {
       values.sports_data.splice(values.sports_data.indexOf(sport), 1);
     } else {
       values.sports_data.push(sport);
     }
-    const sportData = {};
-    sportData.sports_data =
-      '[' + values.sports_data.map((item) => '"' + item + '"').join(', ') + ']';
-    sendHttpRequest('http://localhost:8000/accounts/editprofile/', 'PATCH', sportData).then(
-      (response) => {
-        if (response.status === 200 || response.status === 201) {
-          confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 },
-          });
-          setSeverity('success');
-          setMessage('User profile update successfully');
-          setOpen(true);
-        } else if (response.status === 400) {
-          setSeverity('warning');
-          setMessage('Please fill in all the required fields in proper format');
-          setOpen(true);
-        } else if (response.status === 401) {
-          router.push('/401');
-        } else {
-          setSeverity('error');
-          setMessage('An unexpected error occurred: ' + JSON.stringify(response.data));
-          setOpen(true);
-        }
-      }
-    );
+    handleSportClick();
   };
 
   const handleAvatarDrop = useCallback(
@@ -561,6 +625,74 @@ export const AccountGeneralSettings = (props) => {
           </Grid>
         </CardContent>
       </Card> */}
+      <Card>
+        <CardContent>
+          <Grid
+            container
+            spacing={3}
+          >
+            <Grid
+              xs={12}
+              md={4}
+            >
+              <Typography variant="h6">Change password</Typography>
+            </Grid>
+            <Grid
+              xs={12}
+              sm={12}
+              md={8}
+            >
+              <Stack
+                alignItems="center"
+                direction="row"
+                spacing={3}
+              >
+                <FormControl fullWidth>
+                  <TextField
+                    id="password"
+                    name="password"
+                    disabled={!isEditing}
+                    label="Password"
+                    type={!isEditing ? 'password' : 'text'}
+                    value={password}
+                    error={errorMessage.error}
+                    onChange={handlePasswordChange}
+                    sx={{
+                      flexGrow: 1,
+                      ...(!isEditing && {
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderStyle: 'dotted',
+                        },
+                      }),
+                    }}
+                  />
+                  {errorMessage.error && (
+                    <FormHelperText error>{errorMessage.message}</FormHelperText>
+                  )}
+                </FormControl>
+
+                {isEditing ? (
+                  <Button
+                    color="inherit"
+                    size="small"
+                    onClick={handleSaveClick}
+                  >
+                    Save
+                  </Button>
+                ) : (
+                  <Button
+                    color="inherit"
+                    size="small"
+                    onClick={handleEditClick}
+                  >
+                    Edit
+                  </Button>
+                )}
+              </Stack>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
     </Stack>
   );
 };
